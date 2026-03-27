@@ -1,0 +1,301 @@
+# PostgreSQL Basics
+
+This repository contains basic PostgreSQL SQL scripts demonstrating various database operations including table creation, data manipulation, constraints, and joins.
+
+## Connecting to PostgreSQL
+
+To connect to a PostgreSQL database using the command line, use the `psql` command:
+
+```bash
+psql -U username -d database_name
+```
+
+Replace `username` with your PostgreSQL username and `database_name` with the target database.
+
+## Common psql Meta-Commands
+
+These are commands used within the psql interactive terminal to inspect and manage the database.
+
+### \l - List All Databases
+
+Lists all databases in the PostgreSQL cluster along with their owners and access privileges.
+
+**Command:**
+```sql
+\l
+```
+
+**Example Output:**
+```
+                              List of databases
+   Name    |  Owner   | Encoding | Collate | Ctype |   Access privileges   
+-----------+----------+----------+---------+-------+------------------------
+ postgres  | postgres | UTF8     | C       | C     | 
+ template0 | postgres | UTF8     | C       | C     | =c/postgres          +
+           |          |          |         |       | postgres=CTc/postgres
+ template1 | postgres | UTF8     | C       | C     | =c/postgres          +
+           |          |          |         |       | postgres=CTc/postgres
+ mydb      | user     | UTF8     | C       | C     | 
+(4 rows)
+```
+
+### \d tablename - Describe a Table
+
+Shows the structure of a specific table, including column names, data types, and constraints.
+
+**Command:**
+```sql
+\d person
+```
+
+**Example Output:**
+```
+                                      Table "public.person"
+ Column |          Type          | Collation | Nullable |              Default               
+--------+------------------------+-----------+----------+------------------------------------
+ id     | integer                |           |          | 
+ fname  | character varying(150) |           | not null | 'unknown'::character varying
+ city   | character varying(100) |           |          | 
+ mob    | character varying(15)  |           |          | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+Check constraints:
+    "mob_no_less_than_10" CHECK (length(mob::text) >= 10)
+```
+
+### \d+ - Describe with Extended Details
+
+Provides detailed information about all tables in the current database, including indexes, constraints, and storage information.
+
+**Command:**
+```sql
+\d+
+```
+
+**Example Output:**
+```
+                                      Table "public.customers"
+ Column   |          Type          | Collation | Nullable |             Default              
+-----------+------------------------+-----------+----------+---------------------------------
+ cust_id   | integer                |           | not null | nextval('customers_cust_id_seq'::regclass)
+ cust_name | character varying(100) |           | not null | 
+Indexes:
+    "customers_pkey" PRIMARY KEY, btree (cust_id)
+Referenced by:
+    TABLE "orders" CONSTRAINT "orders_cust_id_fkey" FOREIGN KEY (cust_id) REFERENCES customers(cust_id)
+
+                                      Table "public.orders"
+ Column  |         Type          | Collation | Nullable |            Default             
+---------+-----------------------+-----------+----------+-------------------------------
+ ord_id  | integer               |           | not null | nextval('orders_ord_id_seq'::regclass)
+ ord_date| date                  |           | not null | 
+ price   | numeric               |           | not null | 
+ cust_id | integer               |           | not null | 
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (ord_id)
+Foreign-key constraints:
+    "orders_cust_id_fkey" FOREIGN KEY (cust_id) REFERENCES customers(cust_id)
+
+                                      Table "public.person"
+ Column |          Type          | Collation | Nullable |              Default               
+--------+------------------------+-----------+----------+------------------------------------
+ id     | integer                |           |          | 
+ fname  | character varying(150) |           | not null | 'unknown'::character varying
+ city   | character varying(100) |           |          | 
+ mob    | character varying(15)  |           |          | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+Check constraints:
+    "mob_no_less_than_10" CHECK (length(mob::text) >= 10)
+```
+
+### \dt+ - List Tables with Details
+
+Lists all tables in the current database along with their schema, owner, size, and description.
+
+**Command:**
+```sql
+\dt+
+```
+
+**Example Output:**
+```
+                          List of relations
+ Schema |     Name      | Type  |  Owner   |    Size    | Description 
+--------+----------------+-------+----------+------------+-------------
+ public | customers     | table | postgres | 8192 bytes | 
+ public | orders        | table | postgres | 8192 bytes | 
+ public | person        | table | postgres | 16 kB      | 
+(3 rows)
+```
+
+## SQL Scripts in this Repository
+
+This section provides detailed explanations of the tables created and queries demonstrated in each SQL file.
+
+### Basic.sql
+
+This script demonstrates fundamental table operations and data manipulation.
+
+**Tables Created:**
+- `person`: A basic table with columns `id` (INT), `name` (VARCHAR(100)), `city` (VARCHAR(100)). Later modified to include additional constraints and columns.
+
+**Key Queries and Operations:**
+
+1. **Database Listing:**
+   ```sql
+   SELECT datname FROM pg_database;
+   ```
+   Retrieves the names of all databases in the PostgreSQL cluster.
+
+2. **Basic CRUD Operations:**
+   - `SELECT * FROM person;`: Displays all records in the person table.
+   - `INSERT INTO person VALUES(103,'Akshit','Delhi');`: Adds a new record.
+   - `UPDATE person SET city='Banglour' WHERE id=103;`: Modifies existing data.
+   - `DELETE FROM person WHERE id=103;`: Removes a record.
+
+3. **Table Alterations:**
+   - `ALTER TABLE person ADD COLUMN age INT;`: Adds a new column.
+   - `ALTER TABLE person DROP COLUMN age;`: Removes a column.
+   - `ALTER TABLE person RENAME COLUMN name TO fname;`: Renames a column.
+   - `ALTER TABLE person RENAME TO perondata;`: Renames the table (note: later operations still use 'person', so this might be for demonstration).
+   - `ALTER TABLE person ALTER COLUMN fname SET DATA TYPE VARCHAR(150);`: Changes column data type.
+   - `ALTER TABLE person ALTER COLUMN fname SET DEFAULT 'unknown';`: Sets a default value.
+   - `ALTER TABLE person ALTER COLUMN fname SET NOT NULL;`: Adds NOT NULL constraint.
+   - `ALTER TABLE person ALTER COLUMN fname DROP DEFAULT;`: Removes default value.
+   - `ALTER TABLE person ADD COLUMN mob VARCHAR(15) CHECK (LENGTH(mob)>=10);`: Adds column with check constraint.
+   - `ALTER TABLE person DROP CONSTRAINT person_mob_check;`: Removes constraint.
+   - `ALTER TABLE person ADD CONSTRAINT mob_no_less_than_10 CHECK (LENGTH(mob)>=10);`: Adds named constraint.
+
+4. **Conditional Logic:**
+   ```sql
+   SELECT fname, salary, CASE WHEN salary >= 50000 THEN 'High' ELSE 'Low' END AS sal_cat FROM employees;
+   ```
+   Demonstrates CASE statements for conditional output (assumes employees table exists from ClauseOperation.sql).
+
+### ClauseOperation.sql
+
+This script creates a comprehensive employee database and demonstrates various SQL clauses, functions, and operations.
+
+**Database and Tables Created:**
+- Database: `bankdb`
+- Table: `employees` with columns:
+  - `emp_id` (SERIAL PRIMARY KEY): Auto-incrementing ID
+  - `fname` (VARCHAR(50) NOT NULL): First name
+  - `lname` (VARCHAR(50) NOT NULL): Last name
+  - `email` (VARCHAR(100) NOT NULL UNIQUE): Email address
+  - `dept` (VARCHAR(50)): Department
+  - `salary` (DECIMAL(10,2) DEFAULT 30000.00): Salary
+  - `hire_date` (DATE NOT NULL DEFAULT CURRENT_DATE): Hire date
+
+**Key Queries and Operations:**
+
+1. **Database and Table Setup:**
+   - Creates the bankdb database and employees table with sample data (10 employees across different departments).
+
+2. **Filtering Queries (WHERE clause):**
+   - `SELECT * FROM employees WHERE emp_id=1;`: Exact match
+   - `SELECT * FROM employees WHERE salary >= 50000;`: Greater than or equal
+   - `SELECT * FROM employees WHERE dept='HR';`: String equality
+   - `SELECT * FROM employees WHERE dept='HR' OR dept='Finance';`: OR condition
+   - `SELECT * FROM employees WHERE dept='IT' AND salary>=50000;`: AND condition
+   - `SELECT * FROM employees WHERE dept NOT IN ('IT','HR');`: NOT IN
+   - `SELECT * FROM employees WHERE dept IN ('IT','HR');`: IN
+   - `SELECT * FROM employees WHERE salary BETWEEN 50000 AND 60000;`: Range query
+
+3. **Distinct and Ordering:**
+   - `SELECT DISTINCT dept FROM employees;`: Unique department names
+   - `SELECT * FROM employees ORDER BY fname;`: Sort by first name ascending
+   - `SELECT * FROM employees ORDER BY fname DESC;`: Sort descending
+   - `SELECT * FROM employees LIMIT 3;`: Limit results to 3 rows
+
+4. **Pattern Matching (LIKE):**
+   - `SELECT * FROM employees WHERE fname LIKE 'A%';`: Names starting with 'A'
+   - `SELECT * FROM employees WHERE fname LIKE '%a';`: Names ending with 'a'
+   - `SELECT * FROM employees WHERE fname LIKE '%i%';`: Names containing 'i'
+   - `SELECT * FROM employees WHERE dept LIKE '__';`: Departments with exactly 2 characters
+   - `SELECT * FROM employees WHERE fname LIKE '_a%';`: Second character is 'a'
+
+5. **Aggregate Functions:**
+   - `SELECT COUNT(emp_id) FROM employees;`: Total number of employees
+   - `SELECT SUM(salary) FROM employees;`: Total salary
+   - `SELECT AVG(salary) FROM employees;`: Average salary
+   - `SELECT MAX(salary) FROM employees;`: Highest salary
+   - `SELECT MIN(salary) FROM employees;`: Lowest salary
+
+6. **GROUP BY Operations:**
+   - `SELECT dept FROM employees GROUP BY dept;`: Group by department
+   - `SELECT dept, COUNT(fname) FROM employees GROUP BY dept;`: Count employees per department
+   - `SELECT dept, SUM(salary) FROM employees GROUP BY dept;`: Total salary per department
+   - `SELECT dept, MAX(salary) FROM employees GROUP BY dept;`: Highest salary per department
+
+7. **String Functions:**
+   - `SELECT CONCAT(fname, lname) FROM employees;`: Concatenate first and last names
+   - `SELECT CONCAT_WS(' ', fname, lname) AS FullName FROM employees;`: Concatenate with separator
+   - `SELECT REPLACE(dept, 'IT', 'TECH') FROM employees;`: Replace text
+   - `SELECT LENGTH(fname) FROM employees;`: String length
+   - `SELECT UPPER(fname) FROM employees;`: Convert to uppercase
+   - `SELECT LEFT('Hello', 2);`: Left substring
+   - `SELECT RIGHT('Hello', 2);`: Right substring
+   - `SELECT TRIM('   alright!   ');`: Remove whitespace
+   - `SELECT POSITION('om' IN 'Thomas');`: Find substring position
+
+8. **Advanced Queries:**
+   - Finding the highest paid employee using ORDER BY LIMIT and subquery
+   - Complex concatenations with multiple functions
+
+### foreign key.sql
+
+This script demonstrates foreign key relationships and various join operations.
+
+**Tables Created:**
+- `customers`: 
+  - `cust_id` (SERIAL PRIMARY KEY): Auto-incrementing customer ID
+  - `cust_name` (VARCHAR(100) NOT NULL): Customer name
+- `orders`:
+  - `ord_id` (SERIAL PRIMARY KEY): Auto-incrementing order ID
+  - `ord_date` (DATE NOT NULL): Order date
+  - `price` (NUMERIC NOT NULL): Order price
+  - `cust_id` (INTEGER NOT NULL): Foreign key referencing customers.cust_id
+
+**Key Queries and Operations:**
+
+1. **Table Creation with Relationships:**
+   - Creates customers table with sample data (4 customers: Raju, Sham, Paul, Alex)
+   - Creates orders table with foreign key constraint linking to customers
+
+2. **Data Insertion:**
+   - Inserts customer records
+   - Inserts order records with references to customer IDs
+
+3. **Basic Selects:**
+   - `SELECT * FROM customers;`: Display all customers
+   - `SELECT * FROM orders;`: Display all orders
+
+4. **Join Operations:**
+   - `SELECT * FROM customers CROSS JOIN orders;`: Cartesian product (all combinations)
+   - `SELECT * FROM customers c INNER JOIN orders o ON c.cust_id=o.cust_id;`: Inner join (matching records only)
+   - `SELECT * FROM customers c LEFT JOIN orders o ON c.cust_id=o.cust_id;`: Left join (all customers, matching orders)
+   - `SELECT * FROM customers c RIGHT JOIN orders o ON c.cust_id=o.cust_id;`: Right join (all orders, matching customers)
+
+5. **Aggregations with Joins:**
+   - `SELECT c.cust_name, COUNT(o.ord_id) FROM customers c INNER JOIN orders o ON c.cust_id=o.cust_id GROUP BY cust_name;`: Count orders per customer
+   - `SELECT c.cust_name, SUM(o.price) FROM customers c INNER JOIN orders o ON c.cust_id=o.cust_id GROUP BY cust_name;`: Total order value per customer
+
+## Running the Scripts
+
+To execute these SQL scripts against your PostgreSQL database:
+
+```bash
+psql -U username -d database_name -f Basic.sql
+psql -U username -d database_name -f ClauseOperation.sql
+psql -U username -d database_name -f foreign\ key.sql
+```
+
+Note: Make sure to handle the space in "foreign key.sql" by escaping it or using quotes.
+
+## Prerequisites
+
+- PostgreSQL installed and running
+- Access to a PostgreSQL user with appropriate permissions
+- psql command-line tool available
