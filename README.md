@@ -282,6 +282,66 @@ This script demonstrates foreign key relationships and various join operations.
    - `SELECT c.cust_name, COUNT(o.ord_id) FROM customers c INNER JOIN orders o ON c.cust_id=o.cust_id GROUP BY cust_name;`: Count orders per customer
    - `SELECT c.cust_name, SUM(o.price) FROM customers c INNER JOIN orders o ON c.cust_id=o.cust_id GROUP BY cust_name;`: Total order value per customer
 
+### ManyToMany.sql (students ↔ courses via enrollment)
+- Tables:
+  - `students` (`s_id`, `name`)
+  - `courses` (`c_id`, `name`, `fee`)
+  - `enrollment` (`enrollment_id`, `s_id`, `c_id`, `enrollment_date`)
+- Note: fix the foreign key line in `enrollment` if needed:
+  - `FOREIGN KEY (c_id) REFERENCES courses(c_id)`
+
+Query:
+```sql
+SELECT e.enrollment_id,
+       s.name AS student_name,
+       c.name AS course_name,
+       c.fee,
+       e.enrollment_date
+FROM enrollment e
+JOIN students s ON e.s_id = s.s_id
+JOIN courses c ON e.c_id = c.c_id;
+```
+
+Output example:
+- Raju, Maths, 500.00, 2024-01-01
+- Raju, Physics, 600.00, 2024-01-15
+- Sham, Maths, 500.00, 2024-02-01
+- Sham, Chemistry, 700.00, 2024-02-15
+- Alex, Chemistry, 700.00, 2024-03-25
+
+### Project.sql (customers, orders, products, order_items, revenue per order)
+- Tables:
+  - `customers` (`cust_id`, `cust_name`)
+  - `orders` (`ord_id`, `ord_date`, `cust_id`)
+  - `products` (`p_id`, `p_name`, `price`)
+  - `order_items` (`item_id`, `ord_id`, `p_id`, `quantity`)
+- Foreign keys:
+  - `orders.cust_id` → `customers.cust_id`
+  - `order_items.ord_id` → `orders.ord_id`
+  - `order_items.p_id` → `products.p_id`
+
+Query:
+```sql
+SELECT c.cust_name,
+       o.ord_date,
+       p.p_name,
+       p.price,
+       oi.quantity,
+       (oi.quantity * p.price) AS total_price
+FROM order_items oi
+JOIN orders o ON oi.ord_id = o.ord_id
+JOIN products p ON oi.p_id = p.p_id
+JOIN customers c ON o.cust_id = c.cust_id;
+```
+
+Output example:
+- Raju, 2024-01-01, Laptop, 55000.00, 1, 55000.00
+- Raju, 2024-01-01, Cable, 250.00, 2, 500.00
+- Sham, 2024-02-01, Laptop, 55000.00, 1, 55000.00
+- Paul, 2024-03-01, Mouse, 500.00, 1, 500.00
+- Paul, 2024-03-01, Cable, 250.00, 5, 1250.00
+- Alex, 2024-04-04, Keyboard, 800.00, 1, 800.00
+
 ## Running the Scripts
 
 To execute these SQL scripts against your PostgreSQL database:
