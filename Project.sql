@@ -74,3 +74,25 @@ JOIN orders o ON oi.ord_id=o.ord_id
 JOIN products p ON oi.p_id=p.p_id
 JOIN customers c ON o.cust_id=c.cust_id;
 
+
+CREATE VIEW billing_info AS
+SELECT 
+	c.cust_name,
+	o.ord_date,
+	p.p_name,
+	p.price,
+	oi.quantity,
+	(oi.quantity*p.price) AS total_price 
+	FROM 
+	order_items oi 
+JOIN orders o ON oi.ord_id=o.ord_id 
+JOIN products p ON oi.p_id=p.p_id
+JOIN customers c ON o.cust_id=c.cust_id;
+
+
+SELECT * FROM billing_info;
+
+SELECT p_name, SUM(total_price) FROM billing_info  GROUP BY p_name;
+SELECT p_name, SUM(total_price) FROM billing_info  GROUP BY p_name HAVING SUM(total_price)>1500;
+SELECT p_name, SUM(total_price) FROM billing_info  GROUP BY ROLLUP(p_name)
+SELECT p_name, SUM(total_price) FROM billing_info  GROUP BY ROLLUP(p_name) ORDER BY SUM(total_price);

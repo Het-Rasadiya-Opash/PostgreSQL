@@ -342,6 +342,97 @@ Output example:
 - Paul, 2024-03-01, Cable, 250.00, 5, 1250.00
 - Alex, 2024-04-04, Keyboard, 800.00, 1, 800.00
 
+## Project.sql: Data Output + EXPLAIN
+
+### `customers`
+- (1, Raju)
+- (2, Sham)
+- (3, Paul)
+- (4, Alex)
+
+### `orders`
+- (1, 2024-01-01, 1)
+- (2, 2024-02-01, 2)
+- (3, 2024-03-01, 3)
+- (4, 2024-04-04, 2)
+
+### `products`
+- (1, Laptop, 55000.00)
+- (2, Mouse, 500)
+- (3, Keyboard, 800.00)
+- (4, Cable, 250.00)
+
+### `order_items`
+- (1, 1, 1, 1)
+- (2, 1, 4, 2)
+- (3, 2, 1, 1)
+- (4, 3, 2, 1)
+- (5, 3, 4, 5)
+- (6, 4, 3, 1)
+
+### Billing query output (from view/join)
+| cust_name | ord_date    | p_name   | price   | quantity | total_price |
+|-----------|-------------|----------|---------|----------|-------------|
+| Raju      | 2024-01-01  | Laptop   | 55000.00| 1        | 55000.00    |
+| Raju      | 2024-01-01  | Cable    | 250.00  | 2        | 500.00      |
+| Sham      | 2024-02-01  | Laptop   | 55000.00| 1        | 55000.00    |
+| Paul      | 2024-03-01  | Mouse    | 500.00  | 1        | 500.00      |
+| Paul      | 2024-03-01  | Cable    | 250.00  | 5        | 1250.00     |
+| Alex      | 2024-04-04  | Keyboard | 800.00  | 1        | 800.00      |
+
+### Aggregation outputs
+- `SUM(total_price)` by `p_name`:
+  - Cable: 1750.00
+  - Keyboard: 800.00
+  - Laptop: 110000.00
+  - Mouse: 500.00
+- `HAVING SUM(total_price) > 1500`:
+  - Cable, Laptop
+- `ROLLUP(p_name)` adds grand total row: NULL -> 113050.00
+
+### EXPLAIN (plan / concept)
+- Base: sequential scan on `order_items`.
+- Join `orders` on `oi.ord_id = orders.ord_id` (hash join in default Postgres for small tables).
+- Join `products` on `oi.p_id = products.p_id`.
+- Join `customers` on `orders.cust_id = customers.cust_id`.
+- Compute `total_price` as `oi.quantity * p.price` to project final output.
+- For group by queries, group aggregate by `p_name`, then optional `HAVING` or `ROLLUP`.
+
+## advance.sql (procedures + function)
+
+### `update_emp_salary` procedure
+- Input: `p_employee_id` INT, `p_new_salary` NUMERIC
+- Behavior: Updates `employees.salary` for matching `emp_id`.
+- Sample call:
+  - `CALL update_emp_salary(3, 70000);`
+- Result: employee 3 salary becomes `70000` (assumes `employees` table exists and id 3 exists).
+
+### `add_employee` procedure
+- Input: `p_fname`, `p_lname`, `p_email`, `p_dept`, `p_salary`.
+- Behavior: Inserts new employee into `employees`.
+- Sample call (not in file but can run):
+  - `CALL add_employee('Nina','Patel','nina@example.com','IT',65000);`
+- Result: new row added to `employees`.
+
+### `dept_max_sal_emp1` function
+- Input: `dept_name` VARCHAR
+- Returns: table with `(emp_id, fname, salary)`.
+- Behavior: returns employee(s) with max salary in department.
+- Sample query:
+  - `SELECT * FROM dept_max_sal_emp1('IT');`
+- Output example: row for employee with max salary in IT (from current data).
+
+### Window function samples (in advance.sql)
+- `SELECT fname, SUM(salary) OVER() FROM empployees;`  -- typo `empployees` should be `employees`
+- `SELECT fname, SUM(salary) OVER(ORDER BY salary) FROM employees;`
+- `SELECT fname, AVG(salary) OVER(ORDER BY salary) FROM employees;`
+
+### Implementation notes
+- `update_emp_salary` & `add_employee` are PL/pgSQL procedures using `LANGUAGE plpgsql`.
+- `dept_max_sal_emp1` uses `RETURN QUERY` + correlated subquery.
+- `UPDATE`, `INSERT`, and `SELECT` behavior assumes `employees` data state.
+- `execute` is not used; the logic is declarative and safe when parameters are validated.
+
 ## Running the Scripts
 
 To execute these SQL scripts against your PostgreSQL database:
@@ -359,3 +450,46 @@ Note: Make sure to handle the space in "foreign key.sql" by escaping it or using
 - PostgreSQL installed and running
 - Access to a PostgreSQL user with appropriate permissions
 - psql command-line tool available
+
+## Additional: describe, query, relationships, \dt, \dv
+
+### Describe a table (`\d`)
+- Use `\d table_name` in `psql` to inspect columns, data types, constraints, indexes, and defaults.
+- For example, `\d customers` shows:
+  - `cust_id SERIAL PRIMARY KEY`
+  - `cust_name VARCHAR(100) NOT NULL`
+
+### Describe all tables (`\dt`)
+- `\dt` lists tables in the current schema, such as `customers`, `orders`, `products`, `order_items`.
+- `\dt+` adds size and description details.
+
+### Describe all views (`\dv`)
+- `\dv` lists views in the current schema, including `billing_info`.
+
+### Table relationships from Project.sql
+- `customers` (cust_id PK)
+- `orders` (ord_id PK, cust_id FK → customers(cust_id))
+- `products` (p_id PK)
+- `order_items` (item_id PK, ord_id FK → orders(ord_id), p_id FK → products(p_id))
+- Relationship model:
+  - 1 customer → N orders
+  - 1 order → N order_items
+  - 1 product → N order_items
+
+### Query overview (Project.sql)
+```sql
+SELECT c.cust_name,
+       o.ord_date,
+       p.p_name,
+       p.price,
+       oi.quantity,
+       (oi.quantity * p.price) AS total_price
+FROM order_items oi
+JOIN orders o ON oi.ord_id = o.ord_id
+JOIN products p ON oi.p_id = p.p_id
+JOIN customers c ON o.cust_id = c.cust_id;
+```
+- Starts with `order_items` as the line-item anchor.
+- Joins to `orders`, `products`, `customers` by foreign keys.
+- Calculates row-level `total_price` as `quantity * price`.
+- Returns full billing details per item row.
