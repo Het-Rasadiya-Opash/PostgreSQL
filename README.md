@@ -398,6 +398,76 @@ Output example:
 - Compute `total_price` as `oi.quantity * p.price` to project final output.
 - For group by queries, group aggregate by `p_name`, then optional `HAVING` or `ROLLUP`.
 
+## advance.sql
+This script demonstrates stored procedures, functions, window functions, CTEs, and triggers on the `employees` table (plus a foreign key example).
+
+### Stored procedures
+- `update_emp_salary(p_employee_id INT, p_new_salary NUMERIC)`: updates the employee salary by ID.
+  - `CALL update_emp_salary(3, 70000);` sets `employees.salary=70000` for `emp_id=3`.
+  - `CALL update_emp_salary(1, -56000);` (before trigger) attempts a negative salary.
+- `add_employee(p_fname, p_lname, p_email, p_dept, p_salary)`: inserts a new employee row.
+
+### Function
+- `dept_max_sal_emp1(dept_name VARCHAR) RETURNS TABLE(emp_id INT, fname VARCHAR, salary NUMERIC)`: returns employee(s) with max salary in a department.
+  - Query: `SELECT * FROM dept_max_sal_emp1('IT');`
+  - Output shape: `emp_id | fname | salary` for the top-paid IT employee(s).
+
+### Window function examples
+- `SELECT fname, SUM(salary) OVER() FROM employees;` total salary repeated for each row.
+- `SELECT fname, SUM(salary) OVER(ORDER BY salary) FROM employees;` running total ordered by salary.
+- `SELECT fname, AVG(salary) OVER(ORDER BY salary) FROM employees;` running average ordered by salary.
+- `SELECT ROW_NUMBER() OVER(ORDER BY fname), fname, dept, salary FROM employees;` row numbers by name.
+- `SELECT ROW_NUMBER() OVER(PARTITION BY dept), fname, dept, salary FROM employees;` row numbers reset per dept.
+- `SELECT fname,salary, RANK() OVER(ORDER BY salary) FROM employees;` rank (ties allowed) ascending.
+- `SELECT fname,salary, RANK() OVER(ORDER BY salary DESC) FROM employees;` rank descending.
+- `SELECT fname,salary, DENSE_RANK() OVER(ORDER BY salary DESC) FROM employees;` dense rank descending.
+- `SELECT fname,salary, LAG(salary) OVER() FROM employees;` previous salary row.
+- `SELECT fname,salary, LEAD(salary) OVER() FROM employees;` next salary row.
+- `SELECT fname,salary, LEAD(salary) OVER(ORDER BY salary DESC) FROM employees;` next in descending salary.
+- `SELECT fname,salary, (salary - LEAD(salary) OVER(ORDER BY salary DESC)) AS Salary_Diff FROM employees;` difference to next higher salary.
+
+### CTE examples
+- Per-department average salary and filtering above average:
+  - Query:
+    ```sql
+    WITH AvgSal AS (
+      SELECT dept, AVG(salary) AS avg_salary FROM employees GROUP BY dept
+    )
+    SELECT e.emp_id, e.fname, e.dept, e.salary, a.avg_salary
+    FROM employees e
+    JOIN AvgSal a ON e.dept = a.dept
+    WHERE e.salary > a.avg_salary;
+    ```
+  - Output shape: `emp_id | fname | dept | salary | avg_salary`, employees paid above their dept average.
+
+- Highest paid per department using CTE:
+  - Query:
+    ```sql
+    WITH HighestPaid AS (
+      SELECT dept, MAX(salary) AS max_salary FROM employees GROUP BY dept
+    )
+    SELECT e.emp_id, e.fname, e.lname, e.dept, e.salary
+    FROM employees e
+    JOIN HighestPaid h ON e.dept = h.dept AND e.salary = h.max_salary;
+    ```
+  - Output shape: `emp_id | fname | lname | dept | salary`, top earners per dept.
+
+### Trigger
+- `check_salary()` trigger (BEFORE UPDATE ON employees) sets negative salary values to 0 by adjusting `NEW.salary`.
+- After `CALL update_emp_salary(1,-56000);`, the final salary for `emp_id=1` becomes `0` (not negative).
+
+### Foreign key example
+- `CREATE TABLE orders (FOREIGN KEY (cust_id) REFERENCES customers(cust_id) ON DELETE CASCADE);`
+  - Ensures order rows delete when the referenced customer is removed.
+
+### Expected outputs (sample data dependent)
+- `SELECT * FROM employees;`: all rows, including updated salary for `emp_id=3` and possibly 0 for `emp_id=1`.
+- `SELECT * FROM dept_max_sal_emp1('IT');`: row(s) with highest IT salary.
+- window: cumulative sums and ranks by salary / name using above queries.
+- CTEs: departmental aggregates and filtered top/above-average employees.
+- trigger call set to 0 for negative update attempt.
+
+
 ## advance.sql (procedures + function)
 
 ### `update_emp_salary` procedure
