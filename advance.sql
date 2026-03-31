@@ -14,8 +14,6 @@ $$;
 CALL update_emp_salary(3,70000);
 
 
-
-
 CREATE OR REPLACE PROCEDURE add_employee(
     p_fname VARCHAR,
     p_lname VARCHAR,
@@ -30,6 +28,10 @@ BEGIN
     VALUES (p_fname, p_lname, p_email, p_dept, p_salary);
 END;
 $$;
+
+CALL add_employee('John', 'Doe', 'john.doe@example.com', 'IT', 60000);
+
+
 
 
 CREATE OR REPLACE FUNCTION dept_max_sal_emp1(dept_name VARCHAR)
