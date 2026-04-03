@@ -1,8 +1,8 @@
-import { Role, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { prisma } from "./db";
+import { Role, User } from "../types";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -46,6 +46,8 @@ export const getCurrentUser = async (): Promise<User | null> => {
     return null;
   }
 };
+
+
 
 export const checkUserPermissions = (
   user: User,

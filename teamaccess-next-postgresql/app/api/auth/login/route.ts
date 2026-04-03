@@ -1,6 +1,5 @@
 import { generateToken, hashPassword, verifyPassword } from "@/app/lib/auth";
 import { prisma } from "@/app/lib/db";
-import { Role } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

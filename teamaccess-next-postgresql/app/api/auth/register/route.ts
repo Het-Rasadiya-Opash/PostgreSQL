@@ -1,6 +1,6 @@
 import { generateToken, hashPassword } from "@/app/lib/auth";
 import { prisma } from "@/app/lib/db";
-import { Role } from "@prisma/client";
+import { Role } from "@/app/types";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     const userCount = await prisma.user.count();
 
-    const role = userCount === 0 ? Role.ADMIN : Role.USER;
+    const role = userCount === 0 ? Role.ADMIN : Role.USER  ;
 
     const user = await prisma.user.create({
       data: {
