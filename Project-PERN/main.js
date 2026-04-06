@@ -4,7 +4,7 @@ const con = new Client({
   host: "localhost",
   user: "postgres",
   port: 5432,
-  password: "",
+  password: "root",
   database: "demo",
 });
 
@@ -44,20 +44,22 @@ con
 //   .catch((err) => console.log(err))
 
 
-const deleteQuery = `
-DELETE FROM users WHERE id=2;
-`;
+// const deleteQuery = `
+// DELETE FROM users WHERE id=2;
+// `;
 
-con.query(deleteQuery)
-  .then(() => console.log("Data deleted successfully"))
-  .catch((err) => console.log(err))
+// con.query(deleteQuery)
+//   .then(() => console.log("Data deleted successfully"))
+//   .catch((err) => console.log(err))
 
 const selectQuery = `
-SELECT * FROM users;
+SELECT * FROM cars;
 `;
 
-con.query(selectQuery)
-  .then((res) => console.log(res.rows))
-  .catch((err) => console.log(err))
-  .finally(() => con.end());
+// con.query(selectQuery)
+//   .then((res) => console.log(res.rows))
+//   .catch((err) => console.log(err))
+//   .finally(() => con.end());
 
+
+  con.query(selectQuery).then((res) => console.log(res.rows)).catch((err) => console.log(err)).finally(() => con.end());
