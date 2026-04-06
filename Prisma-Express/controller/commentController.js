@@ -79,3 +79,25 @@ export const deleteComment = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const updateComment = async (req, res) => {
+  try {
+    const commentId = req.params.id;
+
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+    });
+    if (!comment) return res.status(404).json({ message: "Comment not found" });
+
+    const updatedComment = await prisma.comment.update({
+      where: { id: commentId },
+      data: { comment: req.body.comment },
+    });
+
+    return res
+      .status(200)
+      .json({ message: "Comment updated successfully", data: updatedComment });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
