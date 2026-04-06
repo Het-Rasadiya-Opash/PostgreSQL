@@ -1,142 +1,148 @@
 ﻿# Prisma-Express
 
-A Node.js Express API application using Prisma ORM for PostgreSQL database management.
+A simple Node.js Express API using Prisma ORM with PostgreSQL.
 
 ## Prerequisites
 
-- Node.js (version 16 or higher)
+- Node.js 16 or newer
 - PostgreSQL database
-- npm or yarn package manager
+- npm or yarn
 
 ## Installation
 
 1. Clone the repository:
-   `ash
+   ```bash
    git clone <repository-url>
    cd Prisma-Express
-   `
+   ```
 
 2. Install dependencies:
-   `ash
+   ```bash
    npm install
-   `
+   ```
 
-3. Install Prisma CLI as a dev dependency:
-   `ash
+3. Install Prisma CLI as a development dependency:
+   ```bash
    npm install prisma --save-dev
-   `
+   ```
 
 ## Database Setup
 
-1. Initialize Prisma with PostgreSQL provider:
-   `ash
+1. Initialize Prisma for PostgreSQL:
+   ```bash
    npx prisma init --datasource-provider postgresql --output ../generated/prisma
-   `
+   ```
 
-2. Configure your database connection in the generated prisma/schema.prisma file or in your environment variables.
+2. Update the database connection settings in `prisma/schema.prisma` or in a `.env` file.
 
 3. Run the initial migration:
-   `ash
+   ```bash
    npx prisma migrate dev --name init
-   `
+   ```
 
-4. Install additional Prisma packages:
-   `ash
+4. Install the Prisma runtime and PostgreSQL adapter:
+   ```bash
    npm install @prisma/client pg @prisma/adapter-pg
-   `
+   ```
 
 5. Generate the Prisma client:
-   `ash
+   ```bash
    npx prisma generate
-   `
+   ```
 
 ## Configuration
 
-### Database Configuration
+### Environment
 
-Create a .env file in the root directory with your database connection string:
+Create a `.env` file at the project root with the database URL:
 
-`env
+```env
 DATABASE_URL="postgresql://username:password@localhost:5432/prisma-express"
-`
+```
 
-### Prisma Client Setup
+### Prisma Client
 
-The application uses a custom Prisma client setup with PostgreSQL adapter. See db/db.config.js for the configuration:
+The app uses a custom Prisma client with a PostgreSQL adapter. Example configuration in `db/db.config.js`:
 
-`javascript
+```javascript
 import "dotenv/config";
-import pg from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/index.js';
+import pg from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/index.js";
 
 const connectionString = process.env.DATABASE_URL;
-
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 
 export const prisma = new PrismaClient({ adapter });
-`
+```
 
-## Running the Application
+## Running the App
 
-1. Start the server:
-   `ash
-   npm start
-   `
+Start the server:
 
-   Or for development with auto-reload:
-   `ash
-   npm run dev
-   `
+```bash
+npm start
+```
 
-2. The server will start on the configured port (default: 3000).
+For development with auto-reload:
+
+```bash
+npm run dev
+```
+
+The server listens on the configured port, typically `3000`.
 
 ## API Endpoints
 
-The application includes user-related endpoints. See outes/userRoutes.js for available routes.
+The project includes user and comment endpoints. See `routes/userRoutes.js`, `routes/commentRoutes.js`, and `routes/postRoutes.js` for the full route list.
 
-Example:
-- GET /users - Retrieve all users
-- POST /users - Create a new user
+Common endpoints:
+- `GET /users` - List all users
+- `POST /users` - Create a new user
+- `GET /comments` - List all comments
+- `PUT /comments/:id` - Update a comment
+- `DELETE /comments/:id` - Delete a comment
 
 ## Project Structure
 
-`
+```text
 Prisma-Express/
 ├── controller/
+│   ├── commentController.js
+│   ├── postController.js
 │   └── userController.js
 ├── db/
 │   └── db.config.js
 ├── generated/
 │   └── prisma/
 ├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
+│   ├── migrations/
+│   └── schema.prisma
 ├── routes/
+│   ├── commentRoutes.js
+│   ├── postRoutes.js
 │   └── userRoutes.js
 ├── server.js
 ├── package.json
 └── README.md
-`
+```
 
-## Scripts
+## NPM Scripts
 
-- 
-pm run db:generate - Generate Prisma client
-- 
-pm run db:push - Push schema changes to database
-- 
-pm run db:seed - Seed the database
+- `npm run db:generate` - Generate the Prisma client
+- `npm run db:push` - Push schema changes to the database
+- `npm run db:seed` - Seed the database
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests
-5. Submit a pull request
+4. Test your changes
+5. Open a pull request
 
 ## License
 
 This project is licensed under the MIT License.
+
