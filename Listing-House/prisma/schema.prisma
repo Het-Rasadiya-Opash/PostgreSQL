@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id        String    @id @default(uuid())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  admin     Boolean   @default(false)
+  
+  // Relations
+  listings  Listing[]
+  bookings  Booking[]
+  reviews   Review[]
+  likes     Like[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Listing {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  price       Float
+  category    String?
+  location    String
+  images      String[]
+  coordinates Float[]   // Stored as [longitude, latitude]
+  
+  // Relations
+  ownerId     String
+  owner       User      @relation(fields: [ownerId], references: [id])
+  
+  reviews     Review[]
+  bookings    Booking[]
+  likes       Like[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("listings")
+}
+
+model Booking {
+  id         String        @id @default(uuid())
+  checkIn    DateTime
+  checkOut   DateTime
+  guests     Int
+  totalPrice Float
+  stayDay    Int
+  status     BookingStatus @default(PENDING)
+  isPaid     Boolean       @default(false)
+
+  // Relations
+  listingId  String
+  listing    Listing       @relation(fields: [listingId], references: [id])
+  
+  customerId String
+  customer   User          @relation(fields: [customerId], references: [id])
+
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("bookings")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      
+  comment   String
+
+  // Relations
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  
+  // Relations
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  // Prevents a user from liking the same listing multiple times
+  @@unique([listingId, userId])
+  @@map("likes")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+

@@ -1,3 +1,55 @@
+npm i prisma --save-dev
+
+npx prisma init --datasource-provider postgresql --output ../generated/prisma
+
+npx prisma migrate dev --name init
+
+npm install @prisma/client
+npm install pg @prisma/adapter-pg @prisma/client
+
+npx prisma generate
+
+
+============================
+-> npm i prisma --save-dev 
+	prisma.config.ts
+1) prisma folder create
+2) prisma/schema.prisma file create
+3) schema.prisma 
+	generator client {
+       	 provider = "prisma-client-js"
+	}
+
+        datasource db {
+       	 provider = "postgresql"
+	}
+
+4) app in lib folder create and db.ts file 
+
+import "dotenv/config";
+import pg from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../generated/prisma/index.js';
+
+const connectionString = process.env.DATABASE_URL;
+
+const pool = new pg.Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({ adapter });
+
+
+script:
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:seed": "npx tsx prisma/seed.ts"
+
+
+
+
+
+
+
 # PostgreSQL Basics
 
 This repository contains basic PostgreSQL SQL scripts demonstrating various database operations including table creation, data manipulation, constraints, and joins.
