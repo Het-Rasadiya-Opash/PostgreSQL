@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     if (user.role === Role.ADMIN) {
     } else if (user.role === Role.MANAGER) {
-      where.OR = [{ teamId: user.teamId }, { role: Role.USER }];
+      where.teamId = user.teamId;
     } else {
       where.teamId = user.teamId;
       where.role = { not: Role.ADMIN };
