@@ -3,6 +3,8 @@ import { authMiddleware } from "../middlewares/authMiddleware.js";
 import {
   addMemberToProject,
   createProject,
+  deleteProject,
+  editProject,
   getProjectById,
   getProjects,
   removeMemberFromProject,
@@ -33,6 +35,20 @@ router.put(
   authMiddleware,
   authorizeRole("PROJECT_MANAGER"),
   removeMemberFromProject,
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRole("PROJECT_MANAGER"),
+  deleteProject,
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  authorizeRole("PROJECT_MANAGER"),
+  editProject,
 );
 
 export default router;

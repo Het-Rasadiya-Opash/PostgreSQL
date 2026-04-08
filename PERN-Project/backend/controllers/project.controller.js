@@ -115,3 +115,43 @@ export const removeMemberFromProject = async (req, res) => {
     res.status(500).json({ message: "Error removing member" });
   }
 };
+
+export const deleteProject = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.project.delete({
+      where: { id },
+    });
+    res.json({ message: "Project deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting project" });
+  }
+};
+
+export const editProject = async (req, res) => {
+  const { id } = req.params;
+  const { name, key, description } = req.body;
+
+  try {
+    const existingProject = await prisma.project.findUnique({
+      where: { key },
+    });
+    if (existingProject && existingProject.id !== id) {
+      return res.status(400).json({ message: "Project key already exists" });
+    }
+    const updatedProject = await prisma.project.update({
+      where: { id },
+      data: {
+        name,
+        key,
+        description,
+      },
+    });
+    res.json({
+      message: "Project updated successfully",
+      project: updatedProject,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating project" });
+  }
+};

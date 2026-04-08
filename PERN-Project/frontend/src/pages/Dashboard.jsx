@@ -19,6 +19,7 @@ import {
   FolderPlus,
   Loader2,
   Trash2,
+  Edit3,
 } from "lucide-react";
 
 const roleColors = {
@@ -54,6 +55,8 @@ const Dashboard = () => {
 
   // Project Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
+  const [modalMode, setModalMode] = React.useState("create"); // "create" or "edit"
+  const [editingProjectId, setEditingProjectId] = React.useState(null);
   const [projectForm, setProjectForm] = React.useState({
     name: "",
     key: "",
@@ -175,6 +178,22 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteProject = async (e, projectId) => {
+    e.stopPropagation(); // Prevent clicking on project card details
+    if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
+
+    try {
+      setProjectsLoading(true);
+      await apiRequest.delete(`/projects/${projectId}`);
+      await fetchProjects();
+    } catch (err) {
+      console.error("Error deleting project:", err);
+      setProjectsError(err.response?.data?.message || "Failed to delete project");
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
+
   const handleProjectClick = (projectId) => {
     fetchProjectDetails(projectId);
   };
@@ -187,28 +206,45 @@ const Dashboard = () => {
     setMemberUpdateError(null);
   };
 
+  const openEditModal = (e, project) => {
+    e.stopPropagation();
+    setModalMode("edit");
+    setEditingProjectId(project.id);
+    setProjectForm({
+      name: project.name,
+      key: project.key,
+      description: project.description || "",
+    });
+    setIsProjectModalOpen(true);
+  };
+
   const handleProjectSubmit = async (e) => {
     e.preventDefault();
     setFormStatus({ loading: true, error: null });
 
     try {
-      const response = await apiRequest.post("/projects", {
-        name: projectForm.name,
-        key: projectForm.key.toUpperCase(),
-        description: projectForm.description,
-      });
-
-      console.log("Project created successfully:", response.data);
+      if (modalMode === "create") {
+        await apiRequest.post("/projects", {
+          name: projectForm.name,
+          key: projectForm.key.toUpperCase(),
+          description: projectForm.description,
+        });
+      } else {
+        await apiRequest.put(`/projects/${editingProjectId}`, {
+          name: projectForm.name,
+          key: projectForm.key.toUpperCase(),
+          description: projectForm.description,
+        });
+      }
 
       setIsProjectModalOpen(false);
       setProjectForm({ name: "", key: "", description: "" });
+      setEditingProjectId(null);
       setFormStatus({ loading: false, error: null });
 
-      // Refresh projects list after creating new project
+      // Refresh projects list
       fetchProjects();
-
     } catch (err) {
-      console.error("Project creation error:", err);
       setFormStatus({
         loading: false,
         error:
@@ -416,7 +452,11 @@ const Dashboard = () => {
             </div>
             {userRole === "PROJECT_MANAGER" && (
               <button
-                onClick={() => setIsProjectModalOpen(true)}
+                onClick={() => {
+                  setModalMode("create");
+                  setProjectForm({ name: "", key: "", description: "" });
+                  setIsProjectModalOpen(true);
+                }}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 transition-all duration-200 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
@@ -453,7 +493,11 @@ const Dashboard = () => {
                 </p>
                 {userRole === "PROJECT_MANAGER" && (
                   <button
-                    onClick={() => setIsProjectModalOpen(true)}
+                    onClick={() => {
+                      setModalMode("create");
+                      setProjectForm({ name: "", key: "", description: "" });
+                      setIsProjectModalOpen(true);
+                    }}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 cursor-pointer"
                   >
                     <PlusCircle className="w-4 h-4" />
@@ -489,15 +533,36 @@ const Dashboard = () => {
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        <span>{project._count?.members || 0} members</span>
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100/60">
+                      <div className="flex items-center gap-4 text-xs text-slate-500">
+                        <div className="flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{project._count?.members || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Shield className="w-3.5 h-3.5 text-blue-500/70" />
+                          <span className="truncate max-w-[80px]">{project.owner?.name?.split(' ')[0] || "Owner"}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Shield className="w-3 h-3" />
-                        <span>Owner: {project.owner?.name || "Unknown"}</span>
-                      </div>
+
+                      {userRole === "PROJECT_MANAGER" && (
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => openEditModal(e, project)}
+                            className="p-1.5 rounded-lg text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 cursor-pointer"
+                            title="Edit Project"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteProject(e, project.id)}
+                            className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -562,7 +627,7 @@ const Dashboard = () => {
                   <FolderPlus className="w-4 h-4 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900">
-                  New Project
+                  {modalMode === "create" ? "New Project" : "Edit Project"}
                 </h3>
               </div>
               <button
@@ -659,10 +724,10 @@ const Dashboard = () => {
                   disabled={formStatus.loading}
                   className="flex-2 px-4 py-3 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {formStatus.loading ? (
+                    {formStatus.loading ? (
                     <Loader2 className="w-4 h-4 animate-spin text-white/80" />
                   ) : (
-                    "Create Project"
+                    modalMode === "create" ? "Create Project" : "Update Project"
                   )}
                 </button>
               </div>
