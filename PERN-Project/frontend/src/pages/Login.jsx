@@ -50,11 +50,11 @@ const Login = () => {
       {/* ── Left branding panel ── */}
       <div className="hidden lg:flex lg:w-5/12 xl:w-[42%] relative flex-col justify-between p-12 overflow-hidden">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-blue-700 to-indigo-900" />
 
         {/* Animated orbs */}
-        <div className="absolute top-[-80px] left-[-80px] w-80 h-80 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-[-60px] right-[-60px] w-72 h-72 bg-indigo-400/20 rounded-full blur-3xl animate-pulse [animation-delay:1.5s]" />
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-15 -right-15 w-72 h-72 bg-indigo-400/20 rounded-full blur-3xl animate-pulse [animation-delay:1.5s]" />
 
         {/* Grid dot overlay */}
         <div

@@ -88,11 +88,11 @@ const Register = () => {
       {/* ── Left branding panel ── */}
       <div className="hidden lg:flex lg:w-5/12 xl:w-[42%] relative flex-col justify-between p-12 overflow-hidden">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-blue-700 to-blue-900" />
+        <div className="absolute inset-0 bg-linear-to-br from-indigo-600 via-blue-700 to-blue-900" />
 
         {/* Animated orbs */}
-        <div className="absolute top-[-80px] left-[-80px] w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-[-60px] right-[-60px] w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse [animation-delay:1.5s]" />
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-15 -right-15 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-pulse [animation-delay:1.5s]" />
 
         {/* Grid dot overlay */}
         <div
@@ -140,7 +140,7 @@ const Register = () => {
               "CoreOps cut our sprint planning time in half. Our team is finally in sync."
             </p>
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-300 to-indigo-300 flex items-center justify-center text-xs font-bold text-white">
+              <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-300 to-indigo-300 flex items-center justify-center text-xs font-bold text-white">
                 JA
               </div>
               <div>

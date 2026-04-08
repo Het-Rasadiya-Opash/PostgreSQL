@@ -82,7 +82,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
           {/* Cover */}
-          <div className="h-36 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 relative overflow-hidden">
+          <div className="h-36 bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 relative overflow-hidden">
             <div
               className="absolute inset-0 opacity-[0.15]"
               style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "18px 18px" }}
@@ -97,7 +97,7 @@ const Dashboard = () => {
             <div className="flex items-end justify-between -mt-12 mb-6">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 border-4 border-white shadow-xl flex items-center justify-center text-white text-3xl font-extrabold select-none">
+                <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600 border-4 border-white shadow-xl flex items-center justify-center text-white text-3xl font-extrabold select-none">
                   {initials}
                 </div>
                 <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${role.dot}`} />
