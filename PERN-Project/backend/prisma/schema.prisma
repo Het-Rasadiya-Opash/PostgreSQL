@@ -15,24 +15,35 @@ enum Role {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  role      Role      @default(DEVELOPER)
-  avatar    String?   @default("https://cdn-icons-png.flaticon.com/512/3607/3607444.png")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  projects  Project[]
+  role      Role     @default(DEVELOPER)
+  avatar    String?  @default("https://cdn-icons-png.flaticon.com/512/3607/3607444.png")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One User -> Many Projects
+  ownedProjects Project[] @relation("ProjectOwner") // Projects they created  
+
+  // Many Users <-> Many Projects
+  memberOfProjects Project[] @relation("ProjectMembers") // Projects they joined
 }
 
 model Project {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
-  key         String   @unique
+  key         String  @unique
   description String?
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  // One Project -> One User (Owner)
+  ownerId String
+  owner   User   @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Many Projects <-> Many Users (Members)
+  members User[] @relation("ProjectMembers")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

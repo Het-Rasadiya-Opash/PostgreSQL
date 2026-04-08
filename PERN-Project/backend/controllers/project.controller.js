@@ -23,3 +23,33 @@ export const createProject = async (req, res) => {
     res.status(500).json({ message: "Error creating project" });
   }
 };
+
+export const getProjects = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { ownerId: userId }, // Projects they created
+          { members: { some: { id: userId } } }, // Projects they joined
+        ],
+      },
+      include: {
+        owner: {
+          select: { name: true, avatar: true },
+        },
+        _count: {
+          select: { members: true },
+        },
+      },
+    });
+
+    res.json({
+      message: "Projects fetched successfully",
+      projects,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching projects" });
+  }
+};

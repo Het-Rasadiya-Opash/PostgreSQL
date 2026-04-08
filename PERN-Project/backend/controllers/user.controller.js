@@ -52,8 +52,13 @@ export const registerUser = async (req, res) => {
     const token = jwt.sign(
       { userId: newUser.id, role: newUser.role },
       process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      },
     );
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, {
+      httpOnly: true,
+    });
 
     return res.status(201).json({
       message: "User created successfully",
@@ -95,6 +100,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET,
+      { expiresIn: "7d" },
     );
     res.cookie("token", token, { httpOnly: true });
     return res.status(200).json({
