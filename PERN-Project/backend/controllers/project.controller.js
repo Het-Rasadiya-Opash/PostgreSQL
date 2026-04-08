@@ -53,3 +53,48 @@ export const getProjects = async (req, res) => {
     res.status(500).json({ message: "Error fetching projects" });
   }
 };
+
+export const getProjectById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        owner: {
+          select: { name: true, avatar: true },
+        },
+      },
+    });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    res.json({
+      message: "Project fetched successfully",
+      project,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching project" });
+  }
+};
+
+export const addMemberToProject = async (req, res) => {
+  const { projectId, userId } = req.body;
+
+  try {
+    const updatedProject = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        members: {
+          connect: { id: userId }, // Adds the user to the members array
+        },
+      },
+      include: { members: true },
+    });
+
+    res.json({ message: "Member added", updatedProject });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding member" });
+  }
+};
+
+
