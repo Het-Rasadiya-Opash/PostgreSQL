@@ -49,7 +49,10 @@ export const registerUser = async (req, res) => {
       },
     });
 
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { userId: newUser.id, role: newUser.role },
+      process.env.JWT_SECRET,
+    );
     res.cookie("token", token, { httpOnly: true });
 
     return res.status(201).json({
@@ -89,7 +92,10 @@ export const loginUser = async (req, res) => {
         message: "Invalid email or password",
       });
     }
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+    );
     res.cookie("token", token, { httpOnly: true });
     return res.status(200).json({
       message: "User logged in successfully",
