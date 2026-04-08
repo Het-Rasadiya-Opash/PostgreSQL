@@ -14,6 +14,37 @@ enum Role {
   DEVELOPER
 }
 
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// ─────────────────────────────────────────────
+// RELATIONSHIPS OVERVIEW
+//
+// 1-to-1  : (none currently — reserved for e.g. User <-> Profile)
+//
+// 1-to-Many (1:M):
+//   User      -> Project   (one owner has many projects)
+//   User      -> Issue     (one user assigned to many issues)
+//   User      -> Issue     (one user reported many issues)
+//   User      -> Comment   (one user wrote many comments)
+//   Project   -> Issue     (one project has many issues)
+//   Project   -> Sprint    (one project has many sprints)
+//   Sprint    -> Issue     (one sprint has many issues)
+//   Issue     -> Comment   (one issue has many comments)
+//
+// Many-to-Many (M:M):
+//   User <-> Project  (many users are members of many projects)
+// ─────────────────────────────────────────────
+
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -24,11 +55,20 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // One User -> Many Projects
-  ownedProjects Project[] @relation("ProjectOwner") // Projects they created  
+  // 1:M — One User owns many Projects
+  ownedProjects    Project[] @relation("ProjectOwner")
 
-  // Many Users <-> Many Projects
-  memberOfProjects Project[] @relation("ProjectMembers") // Projects they joined
+  // M:M — One User is member of many Projects
+  memberOfProjects Project[] @relation("ProjectMembers")
+
+  // 1:M — One User is assignee of many Issues
+  assignedIssues   Issue[]   @relation("IssueAssignee")
+
+  // 1:M — One User is reporter of many Issues
+  reportedIssues   Issue[]   @relation("IssueReporter")
+
+  // 1:M — One User writes many Comments
+  comments         Comment[]
 }
 
 model Project {
@@ -36,14 +76,81 @@ model Project {
   name        String
   key         String  @unique
   description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // One Project -> One User (Owner)
+  // M:1 — Many Projects belong to one Owner (User)
   ownerId String
   owner   User   @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
-  // Many Projects <-> Many Users (Members)
+  // M:M — Many Projects have many Member Users
   members User[] @relation("ProjectMembers")
 
+  // 1:M — One Project has many Issues
+  issues  Issue[]
+
+  // 1:M — One Project has many Sprints
+  sprints Sprint[]
+}
+
+model Issue {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  status      IssueStatus   @default(TODO)
+  priority    IssuePriority @default(MEDIUM)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // M:1 — Many Issues belong to one Project
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // M:1 — Many Issues assigned to one User
+  assigneeId String?
+  assignee   User?   @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  // M:1 — Many Issues reported by one User
+  reporterId String?
+  reporter   User?   @relation("IssueReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+
+  // M:1 — Many Issues belong to one Sprint
+  sprintId String?
+  sprint   Sprint? @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+
+  // 1:M — One Issue has many Comments
+  comments Comment[]
+}
+
+model Sprint {
+  id        String    @id @default(uuid())
+  name      String
+  goal      String?
+  startDate DateTime?
+  endDate   DateTime?
+  status    String    @default("PLANNED")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // M:1 — Many Sprints belong to one Project
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // 1:M — One Sprint has many Issues
+  issues Issue[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  body      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // M:1 — Many Comments written by one User
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // M:1 — Many Comments belong to one Issue
+  issueId String
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 }
