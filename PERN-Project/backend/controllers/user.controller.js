@@ -2,16 +2,18 @@ import { prisma } from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-export const getAllUsers = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+    });
     return res.status(200).json({
-      message: "Users retrieved successfully",
-      data: users,
+      message: "User retrieved successfully",
+      data: user,
     });
   } catch (error) {
     return res.status(500).json({
-      message: "Error retrieving users",
+      message: "Error retrieving user",
       error: error.message,
     });
   }
@@ -96,6 +98,20 @@ export const loginUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Error logging in user",
+      error: error.message,
+    });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.status(200).json({
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error logging out user",
       error: error.message,
     });
   }
