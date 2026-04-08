@@ -1,5 +1,9 @@
 # PERN Project Management App
 
+![Database Schema](./images/database-schema.png)
+
+![Entity Relationship Diagram](./images/erd.png)
+
 This repository is a PERN-stack project management application built with:
 - PostgreSQL + Prisma for backend data modeling
 - Express.js for REST API controllers and routing
