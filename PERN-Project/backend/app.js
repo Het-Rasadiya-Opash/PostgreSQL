@@ -7,6 +7,7 @@ const PORT = process.env.PORT;
 
 checkDatabaseConnection();
 
+
 app.listen(PORT, () => {
   console.log(`Server is Running on PORT ${PORT}`);
 });
