@@ -57,7 +57,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-slate-100">
 
-      {/* ── Navbar ── */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -78,7 +77,6 @@ const Dashboard = () => {
 
       <main className="max-w-6xl mx-auto px-5 py-8 space-y-6">
 
-        {/* ── Profile Card ── */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
           {/* Cover */}
@@ -91,11 +89,8 @@ const Dashboard = () => {
             <div className="absolute -bottom-12 left-20 w-40 h-40 bg-violet-400/20 rounded-full blur-2xl" />
           </div>
 
-          {/* Body */}
           <div className="px-8 pb-8">
-            {/* Avatar + actions row */}
             <div className="flex items-end justify-between -mt-12 mb-6">
-              {/* Avatar */}
               <div className="relative">
                 <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600 border-4 border-white shadow-xl flex items-center justify-center text-white text-3xl font-extrabold select-none">
                   {initials}
@@ -103,7 +98,6 @@ const Dashboard = () => {
                 <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${role.dot}`} />
               </div>
 
-              {/* Role + ID */}
               <div className="mb-1 flex items-center gap-3">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${role.pill}`}>
                   <Shield className="w-3.5 h-3.5" />
@@ -112,7 +106,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Name / email / meta */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-extrabold text-slate-900 leading-tight">
@@ -131,7 +124,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Divider */}
             <div className="border-t border-slate-100 mt-6 pt-6">
               <div className="grid grid-cols-3 gap-6 text-center">
                 <div>
