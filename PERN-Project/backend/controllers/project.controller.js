@@ -98,3 +98,20 @@ export const addMemberToProject = async (req, res) => {
     res.status(500).json({ message: "Error adding member" });
   }
 };
+
+export const removeMemberFromProject = async (req, res) => {
+  const { projectId, userId } = req.body;
+  try {
+    const updatedProject = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        members: {
+          disconnect: { id: userId }, // Removes the user from the members array
+        },
+      },
+    });
+    res.json({ message: "Member removed", updatedProject });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing member" });
+  }
+};

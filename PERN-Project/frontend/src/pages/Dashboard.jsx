@@ -18,6 +18,7 @@ import {
   X,
   FolderPlus,
   Loader2,
+  Trash2,
 } from "lucide-react";
 
 const roleColors = {
@@ -137,7 +138,7 @@ const Dashboard = () => {
     try {
       setMemberUpdateLoading(true);
       setMemberUpdateError(null);
-      await apiRequest.put("/projects", {
+      await apiRequest.put("/projects/members/add", {
         projectId: selectedProject.id,
         userId: selectedDeveloperId,
       });
@@ -147,6 +148,28 @@ const Dashboard = () => {
     } catch (err) {
       console.error("Error adding member:", err);
       setMemberUpdateError(err.response?.data?.message || "Failed to add member");
+    } finally {
+      setMemberUpdateLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    if (!selectedProject || !userId) return;
+
+    if (!window.confirm("Are you sure you want to remove this member?")) return;
+
+    try {
+      setMemberUpdateLoading(true);
+      setMemberUpdateError(null);
+      await apiRequest.put("/projects/members/remove", {
+        projectId: selectedProject.id,
+        userId: userId,
+      });
+      await fetchProjectDetails(selectedProject.id);
+      await fetchProjects();
+    } catch (err) {
+      console.error("Error removing member:", err);
+      setMemberUpdateError(err.response?.data?.message || "Failed to remove member");
     } finally {
       setMemberUpdateLoading(false);
     }
@@ -806,6 +829,15 @@ const Dashboard = () => {
                         }`}>
                           {member.role?.toLowerCase().replace("_", " ") || "user"}
                         </span>
+                        {userRole === "PROJECT_MANAGER" && (
+                          <button
+                            onClick={() => handleRemoveMember(member.id)}
+                            className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                            title="Remove member"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
