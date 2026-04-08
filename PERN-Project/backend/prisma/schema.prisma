@@ -25,7 +25,7 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(DEVELOPER)
-  avatar    String?
+  avatar    String?  @default("https://cdn-icons-png.flaticon.com/512/3607/3607444.png")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
