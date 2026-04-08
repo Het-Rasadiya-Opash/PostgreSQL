@@ -4,11 +4,13 @@ import express from "express";
 import { checkDatabaseConnection } from "./config/db.js";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middlewares/errorHandlder.js";
+import cors from "cors";
 const app = express();
 const PORT = process.env.PORT;
 
 import userRouter from "./routes/user.route.js";
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
