@@ -8,7 +8,9 @@ const apiRequest = axios.create({
 apiRequest.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isGuestPage = window.location.pathname === "/login" || window.location.pathname === "/register";
+    
+    if (error.response?.status === 401 && !isGuestPage) {
       window.location.href = "/login";
     }
     return Promise.reject(error);

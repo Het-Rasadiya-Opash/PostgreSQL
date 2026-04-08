@@ -1,4 +1,3 @@
-import e from "cors";
 import { prisma } from "../config/db.js";
 
 export const createProject = async (req, res) => {
@@ -61,7 +60,10 @@ export const getProjectById = async (req, res) => {
       where: { id },
       include: {
         owner: {
-          select: { name: true, avatar: true },
+          select: { id: true, name: true, email: true, avatar: true },
+        },
+        members: {
+          select: { id: true, name: true, email: true, role: true },
         },
       },
     });
@@ -96,5 +98,3 @@ export const addMemberToProject = async (req, res) => {
     res.status(500).json({ message: "Error adding member" });
   }
 };
-
-

@@ -128,3 +128,28 @@ export const logoutUser = async (req, res) => {
     });
   }
 };
+
+export const getDevelopers = async (req, res) => {
+  try {
+    const developers = await prisma.user.findMany({
+      where: { role: "DEVELOPER" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return res.status(200).json({
+      message: "Developers fetched successfully",
+      users: developers,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error fetching developers",
+      error: error.message,
+    });
+  }
+};
