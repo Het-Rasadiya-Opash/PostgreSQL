@@ -26,5 +26,5 @@ router.put(
   authorizeRole("PROJECT_MANAGER"),
   addMemberToProject,
 );
-
+  
 export default router;
