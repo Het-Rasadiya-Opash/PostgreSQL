@@ -55,6 +55,8 @@ const Dashboard = () => {
 
   // Project Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = React.useState(false);
+  const [modalMode, setModalMode] = React.useState("create"); // "create" or "edit"
+  const [editingProjectId, setEditingProjectId] = React.useState(null);
   const [projectForm, setProjectForm] = React.useState({
     name: "",
     key: "",
@@ -204,28 +206,46 @@ const Dashboard = () => {
     setMemberUpdateError(null);
   };
 
+  const openEditModal = (e, project) => {
+    e.stopPropagation();
+    setModalMode("edit");
+    setEditingProjectId(project.id);
+    setProjectForm({
+      name: project.name,
+      key: project.key,
+      description: project.description || "",
+    });
+    setIsProjectModalOpen(true);
+  };
+
   const handleProjectSubmit = async (e) => {
     e.preventDefault();
     setFormStatus({ loading: true, error: null });
 
     try {
-      const response = await apiRequest.post("/projects", {
-        name: projectForm.name,
-        key: projectForm.key.toUpperCase(),
-        description: projectForm.description,
-      });
-
-      console.log("Project created successfully:", response.data);
+      if (modalMode === "create") {
+        await apiRequest.post("/projects", {
+          name: projectForm.name,
+          key: projectForm.key.toUpperCase(),
+          description: projectForm.description,
+        });
+      } else {
+        await apiRequest.put(`/projects/${editingProjectId}`, {
+          name: projectForm.name,
+          key: projectForm.key.toUpperCase(),
+          description: projectForm.description,
+        });
+      }
 
       setIsProjectModalOpen(false);
       setProjectForm({ name: "", key: "", description: "" });
+      setEditingProjectId(null);
       setFormStatus({ loading: false, error: null });
 
-      // Refresh projects list after creating new project
+      // Refresh projects list
       fetchProjects();
-
     } catch (err) {
-      console.error("Project creation error:", err);
+      console.error("Project submission error:", err);
       setFormStatus({
         loading: false,
         error:
@@ -239,10 +259,10 @@ const Dashboard = () => {
 
   const initials = currentUser.name
     ? currentUser.name
-        .split(" ")
-        .slice(0, 2)
-        .map((n) => n[0].toUpperCase())
-        .join("")
+      .split(" ")
+      .slice(0, 2)
+      .map((n) => n[0].toUpperCase())
+      .join("")
     : currentUser.email[0].toUpperCase();
 
   const userRole = currentUser.role?.toUpperCase() || "USER";
@@ -433,7 +453,11 @@ const Dashboard = () => {
             </div>
             {userRole === "PROJECT_MANAGER" && (
               <button
-                onClick={() => setIsProjectModalOpen(true)}
+                onClick={() => {
+                  setModalMode("create");
+                  setProjectForm({ name: "", key: "", description: "" });
+                  setIsProjectModalOpen(true);
+                }}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 transition-all duration-200 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
@@ -470,7 +494,11 @@ const Dashboard = () => {
                 </p>
                 {userRole === "PROJECT_MANAGER" && (
                   <button
-                    onClick={() => setIsProjectModalOpen(true)}
+                    onClick={() => {
+                      setModalMode("create");
+                      setProjectForm({ name: "", key: "", description: "" });
+                      setIsProjectModalOpen(true);
+                    }}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 cursor-pointer"
                   >
                     <PlusCircle className="w-4 h-4" />
@@ -519,13 +547,22 @@ const Dashboard = () => {
                       </div>
 
                       {userRole === "PROJECT_MANAGER" && (
-                        <button
-                          onClick={(e) => handleDeleteProject(e, project.id)}
-                          className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200 cursor-pointer"
-                          title="Delete Project"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => openEditModal(e, project)}
+                            className="p-1.5 rounded-lg text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 cursor-pointer"
+                            title="Edit Project"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteProject(e, project.id)}
+                            className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                            title="Delete Project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -591,7 +628,7 @@ const Dashboard = () => {
                   <FolderPlus className="w-4 h-4 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900">
-                  New Project
+                  {modalMode === "create" ? "New Project" : "Edit Project"}
                 </h3>
               </div>
               <button
@@ -691,7 +728,7 @@ const Dashboard = () => {
                   {formStatus.loading ? (
                     <Loader2 className="w-4 h-4 animate-spin text-white/80" />
                   ) : (
-                    "Create Project"
+                    modalMode === "create" ? "Create Project" : "Update Project"
                   )}
                 </button>
               </div>
@@ -849,13 +886,12 @@ const Dashboard = () => {
                             {member.email}
                           </p>
                         </div>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
-                          member.role === "PROJECT_MANAGER"
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${member.role === "PROJECT_MANAGER"
                             ? "bg-blue-100 text-blue-700"
                             : member.role === "DEVELOPER"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}>
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-slate-100 text-slate-600"
+                          }`}>
                           {member.role?.toLowerCase().replace("_", " ") || "user"}
                         </span>
                         {userRole === "PROJECT_MANAGER" && (
