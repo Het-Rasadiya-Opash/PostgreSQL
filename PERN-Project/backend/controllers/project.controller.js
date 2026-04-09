@@ -38,6 +38,9 @@ export const getProjects = async (req, res) => {
         owner: {
           select: { name: true, avatar: true },
         },
+        members: {
+          select: { name: true, email: true },
+        },
         _count: {
           select: { members: true },
         },
