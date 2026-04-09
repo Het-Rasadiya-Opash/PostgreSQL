@@ -1,5 +1,6 @@
 import { prisma } from "../config/db.js";
 
+
 export const createIssue = async (req, res) => {
   try {
     const {
@@ -77,11 +78,13 @@ export const createIssue = async (req, res) => {
         status: status || "TODO",
         priority: priority || "MEDIUM",
         projectId,
-        assigneeId,
+        assigneeId: assigneeId || null,
         reporterId: userId,
-        sprintId,
+        sprintId: sprintId || null,
       },
     });
+
+
 
     res.status(201).json({
       message: "Issue created successfully",
@@ -144,8 +147,17 @@ export const updateIssue = async (req, res) => {
   try {
     const issue = await prisma.issue.update({
       where: { id },
-      data: { title, description, status, priority, assigneeId, sprintId },
+      data: {
+        title,
+        description,
+        status,
+        priority,
+        assigneeId: assigneeId || null,
+        sprintId: sprintId || null,
+      },
     });
+
+
     res.json({ message: "Issue updated successfully", issue });
   } catch (error) {
     res.status(500).json({ message: "Error updating issue" });

@@ -1,5 +1,6 @@
 import { prisma } from "../config/db.js";
 
+
 export const createSprint = async (req, res) => {
   const { projectId, name, goal, startDate, endDate } = req.body;
 
@@ -17,6 +18,8 @@ export const createSprint = async (req, res) => {
         projectId,
       },
     });
+
+
     res.status(201).json({
       message: "Sprint created successfully",
       sprint,
@@ -53,6 +56,8 @@ export const updateSprint = async (req, res) => {
         status,
       },
     });
+
+
 
     // AUTOMATION: Sync issue statuses with sprint status transitions
     if (status === "COMPLETED") {

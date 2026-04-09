@@ -14,6 +14,9 @@ import ProjectSprintsView from "../components/dashboard/ProjectSprintsView";
 import ProjectModal from "../components/dashboard/ProjectModal";
 import DashboardHome from "../components/dashboard/DashboardHome";
 import ProjectBoardView from "../components/dashboard/ProjectBoardView";
+import AnalyticsDashboard from "../components/dashboard/AnalyticsDashboard";
+import BacklogView from "../components/dashboard/BacklogView";
+import ProfileSettings from "./ProfileSettings";
 
 const roleColors = {
   ADMIN: {
@@ -90,12 +93,12 @@ const Dashboard = () => {
       setMyIssuesLoading(true);
       const response = await apiRequest.get("/issues");
       const allIssues = response.data.issues || [];
-      
+
       let filteredIssues = allIssues;
       if (currentUser?.role?.toUpperCase() === "DEVELOPER") {
         filteredIssues = allIssues.filter(issue => issue.assigneeId === currentUser.id);
       }
-      
+
       setMyIssues(filteredIssues);
     } catch (err) {
       console.error("Error fetching my issues:", err);
@@ -125,7 +128,7 @@ const Dashboard = () => {
       setProjectDetailsLoading(true);
       const response = await apiRequest.get(`/projects/${projectId}`);
       setSelectedProject(response.data.project);
-      
+
       if (shouldChangeView) {
         setCurrentView("PROJECT_BOARD");
       }
@@ -218,10 +221,10 @@ const Dashboard = () => {
 
   const initials = currentUser.name
     ? currentUser.name
-        .split(" ")
-        .slice(0, 2)
-        .map((n) => n[0].toUpperCase())
-        .join("")
+      .split(" ")
+      .slice(0, 2)
+      .map((n) => n[0].toUpperCase())
+      .join("")
     : currentUser.email[0].toUpperCase();
 
   const userRole = currentUser.role?.toUpperCase() || "USER";
@@ -250,7 +253,7 @@ const Dashboard = () => {
         id="main-scroll-area"
         className="flex-1 overflow-y-auto w-full relative"
       >
-        {["DASHBOARD", "GLOBAL_PROJECTS", "GLOBAL_ISSUES"].includes(currentView) && (
+        {["DASHBOARD", "GLOBAL_PROJECTS", "GLOBAL_ISSUES", "PROFILE"].includes(currentView) && (
           <div className="max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
             {currentView === "DASHBOARD" && (
               <DashboardHome
@@ -286,6 +289,10 @@ const Dashboard = () => {
                 userRole={userRole}
               />
             )}
+
+            {currentView === "PROFILE" && (
+              <ProfileSettings currentUser={currentUser} />
+            )}
           </div>
         )}
 
@@ -304,7 +311,7 @@ const Dashboard = () => {
                   </span>
                   <span>•</span>
                   <span className="capitalize">
-                    {currentView.replace("PROJECT_", "").toLowerCase()}
+                    {currentView.replace("PROJECT_", "").toLowerCase().replace("_", " ")}
                   </span>
                 </p>
               </div>
@@ -339,6 +346,23 @@ const Dashboard = () => {
                 userRole={userRole}
                 refreshProject={fetchProjectDetails}
                 fetchMyIssues={fetchMyIssues}
+              />
+            )}
+
+            {currentView === "PROJECT_BACKLOG" && (
+              <BacklogView
+                selectedProject={selectedProject}
+                userRole={userRole}
+                onIssueClick={(issue) => {
+                  // Reuse logic from Board if needed, or just view
+                  setCurrentView("PROJECT_BOARD");
+                }}
+              />
+            )}
+
+            {currentView === "PROJECT_ANALYTICS" && (
+              <AnalyticsDashboard
+                selectedProject={selectedProject}
               />
             )}
           </div>

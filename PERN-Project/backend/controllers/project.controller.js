@@ -1,8 +1,10 @@
 import { prisma } from "../config/db.js";
 
+
 export const createProject = async (req, res) => {
   try {
     const { name, key, description } = req.body;
+    const userId = req.user.userId;
     const existingProject = await prisma.project.findUnique({
       where: { key },
     });
@@ -14,9 +16,11 @@ export const createProject = async (req, res) => {
         name,
         key,
         description,
-        ownerId: req.user.userId,
+        ownerId: userId,
       },
     });
+
+
     res.status(201).json(project);
   } catch (error) {
     res.status(500).json({ message: "Error creating project" });
@@ -102,6 +106,8 @@ export const addMemberToProject = async (req, res) => {
       },
       include: { members: true },
     });
+
+
 
     res.json({ message: "Member added", updatedProject });
   } catch (error) {

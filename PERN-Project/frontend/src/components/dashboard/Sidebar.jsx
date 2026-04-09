@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   BarChart3,
   FolderOpen,
@@ -8,7 +8,12 @@ import {
   Users,
   LogOut,
   Shield,
+  Package,
+  TrendingUp,
+  Search,
+  Settings
 } from "lucide-react";
+
 
 const Sidebar = ({
   currentUser,
@@ -22,6 +27,12 @@ const Sidebar = ({
   closeProjectDetailsModal,
   onLogout,
 }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const allIssues = selectedProject?.issues || [];
+  const searchResults = searchQuery.trim() ? allIssues.filter(issue => 
+    issue.title.toLowerCase().includes(searchQuery.toLowerCase())
+  ).slice(0, 5) : [];
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 z-30 shadow-[0_0_15px_rgba(0,0,0,0.02)]">
       <div>
@@ -33,6 +44,39 @@ const Sidebar = ({
           <span className="font-bold text-slate-900 text-lg tracking-tight">
             CoreOps
           </span>
+        </div>
+
+        {/* Global Search (Always visible) */}
+        <div className="p-4 border-b border-slate-100">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <input 
+              type="text"
+              placeholder="Quick Search..."
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          {/* Search Dropdown */}
+          {searchResults.length > 0 && (
+            <div className="absolute left-4 right-4 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-slate-50">
+               {searchResults.map(issue => (
+                 <button 
+                   key={issue.id}
+                   onClick={() => {
+                     // Potential navigation to issue
+                     setSearchQuery("");
+                   }}
+                   className="w-full text-left px-3 py-2.5 hover:bg-slate-50 transition-colors"
+                 >
+                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{issue.project?.key}</p>
+                   <p className="text-xs font-semibold text-slate-800 truncate">{issue.title}</p>
+                 </button>
+               ))}
+            </div>
+          )}
         </div>
 
         {/* Navigation Links */}
@@ -56,11 +100,25 @@ const Sidebar = ({
               Board
             </button>
             <button
+              onClick={() => setCurrentView("PROJECT_BACKLOG")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${currentView === "PROJECT_BACKLOG" ? "bg-blue-50 text-blue-700 hover:bg-blue-100" : "text-slate-600 hover:bg-slate-50"}`}
+            >
+              <Package className="w-4 h-4" />
+              Backlog
+            </button>
+            <button
               onClick={() => setCurrentView("PROJECT_SPRINTS")}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${currentView === "PROJECT_SPRINTS" ? "bg-blue-50 text-blue-700 hover:bg-blue-100" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <Flag className="w-4 h-4" />
               Sprints
+            </button>
+            <button
+              onClick={() => setCurrentView("PROJECT_ANALYTICS")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${currentView === "PROJECT_ANALYTICS" ? "bg-blue-50 text-blue-700 hover:bg-blue-100" : "text-slate-600 hover:bg-slate-50"}`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              Analytics
             </button>
             <button
               onClick={() => setCurrentView("PROJECT_TEAM")}
@@ -133,13 +191,23 @@ const Sidebar = ({
             </p>
           </div>
         </div>
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-red-700 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-all duration-200 cursor-pointer bg-white shadow-sm"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign out</span>
-        </button>
+        <div className="grid grid-cols-2 gap-2 px-1">
+          <button 
+             onClick={() => setCurrentView("PROFILE")}
+             className="flex flex-col items-center gap-1.5 p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer"
+             title="Profile Settings"
+          >
+             <Settings className="w-4 h-4" />
+          </button>
+
+          <button 
+             onClick={onLogout}
+             className="flex flex-col items-center gap-1.5 p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+             title="Sign Out"
+          >
+             <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </aside>
   );

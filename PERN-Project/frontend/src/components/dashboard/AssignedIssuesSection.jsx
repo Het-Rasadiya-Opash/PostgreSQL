@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle, Loader2, FolderOpen } from 'lucide-react';
+import apiRequest from '../../utils/apiRequest';
 
 const AssignedIssuesSection = ({
   myIssues,
@@ -62,7 +63,7 @@ const AssignedIssuesSection = ({
                   {projectIssues.map((issue) => (
                     <div
                       key={issue.id}
-                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 hover:shadow-md transition-all duration-200 cursor-default group"
+                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 hover:shadow-md transition-all duration-200 cursor-default group flex flex-col"
                     >
                       <div className="flex items-start justify-between mb-2">
                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
@@ -81,7 +82,8 @@ const AssignedIssuesSection = ({
                       <h3 className="font-bold text-slate-900 text-sm mb-1 line-clamp-1 group-hover:text-emerald-600">
                         {issue.title}
                       </h3>
-                      <div className="flex items-center justify-between gap-2 mt-3 pt-3 border-t border-slate-200/60">
+                      
+                      <div className="flex items-center justify-between gap-2 mt-auto pt-3 border-t border-slate-200/60 transition-all">
                          <div className="flex items-center gap-1.5 p-1 px-2 bg-white rounded-lg border border-slate-100">
                             <span className="text-[10px] font-bold text-slate-500 line-clamp-1">
                               {issue.project?.key || "DEV"} - {issue.id.slice(0, 8)}

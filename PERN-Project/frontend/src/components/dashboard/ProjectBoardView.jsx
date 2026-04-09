@@ -3,7 +3,7 @@ import { AlertCircle, PlusCircle, Tag, X, Loader2 } from "lucide-react";
 import KanbanBoard from "../KanbanBoard";
 import apiRequest from "../../utils/apiRequest";
 import CommentSection from "./CommentSection";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Trash2 } from "lucide-react";
 
 const ProjectBoardView = ({
   selectedProject,
@@ -24,9 +24,9 @@ const ProjectBoardView = ({
   const [issueModalMode, setIssueModalMode] = useState("create");
   const [editingIssueId, setEditingIssueId] = useState(null);
   
-  // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
+
 
   const handleCreateIssue = async (e) => {
     e.preventDefault();
@@ -300,6 +300,7 @@ const ProjectBoardView = ({
                 </select>
               </div>
             </div>
+
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
@@ -314,17 +315,16 @@ const ProjectBoardView = ({
                 {issueModalMode === "create" ? "Create Issue" : "Update Issue"}
               </button>
             </div>
-          </form>
 
-          {/* Discussion Section - Dedicated to existing issues */}
-          {issueModalMode === "edit" && editingIssueId && (
-            <div className="border-t border-slate-100 px-1">
-              <CommentSection 
-                issueId={editingIssueId} 
-                currentUser={null} // Component handles its own state
-              />
-            </div>
-          )}
+            {issueModalMode === "edit" && editingIssueId && (
+              <div className="border-t border-slate-100 px-1">
+                <CommentSection
+                  issueId={editingIssueId}
+                  currentUser={null}
+                />
+              </div>
+            )}
+          </form>
         </div>
       )}
 
@@ -350,6 +350,7 @@ const ProjectBoardView = ({
         </div>
       )}
     </div>
+  
   );
 };
 
