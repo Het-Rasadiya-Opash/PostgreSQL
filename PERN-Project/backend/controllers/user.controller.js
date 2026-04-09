@@ -155,3 +155,56 @@ export const getDevelopers = async (req, res) => {
 };
 
 
+export const updateUser = async (req, res) => {
+  try {
+    const { name, currentPassword, newPassword } = req.body;
+    const userId = req.user.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updateData = {};
+    if (name) updateData.name = name;
+
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          message: "Current password is required to set a new password",
+        });
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: "Invalid current password" });
+      }
+
+      updateData.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = updatedUser;
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      data: userWithoutPassword,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error updating profile",
+      error: error.message,
+    });
+  }
+};

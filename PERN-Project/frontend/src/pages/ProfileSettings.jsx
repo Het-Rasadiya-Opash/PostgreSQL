@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { User, Mail, Lock, Shield, Loader2, CheckCircle2 } from "lucide-react";
+import { useDispatch } from "react-redux";
 import apiRequest from "../utils/apiRequest";
+import { setCurrentUser } from "../features/usersSlice";
 
 const ProfileSettings = ({ currentUser }) => {
+  const dispatch = useDispatch();
   const [form, setForm] = useState({
     name: currentUser?.name || "",
     email: currentUser?.email || "",
@@ -20,10 +23,19 @@ const ProfileSettings = ({ currentUser }) => {
     setSuccess(false);
 
     try {
-      // Note: Backend endpoint for profile update needs to be verified/implemented
-      // For now, simulating the logic
-      await apiRequest.put("/users/profile", form);
+      const response = await apiRequest.put("/users/profile", {
+        name: form.name,
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      });
+      
+      dispatch(setCurrentUser(response.data.data));
       setSuccess(true);
+      setForm((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+      }));
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update profile");
