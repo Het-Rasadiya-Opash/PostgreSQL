@@ -1149,6 +1149,53 @@ const Dashboard = () => {
                 )}
               </div>
 
+              {/* Team Workload - PM View Only */}
+              {userRole === "PROJECT_MANAGER" && (
+                <div className="pt-6 border-t border-slate-100">
+                  <div className="flex items-center gap-2 mb-4">
+                    <BarChart3 className="w-4 h-4 text-slate-500" />
+                    <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+                      Team Workload
+                    </h4>
+                  </div>
+                  <div className="space-y-4">
+                    {[selectedProject.owner, ...(selectedProject.members || [])].map((member) => (
+                      <div key={member?.id} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600">
+                              {member?.name ? member.name[0] : member?.email[0]}
+                            </div>
+                            <span className="text-xs font-bold text-slate-700">{member?.name || member?.email}</span>
+                            {member?.id === selectedProject.owner?.id && (
+                              <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Owner</span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                            {selectedProject.issues?.filter(i => i.assigneeId === member?.id).length || 0} issues
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {selectedProject.issues?.filter(i => i.assigneeId === member?.id).map(issue => (
+                            <div key={issue.id} className="flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200 text-[11px] hover:border-blue-300 transition-colors">
+                              <span className="text-slate-600 font-semibold truncate max-w-[200px]">{issue.title}</span>
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-tighter ${
+                                issue.status === "DONE" ? "text-emerald-600 bg-emerald-50" : issue.status === "IN_PROGRESS" ? "text-blue-600 bg-blue-50" : "text-slate-500 bg-slate-50"
+                              }`}>
+                                {issue.status}
+                              </span>
+                            </div>
+                          ))}
+                          {selectedProject.issues?.filter(i => i.assigneeId === member?.id).length === 0 && (
+                            <p className="text-[10px] text-slate-400 italic text-center py-1">No issues assigned</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Sprints Section */}
               <div className="pt-6 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-4">
@@ -1369,9 +1416,10 @@ const Dashboard = () => {
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Title</label>
                         <input
                           required
+                          disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
                           type="text"
                           placeholder="e.g. Implement user auth"
-                          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
                           value={issueForm.title}
                           onChange={(e) => setIssueForm({ ...issueForm, title: e.target.value })}
                         />
@@ -1380,8 +1428,9 @@ const Dashboard = () => {
                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Description</label>
                         <textarea
                           rows={2}
+                          disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
                           placeholder="What needs to be done?"
-                          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all resize-none"
+                          className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500"
                           value={issueForm.description}
                           onChange={(e) => setIssueForm({ ...issueForm, description: e.target.value })}
                         />
@@ -1402,7 +1451,8 @@ const Dashboard = () => {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Priority</label>
                           <select
-                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                            disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
+                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
                             value={issueForm.priority}
                             onChange={(e) => setIssueForm({ ...issueForm, priority: e.target.value })}
                           >
@@ -1414,7 +1464,8 @@ const Dashboard = () => {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Assignee</label>
                           <select
-                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                            disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
+                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
                             value={issueForm.assigneeId}
                             onChange={(e) => setIssueForm({ ...issueForm, assigneeId: e.target.value })}
                           >
@@ -1428,7 +1479,8 @@ const Dashboard = () => {
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Sprint</label>
                           <select
-                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                            disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
+                            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
                             value={issueForm.sprintId}
                             onChange={(e) => setIssueForm({ ...issueForm, sprintId: e.target.value })}
                           >

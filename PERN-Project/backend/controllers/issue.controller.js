@@ -105,6 +105,7 @@ export const getIssues = async (req, res) => {
         assignee: { select: { id: true, name: true, avatar: true } },
         reporter: { select: { id: true, name: true, avatar: true } },
         sprint: { select: { id: true, name: true } },
+        project: { select: { id: true, name: true, key: true } },
       },
     });
     res.json({ message: "Issues fetched successfully", issues });
