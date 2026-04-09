@@ -65,6 +65,13 @@ export const getProjectById = async (req, res) => {
         members: {
           select: { id: true, name: true, email: true, role: true },
         },
+        sprints: true,
+        issues: {
+          include: {
+            assignee: { select: { id: true, name: true, avatar: true } },
+            reporter: { select: { id: true, name: true } },
+          },
+        },
       },
     });
     if (!project) {

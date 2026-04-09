@@ -10,6 +10,8 @@ const PORT = process.env.PORT;
 
 import userRouter from "./routes/user.route.js";
 import projectRouter from "./routes/project.route.js";
+import issueRouter from "./routes/issue.route.js";
+import sprintRouter from "./routes/sprint.route.js";
 
 app.use(
   cors({
@@ -25,6 +27,8 @@ checkDatabaseConnection();
 
 app.use("/api/users", userRouter);
 app.use("/api/projects", projectRouter);
+app.use("/api/issues", issueRouter);
+app.use("/api/sprints", sprintRouter);
 
 app.use(errorHandler);
 
