@@ -30,7 +30,7 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, userRole 
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 custom-scrollbar snap-x snap-mandatory">
         {issueStatuses.map((status) => (
-          <div key={status} className="flex-1 min-w-[280px] sm:min-w-[320px] flex flex-col snap-center">
+          <div key={status} className="flex-1 min-w-70 sm:min-w-[320px] flex flex-col snap-center">
             <div className={`mb-3 px-4 py-3 rounded-xl border border-slate-200 ${statusColors[status]} flex items-center justify-between shadow-sm`}>
               <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
                 {statusLabels[status]}
