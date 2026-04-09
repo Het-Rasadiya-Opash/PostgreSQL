@@ -145,16 +145,21 @@ export const updateIssue = async (req, res) => {
   const { title, description, status, priority, assigneeId, sprintId } =
     req.body;
   try {
+    const updateData = {};
+
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (status !== undefined) updateData.status = status;
+    if (priority !== undefined) updateData.priority = priority;
+    
+    // When clearing these fields, frontend sends "" or null.
+    // If they are missing (undefined), we don't include them in the update.
+    if (assigneeId !== undefined) updateData.assigneeId = assigneeId || null;
+    if (sprintId !== undefined) updateData.sprintId = sprintId || null;
+
     const issue = await prisma.issue.update({
       where: { id },
-      data: {
-        title,
-        description,
-        status,
-        priority,
-        assigneeId: assigneeId || null,
-        sprintId: sprintId || null,
-      },
+      data: updateData,
     });
 
 
