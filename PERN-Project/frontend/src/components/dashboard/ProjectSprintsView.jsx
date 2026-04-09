@@ -1,20 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, Flag, PlusCircle, X, Edit3, Loader2 } from 'lucide-react';
+import apiRequest from '../../utils/apiRequest';
 
-const ProjectSprintsView = ({
-  selectedProject,
-  userRole,
-  isSprintModalOpen,
-  setIsSprintModalOpen,
-  sprintModalMode,
-  setSprintModalMode,
-  sprintForm,
-  setSprintForm,
-  handleCreateSprint,
-  sprintSubmitLoading,
-  setEditingSprintId,
-  handleEditSprint
-}) => {
+const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
+  const [isSprintModalOpen, setIsSprintModalOpen] = useState(false);
+  const [sprintModalMode, setSprintModalMode] = useState("create");
+  const [editingSprintId, setEditingSprintId] = useState(null);
+  const [sprintForm, setSprintForm] = useState({
+    name: "",
+    goal: "",
+    startDate: "",
+    endDate: "",
+    status: "PLANNED",
+  });
+  const [sprintSubmitLoading, setSprintSubmitLoading] = useState(false);
+
+  const handleCreateSprint = async (e) => {
+    e.preventDefault();
+    if (!sprintForm.name || !selectedProject) return;
+
+    try {
+      setSprintSubmitLoading(true);
+      if (sprintModalMode === "create") {
+        await apiRequest.post("/sprints", {
+          ...sprintForm,
+          projectId: selectedProject.id,
+        });
+      } else {
+        await apiRequest.put(`/sprints/${editingSprintId}`, sprintForm);
+      }
+      
+      await refreshProject(selectedProject.id);
+      
+      setSprintForm({ name: "", goal: "", startDate: "", endDate: "", status: "PLANNED" });
+      setIsSprintModalOpen(false);
+      setEditingSprintId(null);
+    } catch (err) {
+      console.error("Error creating/updating sprint:", err);
+      alert(err.response?.data?.message || "Failed to process sprint");
+    } finally {
+      setSprintSubmitLoading(false);
+    }
+  };
+
+  const handleEditSprint = (sprint) => {
+    setSprintModalMode("edit");
+    setEditingSprintId(sprint.id);
+    setSprintForm({
+      name: sprint.name,
+      goal: sprint.goal || "",
+      startDate: sprint.startDate ? sprint.startDate.split("T")[0] : "",
+      endDate: sprint.endDate ? sprint.endDate.split("T")[0] : "",
+      status: sprint.status || "PLANNED",
+    });
+    setIsSprintModalOpen(true);
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
       <div className="flex items-center justify-between mb-6">
@@ -28,7 +69,7 @@ const ProjectSprintsView = ({
           <button
             onClick={() => {
               setSprintModalMode("create");
-              setSprintForm({ name: "", goal: "", startDate: "", endDate: "" });
+              setSprintForm({ name: "", goal: "", startDate: "", endDate: "", status: "PLANNED" });
               setEditingSprintId(null);
               setIsSprintModalOpen(true);
             }}

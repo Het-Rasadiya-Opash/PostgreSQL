@@ -53,8 +53,28 @@ export const updateSprint = async (req, res) => {
         status,
       },
     });
+
+    // AUTOMATION: Sync issue statuses with sprint status transitions
+    if (status === "COMPLETED") {
+      await prisma.issue.updateMany({
+        where: { sprintId: id },
+        data: { status: "DONE" },
+      });
+    } else if (status === "ACTIVE") {
+      await prisma.issue.updateMany({
+        where: { sprintId: id, NOT: { status: "DONE" } }, // Don't move already done issues back to progress
+        data: { status: "IN_PROGRESS" },
+      });
+    } else if (status === "PLANNED") {
+      await prisma.issue.updateMany({
+        where: { sprintId: id },
+        data: { status: "TODO" },
+      });
+    }
+
     res.json({ message: "Sprint updated successfully", sprint });
   } catch (error) {
+    console.error("Error updating sprint:", error);
     res.status(500).json({ message: "Error updating sprint" });
   }
 };

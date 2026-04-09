@@ -4,10 +4,6 @@ import { CheckCircle, Loader2, FolderOpen } from 'lucide-react';
 const AssignedIssuesSection = ({
   myIssues,
   myIssuesLoading,
-  setIssueModalMode,
-  setEditingIssueId,
-  setIssueForm,
-  setIsIssueModalOpen,
   userRole
 }) => {
   // Group issues by project
@@ -66,20 +62,7 @@ const AssignedIssuesSection = ({
                   {projectIssues.map((issue) => (
                     <div
                       key={issue.id}
-                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
-                      onClick={() => {
-                          setIssueModalMode("edit");
-                          setEditingIssueId(issue.id);
-                          setIssueForm({
-                            title: issue.title,
-                            description: issue.description || "",
-                            status: issue.status,
-                            priority: issue.priority,
-                            assigneeId: issue.assigneeId || "",
-                            sprintId: issue.sprintId || "",
-                          });
-                          setIsIssueModalOpen(true);
-                      }}
+                      className="p-4 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 hover:shadow-md transition-all duration-200 cursor-default group"
                     >
                       <div className="flex items-start justify-between mb-2">
                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
@@ -104,16 +87,31 @@ const AssignedIssuesSection = ({
                               {issue.project?.key || "DEV"} - {issue.id.slice(0, 8)}
                             </span>
                          </div>
-                         {userRole !== "DEVELOPER" && (
-                           <div className="flex items-center gap-1.5" title={issue.assignee?.name || "Unassigned"}>
-                             <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-600">
-                               {issue.assignee?.name?.charAt(0).toUpperCase() || "U"}
+                         {/* Assignee */}
+                         <div className="shrink-0">
+                           {issue.assignee ? (
+                             <div 
+                               className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100"
+                               title={`Assigned to ${issue.assignee.name || issue.assignee.email}`}
+                             >
+                               <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+                                 <span className="text-[7px] font-bold text-white">
+                                   {issue.assignee.name ? issue.assignee.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : issue.assignee.email[0].toUpperCase()}
+                                 </span>
+                               </div>
+                               <span className="text-[9px] font-bold text-indigo-700 truncate max-w-[70px]">
+                                 {issue.assignee.name || issue.assignee.email.split('@')[0]}
+                               </span>
                              </div>
-                             <span className="text-[10px] font-bold text-slate-600 truncate max-w-[80px]">
-                               {issue.assignee?.name?.split(' ')[0] || "Unassigned"}
-                             </span>
-                           </div>
-                         )}
+                           ) : (
+                             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100" title="Unassigned">
+                               <div className="w-4 h-4 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
+                                 <span className="text-[7px] font-bold text-slate-400">?</span>
+                               </div>
+                               <span className="text-[9px] font-bold text-slate-400">Unassigned</span>
+                             </div>
+                           )}
+                         </div>
                       </div>
                     </div>
                   ))}

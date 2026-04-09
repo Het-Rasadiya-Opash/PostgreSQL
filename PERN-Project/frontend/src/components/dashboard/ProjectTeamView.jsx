@@ -1,19 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Users, Loader2, Trash2, BarChart3 } from 'lucide-react';
+import apiRequest from '../../utils/apiRequest';
 
-const ProjectTeamView = ({
-  selectedProject,
-  userRole,
-  availableDevelopers,
-  selectedDeveloperId,
-  setSelectedDeveloperId,
-  handleAddMember,
-  handleRemoveMember,
-  memberUpdateLoading,
-  memberUpdateError,
-  developersLoading,
-  developers
-}) => {
+const ProjectTeamView = ({ selectedProject, userRole, refreshProject, fetchProjects }) => {
+  const [developers, setDevelopers] = useState([]);
+  const [developersLoading, setDevelopersLoading] = useState(false);
+  const [selectedDeveloperId, setSelectedDeveloperId] = useState("");
+  const [memberUpdateLoading, setMemberUpdateLoading] = useState(false);
+  const [memberUpdateError, setMemberUpdateError] = useState(null);
+
+  useEffect(() => {
+    if (userRole === "PROJECT_MANAGER") {
+      const fetchDevelopers = async () => {
+        try {
+          setDevelopersLoading(true);
+          const response = await apiRequest.get("/users/developers");
+          setDevelopers(response.data.users || []);
+        } catch (err) {
+          console.error("Error fetching developers:", err);
+        } finally {
+          setDevelopersLoading(false);
+        }
+      };
+      
+      fetchDevelopers();
+    }
+  }, [userRole]);
+
+  const handleAddMember = async () => {
+    if (!selectedDeveloperId || !selectedProject) return;
+
+    try {
+      setMemberUpdateLoading(true);
+      setMemberUpdateError(null);
+      await apiRequest.put("/projects/members/add", {
+        projectId: selectedProject.id,
+        userId: selectedDeveloperId,
+      });
+      await refreshProject(selectedProject.id);
+      if (fetchProjects) await fetchProjects();
+      setSelectedDeveloperId("");
+    } catch (err) {
+      console.error("Error adding member:", err);
+      setMemberUpdateError(
+        err.response?.data?.message || "Failed to add member"
+      );
+    } finally {
+      setMemberUpdateLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    if (!selectedProject || !userId) return;
+
+    if (!window.confirm("Are you sure you want to remove this member?")) return;
+
+    try {
+      setMemberUpdateLoading(true);
+      setMemberUpdateError(null);
+      await apiRequest.put("/projects/members/remove", {
+        projectId: selectedProject.id,
+        userId: userId,
+      });
+      await refreshProject(selectedProject.id);
+      if (fetchProjects) await fetchProjects();
+    } catch (err) {
+      console.error("Error removing member:", err);
+      setMemberUpdateError(
+        err.response?.data?.message || "Failed to remove member"
+      );
+    } finally {
+      setMemberUpdateLoading(false);
+    }
+  };
+
+  const availableDevelopers = developers.filter(
+    (dev) =>
+      !selectedProject?.members?.some((member) => member.id === dev.id) &&
+      dev.id !== selectedProject?.owner?.id
+  );
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
       {/* Description */}
@@ -115,19 +181,20 @@ const ProjectTeamView = ({
                 key={member.id}
                 className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-all duration-200"
               >
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                  <span className="text-xs font-bold text-slate-600">
-                    {member.name
-                      ? member.name.split(" ").slice(0, 2).map(n => n[0]).join("").toUpperCase()
-                      : member.email[0].toUpperCase()
-                    }
-                  </span>
-                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 truncate">
-                    {member.name || "Unknown"}
-                  </p>
-                  <p className="text-xs text-slate-500 truncate">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-xs">
+                      <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+                        <span className="text-[7px] font-bold text-white">
+                          {member.name ? member.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : member.email[0].toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-indigo-700 truncate max-w-32">
+                        {member.name || member.email.split('@')[0]}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1 ml-2 truncate">
                     {member.email}
                   </p>
                 </div>
@@ -173,12 +240,18 @@ const ProjectTeamView = ({
               <div key={member?.id} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600">
-                      {member?.name ? member.name[0] : member?.email[0]}
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100">
+                      <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+                        <span className="text-[7px] font-bold text-white">
+                          {member?.name ? member.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : member?.email[0].toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-indigo-700">
+                        {member?.name || member?.email.split('@')[0]}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold text-slate-700">{member?.name || member?.email}</span>
                     {member?.id === selectedProject.owner?.id && (
-                      <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">Owner</span>
+                      <span className="text-[9px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-tight">Owner</span>
                     )}
                   </div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase">
