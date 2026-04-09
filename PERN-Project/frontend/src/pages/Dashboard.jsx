@@ -190,12 +190,15 @@ const Dashboard = () => {
     }
   };
 
-  const fetchProjectDetails = async (projectId) => {
+  const fetchProjectDetails = async (projectId, shouldChangeView = false) => {
     try {
       setProjectDetailsLoading(true);
       const response = await apiRequest.get(`/projects/${projectId}`);
       setSelectedProject(response.data.project);
-      setCurrentView("PROJECT_BOARD");
+      
+      if (shouldChangeView) {
+        setCurrentView("PROJECT_BOARD");
+      }
       if (currentUser?.role?.toUpperCase() === "PROJECT_MANAGER") {
         fetchDevelopers();
       }
@@ -277,7 +280,7 @@ const Dashboard = () => {
   };
 
   const handleProjectClick = (projectId) => {
-    fetchProjectDetails(projectId);
+    fetchProjectDetails(projectId, true);
   };
 
   const closeProjectDetailsModal = () => {
@@ -486,6 +489,10 @@ const Dashboard = () => {
   const role = roleColors[userRole] || roleColors.USER;
   const roleLabel = roleLabels[userRole] || userRole;
 
+  const doneTasks = myIssues.filter((i) => i.status === "DONE").length;
+  const inProgressTasks = myIssues.filter((i) => i.status === "IN_PROGRESS").length;
+  const todoTasks = myIssues.filter((i) => i.status === "TODO").length;
+
   const stats = [
     {
       icon: FolderOpen,
@@ -496,9 +503,25 @@ const Dashboard = () => {
       border: "border-blue-100",
     },
     {
+      icon: Flag,
+      label: "To Do",
+      value: todoTasks.toString(),
+      color: "text-slate-600",
+      bg: "bg-slate-100",
+      border: "border-slate-200",
+    },
+    {
+      icon: Clock,
+      label: "In Progress",
+      value: inProgressTasks.toString(),
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-100",
+    },
+    {
       icon: CheckCircle,
       label: "Tasks Done",
-      value: "0", // This would need actual task data
+      value: doneTasks.toString(),
       color: "text-emerald-600",
       bg: "bg-emerald-50",
       border: "border-emerald-100",
@@ -611,7 +634,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* ── Stats Grid ── */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                   {stats.map(
                     ({ icon: Icon, label, value, color, bg, border }) => (
                       <div
