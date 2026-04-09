@@ -120,8 +120,8 @@ const ProjectBoardView = ({
   }) || [];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-slate-500" />
           <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">

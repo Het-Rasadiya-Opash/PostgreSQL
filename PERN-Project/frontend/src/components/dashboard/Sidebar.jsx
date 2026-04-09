@@ -11,7 +11,8 @@ import {
   Package,
   TrendingUp,
   Search,
-  Settings
+  Settings,
+  X
 } from "lucide-react";
 
 
@@ -25,6 +26,8 @@ const Sidebar = ({
   currentView,
   setCurrentView,
   closeProjectDetailsModal,
+  isSidebarOpen,
+  setIsSidebarOpen,
   onLogout,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,16 +37,24 @@ const Sidebar = ({
     issue.title.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 5) : [];
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 z-30 shadow-[0_0_15px_rgba(0,0,0,0.02)]">
+    <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 shadow-[0_0_15px_rgba(0,0,0,0.02)] transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
       <div>
         {/* Brand/Logo */}
-        <div className="h-16 flex items-center gap-2.5 px-6 border-b border-slate-100">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-inner">
-            <Zap className="w-4 h-4 text-white" />
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-inner">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-slate-900 text-lg tracking-tight">
+              CoreOps
+            </span>
           </div>
-          <span className="font-bold text-slate-900 text-lg tracking-tight">
-            CoreOps
-          </span>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-1.5 -mr-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Global Search (Always visible) */}

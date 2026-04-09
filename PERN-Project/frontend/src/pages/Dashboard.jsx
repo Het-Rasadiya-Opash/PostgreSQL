@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../features/usersSlice";
 import apiRequest from "../utils/apiRequest";
-import { X } from "lucide-react";
+import { X, Menu, Zap } from "lucide-react";
 
 // Extracted Components
 import Sidebar from "../components/dashboard/Sidebar";
@@ -72,6 +72,7 @@ const Dashboard = () => {
   const [selectedProject, setSelectedProject] = React.useState(null);
   const [projectDetailsLoading, setProjectDetailsLoading] = React.useState(false);
   const [currentView, setCurrentView] = React.useState("DASHBOARD");
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   // My Issues State
   const [myIssues, setMyIssues] = React.useState([]);
@@ -169,6 +170,7 @@ const Dashboard = () => {
   const closeProjectDetailsModal = () => {
     setCurrentView("DASHBOARD");
     setSelectedProject(null);
+    setIsSidebarOpen(false);
   };
 
   const openEditModal = (e, project) => {
@@ -232,7 +234,15 @@ const Dashboard = () => {
   const roleLabel = roleLabels[userRole] || userRole;
 
   return (
-    <div className="flex bg-slate-50 overflow-hidden h-screen">
+    <div className="flex bg-slate-50 overflow-hidden h-screen relative">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         currentUser={currentUser}
         role={role}
@@ -241,18 +251,42 @@ const Dashboard = () => {
         myIssuesCount={myIssues.length}
         selectedProject={selectedProject}
         currentView={currentView}
-        setCurrentView={setCurrentView}
+        setCurrentView={(view) => {
+          setCurrentView(view);
+          setIsSidebarOpen(false);
+        }}
         closeProjectDetailsModal={closeProjectDetailsModal}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
         onLogout={() => {
           dispatch(logout());
           navigate("/login");
         }}
       />
 
-      <main
-        id="main-scroll-area"
-        className="flex-1 overflow-y-auto w-full relative"
-      >
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        {/* Mobile Header */}
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shrink-0 z-10 w-full">
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-inner">
+               <Zap className="w-4 h-4 text-white" />
+             </div>
+             <span className="font-bold text-slate-900 text-lg tracking-tight">
+               CoreOps
+             </span>
+          </div>
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 -mr-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </header>
+
+        <main
+          id="main-scroll-area"
+          className="flex-1 overflow-y-auto w-full relative pb-20 md:pb-0"
+        >
         {["DASHBOARD", "GLOBAL_PROJECTS", "GLOBAL_ISSUES", "PROFILE"].includes(currentView) && (
           <div className="max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
             {currentView === "DASHBOARD" && (
@@ -367,7 +401,8 @@ const Dashboard = () => {
             )}
           </div>
         )}
-      </main>
+        </main>
+      </div>
 
       <ProjectModal
         isProjectModalOpen={isProjectModalOpen}

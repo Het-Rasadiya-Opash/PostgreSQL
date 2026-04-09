@@ -90,7 +90,7 @@ const AnalyticsDashboard = ({ selectedProject }) => {
                <PieIcon className="w-5 h-5 text-purple-500" />
                <h5 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Status Distribution</h5>
            </div>
-           <div className="h-[200px] w-full">
+           <div className="h-50 w-full">
                <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={statusData}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -115,7 +115,7 @@ const AnalyticsDashboard = ({ selectedProject }) => {
             <BarChart3 className="w-5 h-5 text-indigo-500" />
             <h5 className="text-sm font-bold text-slate-900">Team Workload (Assigned Issues)</h5>
           </div>
-          <div className="h-[300px]">
+          <div className="h-75">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={workloadData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
@@ -134,7 +134,7 @@ const AnalyticsDashboard = ({ selectedProject }) => {
             <PieIcon className="w-5 h-5 text-amber-500" />
             <h5 className="text-sm font-bold text-slate-900">Priority Breakdown</h5>
           </div>
-          <div className="h-[300px]">
+          <div className="h-75">
              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie

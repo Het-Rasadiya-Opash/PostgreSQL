@@ -116,7 +116,7 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
       </div>
 
       {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         {stats.map(({ icon: Icon, label, value, color, bg, border }) => (
           <div
             key={label}
@@ -139,13 +139,13 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
         ))}
       </div>
 
-      <div className="bg-slate-900 rounded-3xl p-10 text-white relative overflow-hidden shadow-2xl border border-slate-800">
+      <div className="bg-slate-900 rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl border border-slate-800">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
           <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" />
           
           <div className="relative z-10 max-w-2xl">
-              <h5 className="text-3xl font-extrabold mb-4 leading-tight">Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀</h5>
-              <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-xl">
+              <h5 className="text-2xl sm:text-3xl font-extrabold mb-4 leading-tight">Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀</h5>
+              <p className="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed max-w-xl">
                  You currently have <span className="text-blue-400 font-bold underline decoration-blue-400/30 underline-offset-4">{todoTasks}</span> tasks pending in your queue. Ready to tackle them and boost your productivity?
               </p>
               <div className="flex flex-wrap gap-4">
