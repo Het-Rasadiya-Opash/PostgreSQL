@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Flag, PlusCircle, X, Edit3, Loader2, Play, CheckCheck, RotateCcw, CheckCircle2, Circle } from 'lucide-react';
+import { Calendar, Flag, PlusCircle, X, Edit3, Loader2, Play, CheckCheck, RotateCcw, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import apiRequest from '../../utils/apiRequest';
 
 const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
@@ -62,6 +62,25 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
       await refreshProject(selectedProject.id);
     } catch (err) {
       alert(err.response?.data?.message || "Failed to update sprint status");
+    }
+  };
+
+  const [expandedSprints, setExpandedSprints] = useState({});
+  const [togglingId, setTogglingId] = useState(null);
+
+  const toggleSprintSubTasks = (sprintId) => {
+    setExpandedSprints(prev => ({ ...prev, [sprintId]: !prev[sprintId] }));
+  };
+
+  const handleToggleSubTask = async (subTaskId) => {
+    setTogglingId(subTaskId);
+    try {
+      await apiRequest.patch(`/subtasks/${subTaskId}/toggle`);
+      await refreshProject(selectedProject.id);
+    } catch (err) {
+      console.error("Failed to toggle subtask:", err);
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -271,22 +290,30 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                 {/* Subtask progress */}
                 {totalSubTasks > 0 && (
                   <div className="mt-3 pt-3 border-t border-slate-100">
-                    <div className="flex items-center justify-between mb-1.5">
+                    <button
+                      onClick={() => toggleSprintSubTasks(sprint.id)}
+                      className="w-full flex items-center justify-between mb-1.5 hover:bg-slate-50 p-1 rounded-lg transition-colors cursor-pointer group/progress"
+                    >
                       <div className="flex items-center gap-1.5">
                         {doneSubTasks === totalSubTasks ? (
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                         ) : (
-                          <Circle className="w-3.5 h-3.5 text-slate-300" />
+                          <Circle className="w-3.5 h-3.5 text-slate-300 group-hover/progress:text-blue-400" />
                         )}
                         <span className="text-[11px] font-semibold text-slate-500">
                           {doneSubTasks}/{totalSubTasks} subtasks complete
                         </span>
+                        {expandedSprints[sprint.id] ? (
+                          <ChevronDown className="w-3 h-3 text-slate-400" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3 text-slate-400" />
+                        )}
                       </div>
                       <span className={`text-[11px] font-bold ${
                         subTaskPct === 100 ? "text-emerald-600" : "text-slate-400"
                       }`}>{subTaskPct}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    </button>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-1">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           subTaskPct === 100 ? "bg-emerald-500" : "bg-violet-400"
@@ -294,6 +321,42 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                         style={{ width: `${subTaskPct}%` }}
                       />
                     </div>
+
+                    {/* Expandable subtask list */}
+                    {expandedSprints[sprint.id] && (
+                      <div className="mt-2 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                        {sprintIssues.map(issue => 
+                          (issue.subTasks || []).map(sub => (
+                            <div 
+                              key={sub.id} 
+                              className="flex items-center gap-2 pl-6 pr-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors group/sub"
+                            >
+                              <button
+                                onClick={() => handleToggleSubTask(sub.id)}
+                                disabled={togglingId === sub.id}
+                                className="shrink-0 transition-transform duration-200 hover:scale-110"
+                              >
+                                {togglingId === sub.id ? (
+                                  <Loader2 className="w-3 h-3 text-blue-500 animate-spin" />
+                                ) : sub.isCompleted ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                ) : (
+                                  <Circle className="w-3.5 h-3.5 text-slate-300 hover:text-blue-400" />
+                                )}
+                              </button>
+                              <span className={`text-[11px] leading-tight truncate ${
+                                sub.isCompleted ? "line-through text-slate-400" : "text-slate-600"
+                              }`}>
+                                {sub.title}
+                              </span>
+                              <span className="ml-auto text-[9px] font-bold text-slate-300 uppercase opacity-0 group-hover/sub:opacity-100 transition-opacity">
+                                from {issue.title}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
