@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { AlertCircle, PlusCircle, Tag, X, Loader2, ListChecks, Circle, CheckCircle2, Trash2 as TrashIcon } from "lucide-react";
+import { AlertCircle, PlusCircle, Search, Filter } from "lucide-react";
 import KanbanBoard from "../KanbanBoard";
 import apiRequest from "../../utils/apiRequest";
-import CommentSection from "./CommentSection";
-import SubTaskSection from "./SubTaskSection";
-import { Search, Filter, Trash2, Plus } from "lucide-react";
+import IssueModal from "./IssueModal";
 
 const ProjectBoardView = ({
   selectedProject,
@@ -13,81 +11,14 @@ const ProjectBoardView = ({
   fetchMyIssues
 }) => {
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
-  const [issueForm, setIssueForm] = useState({
-    title: "",
-    description: "",
-    status: "TODO",
-    priority: "MEDIUM",
-    assigneeId: "",
-    sprintId: "",
-  });
-  const [issueSubmitLoading, setIssueSubmitLoading] = useState(false);
   const [issueModalMode, setIssueModalMode] = useState("create");
   const [editingIssueId, setEditingIssueId] = useState(null);
-  const [pendingSubTasks, setPendingSubTasks] = useState([]);
-  const [pendingSubTaskInput, setPendingSubTaskInput] = useState("");
-
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
-
-
-  const handleCreateIssue = async (e) => {
-    e.preventDefault();
-    if (!issueForm.title || !selectedProject) return;
-
-    try {
-      setIssueSubmitLoading(true);
-      if (issueModalMode === "create") {
-        const res = await apiRequest.post("/issues", {
-          ...issueForm,
-          projectId: selectedProject.id,
-        });
-        // Create pending subtasks after issue is saved
-        if (pendingSubTasks.length > 0) {
-          await Promise.all(
-            pendingSubTasks.map((title) =>
-              apiRequest.post(`/subtasks/${res.data.issue.id}`, { title })
-            )
-          );
-        }
-      } else {
-        await apiRequest.put(`/issues/${editingIssueId}`, issueForm);
-      }
-
-      await refreshProject(selectedProject.id);
-      fetchMyIssues();
-
-      setIssueForm({
-        title: "",
-        description: "",
-        status: "TODO",
-        priority: "MEDIUM",
-        assigneeId: "",
-        sprintId: "",
-      });
-      setPendingSubTasks([]);
-      setPendingSubTaskInput("");
-      setIsIssueModalOpen(false);
-      setEditingIssueId(null);
-    } catch (err) {
-      console.error("Error creating/updating issue:", err);
-      alert(err.response?.data?.message || "Failed to process issue");
-    } finally {
-      setIssueSubmitLoading(false);
-    }
-  };
 
   const handleEditIssue = (issue) => {
     setIssueModalMode("edit");
     setEditingIssueId(issue.id);
-    setIssueForm({
-      title: issue.title,
-      description: issue.description || "",
-      status: issue.status,
-      priority: issue.priority,
-      assigneeId: issue.assigneeId || "",
-      sprintId: issue.sprintId || "",
-    });
     setIsIssueModalOpen(true);
   };
 
@@ -114,18 +45,17 @@ const ProjectBoardView = ({
     }
 
     const newStatus = destination.droppableId;
-
     try {
       await apiRequest.put(`/issues/${draggableId}`, { status: newStatus });
       refreshProject(selectedProject.id);
       fetchMyIssues();
     } catch (err) {
       console.error("Failed to update status via drag", err);
-      refreshProject(selectedProject.id); // Reset optimistic update if needed
+      refreshProject(selectedProject.id);
     }
   };
 
-  const handleToggleSubTask = async (subTaskId, issueId) => {
+  const handleToggleSubTask = async (subTaskId) => {
     try {
       await apiRequest.patch(`/subtasks/${subTaskId}/toggle`);
       refreshProject(selectedProject.id);
@@ -153,17 +83,7 @@ const ProjectBoardView = ({
         <button
           onClick={() => {
             setIssueModalMode("create");
-            setIssueForm({
-              title: "",
-              description: "",
-              status: "TODO",
-              priority: "MEDIUM",
-              assigneeId: "",
-              sprintId: "",
-            });
             setEditingIssueId(null);
-            setPendingSubTasks([]);
-            setPendingSubTaskInput("");
             setIsIssueModalOpen(true);
           }}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-all duration-200 cursor-pointer"
@@ -200,221 +120,6 @@ const ProjectBoardView = ({
         </div>
       </div>
 
-      {isIssueModalOpen && (
-        <div className="mb-6 p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center justify-between mb-4">
-            <h5 className="text-sm font-bold text-emerald-900 flex items-center gap-2">
-              <Tag className="w-4 h-4" />
-              {issueModalMode === "create" ? "Create New Issue" : "Edit Issue"}
-            </h5>
-            <button
-              onClick={() => setIsIssueModalOpen(false)}
-              className="p-1 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          <form onSubmit={handleCreateIssue} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                Title
-              </label>
-              <input
-                required
-                disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
-                type="text"
-                placeholder="e.g. Implement user auth"
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
-                value={issueForm.title}
-                onChange={(e) =>
-                  setIssueForm({ ...issueForm, title: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                Description
-              </label>
-              <textarea
-                rows={2}
-                disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
-                placeholder="What needs to be done?"
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500"
-                value={issueForm.description}
-                onChange={(e) =>
-                  setIssueForm({ ...issueForm, description: e.target.value })
-                }
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Status
-                </label>
-                <select
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                  value={issueForm.status}
-                  onChange={(e) =>
-                    setIssueForm({ ...issueForm, status: e.target.value })
-                  }
-                >
-                  <option value="TODO">To Do</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="DONE">Done</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Priority
-                </label>
-                <select
-                  disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
-                  value={issueForm.priority}
-                  onChange={(e) =>
-                    setIssueForm({ ...issueForm, priority: e.target.value })
-                  }
-                >
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Assignee
-                </label>
-                <select
-                  disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
-                  value={issueForm.assigneeId}
-                  onChange={(e) =>
-                    setIssueForm({ ...issueForm, assigneeId: e.target.value })
-                  }
-                >
-                  <option value="">Unassigned</option>
-                  {selectedProject.members?.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name || member.email}
-                    </option>
-                  ))}
-                  <option value={selectedProject.owner?.id}>
-                    {selectedProject.owner?.name} (Owner)
-                  </option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">
-                  Sprint
-                </label>
-                <select
-                  disabled={userRole === "DEVELOPER" && issueModalMode === "edit"}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
-                  value={issueForm.sprintId}
-                  onChange={(e) =>
-                    setIssueForm({ ...issueForm, sprintId: e.target.value })
-                  }
-                >
-                  <option value="">Backlog (No Sprint)</option>
-                  {selectedProject.sprints?.map((sprint) => (
-                    <option key={sprint.id} value={sprint.id}>
-                      {sprint.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Subtasks for create mode */}
-            {issueModalMode === "create" && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ListChecks className="w-3.5 h-3.5 text-violet-500" />
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      Subtasks {pendingSubTasks.length > 0 && `(${pendingSubTasks.length})`}
-                    </label>
-                  </div>
-                </div>
-
-                {pendingSubTasks.length > 0 && (
-                  <div className="space-y-1">
-                    {pendingSubTasks.map((title, idx) => (
-                      <div key={idx} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-violet-50/50 border border-violet-100">
-                        <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                        <span className="flex-1 text-sm text-slate-700">{title}</span>
-                        <button
-                          type="button"
-                          onClick={() => setPendingSubTasks((prev) => prev.filter((_, i) => i !== idx))}
-                          className="p-1 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
-                        >
-                          <TrashIcon className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 focus-within:border-violet-300 focus-within:bg-violet-50/30 transition-all">
-                  <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                  <input
-                    type="text"
-                    placeholder="Add a subtask and press Enter..."
-                    className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
-                    value={pendingSubTaskInput}
-                    onChange={(e) => setPendingSubTaskInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        if (pendingSubTaskInput.trim()) {
-                          setPendingSubTasks((prev) => [...prev, pendingSubTaskInput.trim()]);
-                          setPendingSubTaskInput("");
-                        }
-                      }
-                    }}
-                  />
-                  {pendingSubTaskInput.trim() && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPendingSubTasks((prev) => [...prev, pendingSubTaskInput.trim()]);
-                        setPendingSubTaskInput("");
-                      }}
-                      className="shrink-0 p-1 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-all"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={issueSubmitLoading || !issueForm.title}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-70 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-              >
-                {issueSubmitLoading ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <PlusCircle className="w-3.5 h-3.5" />
-                )}
-                {issueModalMode === "create" ? "Create Issue" : "Update Issue"}
-              </button>
-            </div>
-
-          </form>
-
-          {issueModalMode === "edit" && editingIssueId && (
-            <div className="px-1">
-              <SubTaskSection issueId={editingIssueId} />
-              {/* <CommentSection issueId={editingIssueId} currentUser={null} /> */}
-            </div>
-          )}
-        </div>
-      )}
-
       {selectedProject.issues && selectedProject.issues.length > 0 ? (
         <div className="mt-4">
           <KanbanBoard
@@ -437,8 +142,19 @@ const ProjectBoardView = ({
           </p>
         </div>
       )}
-    </div>
 
+      {/* Feature Modals */}
+      <IssueModal
+        isOpen={isIssueModalOpen}
+        onClose={() => setIsIssueModalOpen(false)}
+        selectedProject={selectedProject}
+        userRole={userRole}
+        mode={issueModalMode}
+        issueToEdit={selectedProject.issues?.find(i => i.id === editingIssueId)}
+        refreshProject={refreshProject}
+        fetchMyIssues={fetchMyIssues}
+      />
+    </div>
   );
 };
 

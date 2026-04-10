@@ -1,58 +1,19 @@
 import React, { useState } from 'react';
-import { Calendar, Flag, PlusCircle, X, Edit3, Loader2, Play, CheckCheck, RotateCcw, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Calendar, Flag, PlusCircle, Edit3, Loader2, Play, CheckCheck, RotateCcw, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import apiRequest from '../../utils/apiRequest';
+import SprintModal from './SprintModal';
 
 const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
   const [isSprintModalOpen, setIsSprintModalOpen] = useState(false);
   const [sprintModalMode, setSprintModalMode] = useState("create");
   const [editingSprintId, setEditingSprintId] = useState(null);
-  const [sprintForm, setSprintForm] = useState({
-    name: "",
-    goal: "",
-    startDate: "",
-    endDate: "",
-    status: "PLANNED",
-  });
-  const [sprintSubmitLoading, setSprintSubmitLoading] = useState(false);
-
-  const handleCreateSprint = async (e) => {
-    e.preventDefault();
-    if (!sprintForm.name || !selectedProject) return;
-
-    try {
-      setSprintSubmitLoading(true);
-      if (sprintModalMode === "create") {
-        await apiRequest.post("/sprints", {
-          ...sprintForm,
-          projectId: selectedProject.id,
-        });
-      } else {
-        await apiRequest.put(`/sprints/${editingSprintId}`, sprintForm);
-      }
-      
-      await refreshProject(selectedProject.id);
-      
-      setSprintForm({ name: "", goal: "", startDate: "", endDate: "", status: "PLANNED" });
-      setIsSprintModalOpen(false);
-      setEditingSprintId(null);
-    } catch (err) {
-      console.error("Error creating/updating sprint:", err);
-      alert(err.response?.data?.message || "Failed to process sprint");
-    } finally {
-      setSprintSubmitLoading(false);
-    }
-  };
+  
+  const [expandedSprints, setExpandedSprints] = useState({});
+  const [togglingId, setTogglingId] = useState(null);
 
   const handleEditSprint = (sprint) => {
     setSprintModalMode("edit");
     setEditingSprintId(sprint.id);
-    setSprintForm({
-      name: sprint.name,
-      goal: sprint.goal || "",
-      startDate: sprint.startDate ? sprint.startDate.split("T")[0] : "",
-      endDate: sprint.endDate ? sprint.endDate.split("T")[0] : "",
-      status: sprint.status || "PLANNED",
-    });
     setIsSprintModalOpen(true);
   };
 
@@ -64,9 +25,6 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
       alert(err.response?.data?.message || "Failed to update sprint status");
     }
   };
-
-  const [expandedSprints, setExpandedSprints] = useState({});
-  const [togglingId, setTogglingId] = useState(null);
 
   const toggleSprintSubTasks = (sprintId) => {
     setExpandedSprints(prev => ({ ...prev, [sprintId]: !prev[sprintId] }));
@@ -97,7 +55,6 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
           <button
             onClick={() => {
               setSprintModalMode("create");
-              setSprintForm({ name: "", goal: "", startDate: "", endDate: "", status: "PLANNED" });
               setEditingSprintId(null);
               setIsSprintModalOpen(true);
             }}
@@ -108,90 +65,6 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
           </button>
         )}
       </div>
-
-      {isSprintModalOpen && (
-        <div className="mb-6 p-5 bg-blue-50/50 rounded-2xl border border-blue-100 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center justify-between mb-4">
-            <h5 className="text-sm font-bold text-blue-900 flex items-center gap-2">
-              <Flag className="w-4 h-4" />
-              {sprintModalMode === "create" ? "Create New Sprint" : "Edit Sprint"}
-            </h5>
-            <button 
-              onClick={() => setIsSprintModalOpen(false)}
-              className="p-1 rounded-md text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          <form onSubmit={handleCreateSprint} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Sprint Name</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="e.g. Q1 Alpha"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                  value={sprintForm.name}
-                  onChange={(e) => setSprintForm({ ...sprintForm, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Sprint Goal</label>
-                <input
-                  type="text"
-                  placeholder="Primary objective..."
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                  value={sprintForm.goal}
-                  onChange={(e) => setSprintForm({ ...sprintForm, goal: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Start Date</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                  value={sprintForm.startDate}
-                  onChange={(e) => setSprintForm({ ...sprintForm, startDate: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">End Date</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                  value={sprintForm.endDate}
-                  onChange={(e) => setSprintForm({ ...sprintForm, endDate: e.target.value })}
-                />
-              </div>
-              {sprintModalMode === "edit" && (
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Status</label>
-                  <select
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                    value={sprintForm.status}
-                    onChange={(e) => setSprintForm({ ...sprintForm, status: e.target.value })}
-                  >
-                    <option value="PLANNED">Planned</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={sprintSubmitLoading || !sprintForm.name}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-70 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-              >
-                {sprintSubmitLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlusCircle className="w-3.5 h-3.5" />}
-                {sprintModalMode === "create" ? "Create Sprint" : "Update Sprint"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       {selectedProject.sprints && selectedProject.sprints.length > 0 ? (
         <div className="space-y-3">
@@ -372,6 +245,17 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
           )}
         </div>
       )}
+
+      {/* Feature Modals */}
+      <SprintModal
+        isOpen={isSprintModalOpen}
+        onClose={() => setIsSprintModalOpen(false)}
+        selectedProject={selectedProject}
+        userRole={userRole}
+        mode={sprintModalMode}
+        sprintToEdit={selectedProject.sprints?.find(s => s.id === editingSprintId)}
+        refreshProject={refreshProject}
+      />
     </div>
   );
 };
