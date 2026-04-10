@@ -68,10 +68,7 @@ model User {
   reportedIssues Issue[] @relation("IssueReporter")
 
   // 1:M — One User writes many Comments
-  comments      Comment[]
-  activityLogs  ActivityLog[]
-  notifications Notification[]
-  attachments   Attachment[]
+  comments Comment[]
 }
 
 model Project {
@@ -93,9 +90,7 @@ model Project {
   issues Issue[]
 
   // 1:M — One Project has many Sprints
-  sprints      Sprint[]
-  labels       Label[]
-  activityLogs ActivityLog[]
+  sprints Sprint[]
 }
 
 model Issue {
@@ -128,12 +123,6 @@ model Issue {
 
   // 1:M — One Issue has many SubTasks
   subTasks SubTask[]
-
-  // M:M — Many Issues have many Labels
-  labels Label[] @relation("IssueLabels")
-
-  // 1:M — One Issue has many Attachments
-  attachments Attachment[]
 }
 
 model Sprint {
@@ -179,66 +168,4 @@ model SubTask {
   // M:1 — Many SubTasks belong to one Issue
   issueId String
   issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
-}
-
-model Label {
-  id        String   @id @default(uuid())
-  name      String
-  color     String   @default("#000000")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // M:1 — Many Labels belong to one Project
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  // M:M — Many Labels belong to many Issues
-  issues Issue[] @relation("IssueLabels")
-}
-
-model ActivityLog {
-  id        String   @id @default(uuid())
-  action    String // e.g., "STATUS_CHANGE", "MEMBER_ADDED"
-  entity    String // e.g., "ISSUE", "PROJECT"
-  entityId  String
-  details   String? // JSON string for extra info
-  createdAt DateTime @default(now())
-
-  // M:1 — Many ActivityLogs are performed by one User
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // M:1 — Many ActivityLogs belong to one Project
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  message   String
-  type      String // e.g., "ASSIGNMENT", "COMMENT"
-  isRead    Boolean  @default(false)
-  link      String? // UI link to redirect
-  createdAt DateTime @default(now())
-
-  // M:1 — Many Notifications belong to one User
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Attachment {
-  id        String   @id @default(uuid())
-  filename  String
-  url       String
-  fileType  String
-  size      Int
-  createdAt DateTime @default(now())
-
-  // M:1 — Many Attachments belong to one Issue
-  issueId String
-  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
-
-  // M:1 — Many Attachments uploaded by one User
-  uploaderId String
-  uploader   User   @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
 }
