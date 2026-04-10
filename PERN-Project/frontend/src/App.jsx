@@ -25,7 +25,7 @@ const App = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await apiRequest.get("/users/");
+        const response = await apiRequest.get("/users");
         dispatch(setCurrentUser(response.data.data));
       } catch (error) {
         dispatch(setCheckingAuth(false));
