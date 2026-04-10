@@ -56,8 +56,8 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           className={`group mb-3 bg-white p-3.5 rounded-xl border transition-all duration-200 cursor-default flex flex-col ${snapshot.isDragging
-                              ? "shadow-lg border-blue-400 rotate-2 scale-102"
-                              : "shadow-sm border-slate-200 hover:border-blue-300 hover:shadow-md"
+                            ? "shadow-lg border-blue-400 rotate-2 scale-102"
+                            : "shadow-sm border-slate-200 hover:border-blue-300 hover:shadow-md"
                             }`}
                           style={{ ...provided.draggableProps.style }}
                         >

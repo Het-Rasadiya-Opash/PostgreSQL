@@ -13,20 +13,20 @@ import {
 import apiRequest from "../../utils/apiRequest";
 
 const statusConfig = {
-  TODO:        { label: "To Do",       bg: "bg-slate-100",   text: "text-slate-600",   border: "border-slate-200",  dot: "bg-slate-400" },
-  IN_PROGRESS: { label: "In Progress", bg: "bg-blue-50",     text: "text-blue-600",    border: "border-blue-200",   dot: "bg-blue-500" },
-  DONE:        { label: "Done",        bg: "bg-emerald-50",  text: "text-emerald-600", border: "border-emerald-200", dot: "bg-emerald-500" },
+  TODO: { label: "To Do", bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-400" },
+  IN_PROGRESS: { label: "In Progress", bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200", dot: "bg-blue-500" },
+  DONE: { label: "Done", bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200", dot: "bg-emerald-500" },
 };
 
 const priorityConfig = {
-  HIGH:   { dot: "bg-red-500",   label: "High",   badge: "bg-red-50 text-red-600 border-red-200" },
+  HIGH: { dot: "bg-red-500", label: "High", badge: "bg-red-50 text-red-600 border-red-200" },
   MEDIUM: { dot: "bg-amber-500", label: "Medium", badge: "bg-amber-50 text-amber-600 border-amber-200" },
-  LOW:    { dot: "bg-blue-400",  label: "Low",    badge: "bg-blue-50 text-blue-500 border-blue-200" },
+  LOW: { dot: "bg-blue-400", label: "Low", badge: "bg-blue-50 text-blue-500 border-blue-200" },
 };
 
 const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
   const [expandedIssues, setExpandedIssues] = useState({});
-  const [togglingId, setTogglingId]         = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
 
   const issues = selectedProject.issues || [];
 
@@ -45,12 +45,12 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
     }
   };
 
-  const totalIssues    = issues.length;
-  const doneIssues     = issues.filter((i) => i.status === "DONE").length;
-  const totalSubTasks  = issues.reduce((a, i) => a + (i.subTasks?.length || 0), 0);
-  const doneSubTasks   = issues.reduce((a, i) => a + (i.subTasks?.filter((s) => s.isCompleted).length || 0), 0);
-  const overallPct     = totalSubTasks > 0 ? Math.round((doneSubTasks / totalSubTasks) * 100) : 0;
-  const issuesPct      = totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0;
+  const totalIssues = issues.length;
+  const doneIssues = issues.filter((i) => i.status === "DONE").length;
+  const totalSubTasks = issues.reduce((a, i) => a + (i.subTasks?.length || 0), 0);
+  const doneSubTasks = issues.reduce((a, i) => a + (i.subTasks?.filter((s) => s.isCompleted).length || 0), 0);
+  const overallPct = totalSubTasks > 0 ? Math.round((doneSubTasks / totalSubTasks) * 100) : 0;
+  const issuesPct = totalIssues > 0 ? Math.round((doneIssues / totalIssues) * 100) : 0;
 
   return (
     <div className="space-y-5">
@@ -58,10 +58,10 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
       {/* ── Stats Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Issues",    value: totalIssues,   color: "text-slate-700",   bg: "bg-slate-50",   border: "border-slate-200" },
-          { label: "Completed",       value: doneIssues,    color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" },
-          { label: "Total Subtasks",  value: totalSubTasks, color: "text-violet-700",  bg: "bg-violet-50",  border: "border-violet-200" },
-          { label: "Subtasks Done",   value: doneSubTasks,  color: "text-blue-700",    bg: "bg-blue-50",    border: "border-blue-200" },
+          { label: "Total Issues", value: totalIssues, color: "text-slate-700", bg: "bg-slate-50", border: "border-slate-200" },
+          { label: "Completed", value: doneIssues, color: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-200" },
+          { label: "Total Subtasks", value: totalSubTasks, color: "text-violet-700", bg: "bg-violet-50", border: "border-violet-200" },
+          { label: "Subtasks Done", value: doneSubTasks, color: "text-blue-700", bg: "bg-blue-50", border: "border-blue-200" },
         ].map((s) => (
           <div key={s.label} className={`${s.bg} border ${s.border} rounded-2xl px-4 py-3`}>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
@@ -134,12 +134,12 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
         ) : (
           <div className="divide-y divide-slate-100">
             {issues.map((issue, idx) => {
-              const subTasks   = issue.subTasks || [];
-              const doneSubs   = subTasks.filter((s) => s.isCompleted).length;
-              const pct        = subTasks.length > 0 ? Math.round((doneSubs / subTasks.length) * 100) : 0;
+              const subTasks = issue.subTasks || [];
+              const doneSubs = subTasks.filter((s) => s.isCompleted).length;
+              const pct = subTasks.length > 0 ? Math.round((doneSubs / subTasks.length) * 100) : 0;
               const isExpanded = expandedIssues[issue.id];
-              const sCfg       = statusConfig[issue.status]   || statusConfig.TODO;
-              const pCfg       = priorityConfig[issue.priority] || priorityConfig.MEDIUM;
+              const sCfg = statusConfig[issue.status] || statusConfig.TODO;
+              const pCfg = priorityConfig[issue.priority] || priorityConfig.MEDIUM;
 
               return (
                 <div key={issue.id}>

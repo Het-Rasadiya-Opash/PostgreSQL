@@ -5,13 +5,13 @@ import { X } from "lucide-react";
  * Reusable Jira-style Modal Component
  * Handles backdrop, centering, animations, and dismissal via ESC/outside click.
  */
-const Modal = ({ 
-  isOpen, 
-  onClose, 
-  title, 
-  icon: Icon, 
-  children, 
-  maxWidth = "max-w-md" 
+const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  icon: Icon,
+  children,
+  maxWidth = "max-w-md"
 }) => {
   const modalRef = useRef(null);
 
@@ -38,13 +38,13 @@ const Modal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
         onClick={handleBackdropClick}
       />
 
       {/* Modal Container */}
-      <div 
+      <div
         ref={modalRef}
         className={`relative bg-white w-full ${maxWidth} rounded-2xl shadow-2xl border border-ads-border overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]`}
       >

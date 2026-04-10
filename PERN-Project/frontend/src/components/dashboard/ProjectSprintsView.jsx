@@ -7,7 +7,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
   const [isSprintModalOpen, setIsSprintModalOpen] = useState(false);
   const [sprintModalMode, setSprintModalMode] = useState("create");
   const [editingSprintId, setEditingSprintId] = useState(null);
-  
+
   const [expandedSprints, setExpandedSprints] = useState({});
   const [togglingId, setTogglingId] = useState(null);
 
@@ -75,8 +75,8 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
             const subTaskPct = totalSubTasks > 0 ? Math.round((doneSubTasks / totalSubTasks) * 100) : 0;
 
             const statusConfig = {
-              PLANNED:   { color: "bg-slate-50 text-slate-500 border-slate-200",   label: "Planned" },
-              ACTIVE:    { color: "bg-blue-50 text-blue-600 border-blue-200",       label: "Active" },
+              PLANNED: { color: "bg-slate-50 text-slate-500 border-slate-200", label: "Planned" },
+              ACTIVE: { color: "bg-blue-50 text-blue-600 border-blue-200", label: "Active" },
               COMPLETED: { color: "bg-emerald-50 text-emerald-600 border-emerald-200", label: "Completed" },
             };
             const cfg = statusConfig[sprint.status] || statusConfig.PLANNED;
@@ -182,15 +182,13 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                           <ChevronRight className="w-3 h-3 text-slate-400" />
                         )}
                       </div>
-                      <span className={`text-[11px] font-bold ${
-                        subTaskPct === 100 ? "text-emerald-600" : "text-slate-400"
-                      }`}>{subTaskPct}%</span>
+                      <span className={`text-[11px] font-bold ${subTaskPct === 100 ? "text-emerald-600" : "text-slate-400"
+                        }`}>{subTaskPct}%</span>
                     </button>
                     <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-1">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          subTaskPct === 100 ? "bg-emerald-500" : "bg-violet-400"
-                        }`}
+                        className={`h-full rounded-full transition-all duration-500 ${subTaskPct === 100 ? "bg-emerald-500" : "bg-violet-400"
+                          }`}
                         style={{ width: `${subTaskPct}%` }}
                       />
                     </div>
@@ -198,10 +196,10 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                     {/* Expandable subtask list */}
                     {expandedSprints[sprint.id] && (
                       <div className="mt-2 space-y-1 animate-in slide-in-from-top-2 duration-200">
-                        {sprintIssues.map(issue => 
+                        {sprintIssues.map(issue =>
                           (issue.subTasks || []).map(sub => (
-                            <div 
-                              key={sub.id} 
+                            <div
+                              key={sub.id}
                               className="flex items-center gap-2 pl-6 pr-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors group/sub"
                             >
                               <button
@@ -217,9 +215,8 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                                   <Circle className="w-3.5 h-3.5 text-slate-300 hover:text-blue-400" />
                                 )}
                               </button>
-                              <span className={`text-[11px] leading-tight truncate ${
-                                sub.isCompleted ? "line-through text-slate-400" : "text-slate-600"
-                              }`}>
+                              <span className={`text-[11px] leading-tight truncate ${sub.isCompleted ? "line-through text-slate-400" : "text-slate-600"
+                                }`}>
                                 {sub.title}
                               </span>
                               <span className="ml-auto text-[9px] font-bold text-slate-300 uppercase opacity-0 group-hover/sub:opacity-100 transition-opacity">
