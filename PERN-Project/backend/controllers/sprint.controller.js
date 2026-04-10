@@ -61,10 +61,26 @@ export const updateSprint = async (req, res) => {
 
     // AUTOMATION: Sync issue statuses with sprint status transitions
     if (status === "COMPLETED") {
+      // Get all issues in this sprint
+      const sprintIssues = await prisma.issue.findMany({
+        where: { sprintId: id },
+        select: { id: true },
+      });
+      const issueIds = sprintIssues.map((i) => i.id);
+
+      // Mark all issues DONE
       await prisma.issue.updateMany({
         where: { sprintId: id },
         data: { status: "DONE" },
       });
+
+      // Mark all subtasks of those issues as completed
+      if (issueIds.length > 0) {
+        await prisma.subTask.updateMany({
+          where: { issueId: { in: issueIds } },
+          data: { isCompleted: true },
+        });
+      }
     } else if (status === "ACTIVE") {
       await prisma.issue.updateMany({
         where: { sprintId: id, NOT: { status: "DONE" } }, // Don't move already done issues back to progress

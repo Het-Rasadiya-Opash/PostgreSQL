@@ -101,7 +101,7 @@ const AssignedIssuesSection = ({
                                    {issue.assignee.name ? issue.assignee.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : issue.assignee.email[0].toUpperCase()}
                                  </span>
                                </div>
-                               <span className="text-[9px] font-bold text-indigo-700 truncate max-w-[70px]">
+                               <span className="text-[9px] font-bold text-indigo-700 truncate max-w-17.5">
                                  {issue.assignee.name || issue.assignee.email.split('@')[0]}
                                </span>
                              </div>

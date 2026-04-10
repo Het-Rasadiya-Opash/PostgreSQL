@@ -4,7 +4,7 @@ import {
   Droppable,
   Draggable,
 } from "@hello-pangea/dnd";
-import { Users, Edit3, Trash2 } from "lucide-react";
+import { Users, Edit3, Trash2, CheckCircle2, Circle } from "lucide-react";
 
 const issueStatuses = ["TODO", "IN_PROGRESS", "DONE"];
 const statusLabels = {
@@ -19,7 +19,7 @@ const statusColors = {
   DONE: "bg-emerald-50",
 };
 
-const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, userRole }) => {
+const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleSubTask, userRole }) => {
   // Group issues by status
   const columns = issueStatuses.reduce((acc, status) => {
     acc[status] = issues.filter((issue) => issue.status === status);
@@ -56,15 +56,12 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, userRole 
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          onClick={() => onIssueClick(issue)}
-                          className={`group mb-3 bg-white p-3.5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col ${
+                          className={`group mb-3 bg-white p-3.5 rounded-xl border transition-all duration-200 cursor-default flex flex-col ${
                             snapshot.isDragging
                               ? "shadow-lg border-blue-400 rotate-2 scale-102"
                               : "shadow-sm border-slate-200 hover:border-blue-300 hover:shadow-md"
                           }`}
-                          style={{
-                            ...provided.draggableProps.style,
-                          }}
+                          style={{ ...provided.draggableProps.style }}
                         >
                           <div className="flex items-start justify-between mb-2">
                              <div className={`w-2 h-2 rounded-full mt-1 shrink-0 ${
@@ -79,6 +76,55 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, userRole 
                             <p className="text-xs text-slate-500 line-clamp-2 mb-3 px-1">{issue.description}</p>
                           )}
 
+                          {/* Subtask list */}
+                          {issue.subTasks?.length > 0 && (
+                            <div className="mb-3 px-1 space-y-1">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                  Subtasks
+                                </span>
+                                <span className="text-[10px] font-bold text-slate-400">
+                                  {issue.subTasks.filter(s => s.isCompleted).length}/{issue.subTasks.length}
+                                </span>
+                              </div>
+
+                              {/* Progress bar */}
+                              <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-2">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${
+                                    issue.subTasks.every(s => s.isCompleted) ? "bg-emerald-500" : "bg-violet-400"
+                                  }`}
+                                  style={{ width: `${Math.round((issue.subTasks.filter(s => s.isCompleted).length / issue.subTasks.length) * 100)}%` }}
+                                />
+                              </div>
+
+                              {/* Subtask rows */}
+                              {issue.subTasks.map((sub) => (
+                                <div
+                                  key={sub.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleSubTask && onToggleSubTask(sub.id, issue.id);
+                                  }}
+                                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                                    sub.isCompleted ? "bg-emerald-50/60 hover:bg-emerald-100/60" : "bg-slate-50 hover:bg-slate-100"
+                                  }`}
+                                >
+                                  {sub.isCompleted ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                  ) : (
+                                    <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                                  )}
+                                  <span className={`text-xs leading-tight truncate ${
+                                    sub.isCompleted ? "line-through text-slate-400" : "text-slate-600"
+                                  }`}>
+                                    {sub.title}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
                           <div className="mt-auto pt-3 border-t border-slate-100/80 flex items-center justify-between">
                             <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-bold">
                               {issue.project?.key ? `${issue.project.key}-${issue.id.slice(0,4)}` : `#${issue.id.slice(0,4)}`}
@@ -87,10 +133,7 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, userRole 
                             <div className="flex items-center gap-2">
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
-                                  onClick={(e) => {
-                                      e.stopPropagation();
-                                      onIssueClick(issue);
-                                  }}
+                                  onClick={() => onIssueClick(issue)}
                                   className="p-1 rounded-sm text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                                   title="Edit Issue"
                                 >

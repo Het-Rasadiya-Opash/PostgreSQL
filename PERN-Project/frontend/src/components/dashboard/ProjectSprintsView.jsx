@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Flag, PlusCircle, X, Edit3, Loader2 } from 'lucide-react';
+import { Calendar, Flag, PlusCircle, X, Edit3, Loader2, Play, CheckCheck, RotateCcw, CheckCircle2, Circle } from 'lucide-react';
 import apiRequest from '../../utils/apiRequest';
 
 const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
@@ -54,6 +54,15 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
       status: sprint.status || "PLANNED",
     });
     setIsSprintModalOpen(true);
+  };
+
+  const handleStatusChange = async (sprint, newStatus) => {
+    try {
+      await apiRequest.put(`/sprints/${sprint.id}`, { status: newStatus });
+      await refreshProject(selectedProject.id);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update sprint status");
+    }
   };
 
   return (
@@ -167,54 +176,129 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
 
       {selectedProject.sprints && selectedProject.sprints.length > 0 ? (
         <div className="space-y-3">
-          {selectedProject.sprints.map((sprint) => (
-            <div
-              key={sprint.id}
-              className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all duration-300 relative overflow-hidden"
-            >
-              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
-                  <Flag className="w-5 h-5 text-blue-600" />
+          {selectedProject.sprints.map((sprint) => {
+            const sprintIssues = selectedProject.issues?.filter(i => i.sprintId === sprint.id) || [];
+            const totalSubTasks = sprintIssues.reduce((acc, i) => acc + (i.subTasks?.length || 0), 0);
+            const doneSubTasks = sprintIssues.reduce((acc, i) => acc + (i.subTasks?.filter(s => s.isCompleted).length || 0), 0);
+            const subTaskPct = totalSubTasks > 0 ? Math.round((doneSubTasks / totalSubTasks) * 100) : 0;
+
+            const statusConfig = {
+              PLANNED:   { color: "bg-slate-50 text-slate-500 border-slate-200",   label: "Planned" },
+              ACTIVE:    { color: "bg-blue-50 text-blue-600 border-blue-200",       label: "Active" },
+              COMPLETED: { color: "bg-emerald-50 text-emerald-600 border-emerald-200", label: "Completed" },
+            };
+            const cfg = statusConfig[sprint.status] || statusConfig.PLANNED;
+
+            return (
+              <div
+                key={sprint.id}
+                className="group flex flex-col p-4 bg-white border border-slate-200 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                {/* Top row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
+                      <Flag className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-slate-900">{sprint.name}</h5>
+                      {sprint.goal && (
+                        <p className="text-xs text-slate-500 mt-0.5 italic line-clamp-1">{sprint.goal}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/* Status badge */}
+                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${cfg.color}`}>
+                      {cfg.label}
+                    </span>
+
+                    {/* Quick status action buttons — PROJECT_MANAGER only */}
+                    {userRole === "PROJECT_MANAGER" && (
+                      <div className="flex items-center gap-1">
+                        {sprint.status === "PLANNED" && (
+                          <button
+                            onClick={() => handleStatusChange(sprint, "ACTIVE")}
+                            title="Start Sprint"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer"
+                          >
+                            <Play className="w-3 h-3" /> Start
+                          </button>
+                        )}
+                        {sprint.status === "ACTIVE" && (
+                          <button
+                            onClick={() => handleStatusChange(sprint, "COMPLETED")}
+                            title="Complete Sprint"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer"
+                          >
+                            <CheckCheck className="w-3 h-3" /> Complete
+                          </button>
+                        )}
+                        {sprint.status === "COMPLETED" && (
+                          <button
+                            onClick={() => handleStatusChange(sprint, "PLANNED")}
+                            title="Reopen Sprint"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer"
+                          >
+                            <RotateCcw className="w-3 h-3" /> Reopen
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleEditSprint(sprint)}
+                          className="p-1.5 rounded-lg text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer"
+                          title="Edit Sprint"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h5 className="text-sm font-bold text-slate-900">{sprint.name}</h5>
-                  {sprint.goal && (
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1 italic">{sprint.goal}</p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-3 sm:mt-0 flex items-center gap-4 text-[11px] font-bold text-slate-400">
-                <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+
+                {/* Dates */}
+                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+                  <Calendar className="w-3.5 h-3.5" />
                   <span>
-                    {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : "—"} 
+                    {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : "—"}
                     {" → "}
                     {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : "—"}
                   </span>
                 </div>
-                <span className={`px-2 py-1 rounded-lg text-[10px] uppercase tracking-tighter border ${
-                  sprint.status === "ACTIVE" 
-                    ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                    : "bg-slate-50 text-slate-500 border-slate-100"
-                }`}>
-                  {sprint.status}
-                </span>
-                {userRole === "PROJECT_MANAGER" && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditSprint(sprint);
-                    }}
-                    className="p-1.5 rounded-lg text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 cursor-pointer"
-                    title="Edit Sprint"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
+
+                {/* Subtask progress */}
+                {totalSubTasks > 0 && (
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        {doneSubTasks === totalSubTasks ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                        ) : (
+                          <Circle className="w-3.5 h-3.5 text-slate-300" />
+                        )}
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          {doneSubTasks}/{totalSubTasks} subtasks complete
+                        </span>
+                      </div>
+                      <span className={`text-[11px] font-bold ${
+                        subTaskPct === 100 ? "text-emerald-600" : "text-slate-400"
+                      }`}>{subTaskPct}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          subTaskPct === 100 ? "bg-emerald-500" : "bg-violet-400"
+                        }`}
+                        style={{ width: `${subTaskPct}%` }}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-10 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">

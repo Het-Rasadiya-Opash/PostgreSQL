@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { AlertCircle, PlusCircle, Tag, X, Loader2 } from "lucide-react";
+import { AlertCircle, PlusCircle, Tag, X, Loader2, ListChecks, Circle, CheckCircle2, Trash2 as TrashIcon } from "lucide-react";
 import KanbanBoard from "../KanbanBoard";
 import apiRequest from "../../utils/apiRequest";
 import CommentSection from "./CommentSection";
-import { Search, Filter, Trash2 } from "lucide-react";
+import SubTaskSection from "./SubTaskSection";
+import { Search, Filter, Trash2, Plus } from "lucide-react";
 
 const ProjectBoardView = ({
   selectedProject,
@@ -23,6 +24,8 @@ const ProjectBoardView = ({
   const [issueSubmitLoading, setIssueSubmitLoading] = useState(false);
   const [issueModalMode, setIssueModalMode] = useState("create");
   const [editingIssueId, setEditingIssueId] = useState(null);
+  const [pendingSubTasks, setPendingSubTasks] = useState([]);
+  const [pendingSubTaskInput, setPendingSubTaskInput] = useState("");
   
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
@@ -35,17 +38,25 @@ const ProjectBoardView = ({
     try {
       setIssueSubmitLoading(true);
       if (issueModalMode === "create") {
-        await apiRequest.post("/issues", {
+        const res = await apiRequest.post("/issues", {
           ...issueForm,
           projectId: selectedProject.id,
         });
+        // Create pending subtasks after issue is saved
+        if (pendingSubTasks.length > 0) {
+          await Promise.all(
+            pendingSubTasks.map((title) =>
+              apiRequest.post(`/subtasks/${res.data.issue.id}`, { title })
+            )
+          );
+        }
       } else {
         await apiRequest.put(`/issues/${editingIssueId}`, issueForm);
       }
-      
+
       await refreshProject(selectedProject.id);
       fetchMyIssues();
-      
+
       setIssueForm({
         title: "",
         description: "",
@@ -54,6 +65,8 @@ const ProjectBoardView = ({
         assigneeId: "",
         sprintId: "",
       });
+      setPendingSubTasks([]);
+      setPendingSubTaskInput("");
       setIsIssueModalOpen(false);
       setEditingIssueId(null);
     } catch (err) {
@@ -112,6 +125,15 @@ const ProjectBoardView = ({
     }
   };
 
+  const handleToggleSubTask = async (subTaskId, issueId) => {
+    try {
+      await apiRequest.patch(`/subtasks/${subTaskId}/toggle`);
+      refreshProject(selectedProject.id);
+    } catch (err) {
+      console.error("Failed to toggle subtask:", err);
+    }
+  };
+
   const filteredIssues = selectedProject.issues?.filter(issue => {
     const matchesSearch = issue.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          issue.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -140,6 +162,8 @@ const ProjectBoardView = ({
               sprintId: "",
             });
             setEditingIssueId(null);
+            setPendingSubTasks([]);
+            setPendingSubTaskInput("");
             setIsIssueModalOpen(true);
           }}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-all duration-200 cursor-pointer"
@@ -301,6 +325,70 @@ const ProjectBoardView = ({
               </div>
             </div>
 
+            {/* Subtasks for create mode */}
+            {issueModalMode === "create" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ListChecks className="w-3.5 h-3.5 text-violet-500" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Subtasks {pendingSubTasks.length > 0 && `(${pendingSubTasks.length})`}
+                    </label>
+                  </div>
+                </div>
+
+                {pendingSubTasks.length > 0 && (
+                  <div className="space-y-1">
+                    {pendingSubTasks.map((title, idx) => (
+                      <div key={idx} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-violet-50/50 border border-violet-100">
+                        <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        <span className="flex-1 text-sm text-slate-700">{title}</span>
+                        <button
+                          type="button"
+                          onClick={() => setPendingSubTasks((prev) => prev.filter((_, i) => i !== idx))}
+                          className="p-1 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                        >
+                          <TrashIcon className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 focus-within:border-violet-300 focus-within:bg-violet-50/30 transition-all">
+                  <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Add a subtask and press Enter..."
+                    className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
+                    value={pendingSubTaskInput}
+                    onChange={(e) => setPendingSubTaskInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (pendingSubTaskInput.trim()) {
+                          setPendingSubTasks((prev) => [...prev, pendingSubTaskInput.trim()]);
+                          setPendingSubTaskInput("");
+                        }
+                      }
+                    }}
+                  />
+                  {pendingSubTaskInput.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPendingSubTasks((prev) => [...prev, pendingSubTaskInput.trim()]);
+                        setPendingSubTaskInput("");
+                      }}
+                      className="shrink-0 p-1 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-all"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
@@ -316,15 +404,14 @@ const ProjectBoardView = ({
               </button>
             </div>
 
-            {issueModalMode === "edit" && editingIssueId && (
-              <div className="border-t border-slate-100 px-1">
-                <CommentSection
-                  issueId={editingIssueId}
-                  currentUser={null}
-                />
-              </div>
-            )}
           </form>
+
+          {issueModalMode === "edit" && editingIssueId && (
+            <div className="px-1">
+              <SubTaskSection issueId={editingIssueId} />
+              {/* <CommentSection issueId={editingIssueId} currentUser={null} /> */}
+            </div>
+          )}
         </div>
       )}
 
@@ -335,6 +422,7 @@ const ProjectBoardView = ({
             onDragEnd={handleStatusDragUpdate}
             onIssueClick={handleEditIssue}
             onDeleteIssue={handleDeleteIssue}
+            onToggleSubTask={handleToggleSubTask}
             userRole={userRole}
           />
         </div>
