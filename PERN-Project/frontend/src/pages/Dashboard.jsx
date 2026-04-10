@@ -238,7 +238,7 @@ const Dashboard = () => {
     <div className="flex bg-slate-50 overflow-hidden h-screen relative">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -269,14 +269,14 @@ const Dashboard = () => {
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200 shrink-0 z-10 w-full">
           <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-inner">
-               <Zap className="w-4 h-4 text-white" />
-             </div>
-             <span className="font-bold text-slate-900 text-lg tracking-tight">
-               CoreOps
-             </span>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-inner">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-slate-900 text-lg tracking-tight">
+              CoreOps
+            </span>
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(true)}
             className="p-2 -mr-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
           >
@@ -288,127 +288,127 @@ const Dashboard = () => {
           id="main-scroll-area"
           className="flex-1 overflow-y-auto w-full relative pb-20 md:pb-0"
         >
-        {["DASHBOARD", "GLOBAL_PROJECTS", "GLOBAL_ISSUES", "PROFILE"].includes(currentView) && (
-          <div className="max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
-            {currentView === "DASHBOARD" && (
-              <DashboardHome
-                currentUser={currentUser}
-                role={role}
-                roleLabel={roleLabel}
-                initials={initials}
-                myIssues={myIssues}
-                projects={projects}
-              />
-            )}
+          {["DASHBOARD", "GLOBAL_PROJECTS", "GLOBAL_ISSUES", "PROFILE"].includes(currentView) && (
+            <div className="max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
+              {currentView === "DASHBOARD" && (
+                <DashboardHome
+                  currentUser={currentUser}
+                  role={role}
+                  roleLabel={roleLabel}
+                  initials={initials}
+                  myIssues={myIssues}
+                  projects={projects}
+                />
+              )}
 
-            {currentView === "GLOBAL_PROJECTS" && (
-              <ProjectsSection
-                projects={projects}
-                projectsLoading={projectsLoading}
-                projectsError={projectsError}
-                fetchProjects={fetchProjects}
-                userRole={userRole}
-                setModalMode={setModalMode}
-                setProjectForm={setProjectForm}
-                setIsProjectModalOpen={setIsProjectModalOpen}
-                handleProjectClick={handleProjectClick}
-                openEditModal={openEditModal}
-                handleDeleteProject={handleDeleteProject}
-              />
-            )}
+              {currentView === "GLOBAL_PROJECTS" && (
+                <ProjectsSection
+                  projects={projects}
+                  projectsLoading={projectsLoading}
+                  projectsError={projectsError}
+                  fetchProjects={fetchProjects}
+                  userRole={userRole}
+                  setModalMode={setModalMode}
+                  setProjectForm={setProjectForm}
+                  setIsProjectModalOpen={setIsProjectModalOpen}
+                  handleProjectClick={handleProjectClick}
+                  openEditModal={openEditModal}
+                  handleDeleteProject={handleDeleteProject}
+                />
+              )}
 
-            {currentView === "GLOBAL_ISSUES" && (
-              <AssignedIssuesSection
-                myIssues={myIssues}
-                myIssuesLoading={myIssuesLoading}
-                userRole={userRole}
-              />
-            )}
+              {currentView === "GLOBAL_ISSUES" && (
+                <AssignedIssuesSection
+                  myIssues={myIssues}
+                  myIssuesLoading={myIssuesLoading}
+                  userRole={userRole}
+                />
+              )}
 
-            {currentView === "PROFILE" && (
-              <ProfileSettings currentUser={currentUser} />
-            )}
-          </div>
-        )}
-
-        {/* ── PROJECT WORKSPACE ── */}
-        {selectedProject && currentView.startsWith("PROJECT_") && (
-          <div className="max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
-            {/* Header (Shared across project views) */}
-            <div className="flex items-center justify-between pb-6 border-b border-slate-200">
-              <div>
-                <h2 className="text-2xl font-extrabold text-slate-900">
-                  {selectedProject.name}
-                </h2>
-                <p className="text-sm font-semibold text-slate-500 mt-1 flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold uppercase">
-                    {selectedProject.key}
-                  </span>
-                  <span>•</span>
-                  <span className="capitalize">
-                    {currentView.replace("PROJECT_", "").toLowerCase().replace("_", " ")}
-                  </span>
-                </p>
-              </div>
-              <button
-                onClick={closeProjectDetailsModal}
-                className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              {currentView === "PROFILE" && (
+                <ProfileSettings currentUser={currentUser} />
+              )}
             </div>
+          )}
 
-            {currentView === "PROJECT_TEAM" && (
-              <ProjectTeamView
-                selectedProject={selectedProject}
-                userRole={userRole}
-                refreshProject={fetchProjectDetails}
-                fetchProjects={fetchProjects}
-              />
-            )}
+          {/* ── PROJECT WORKSPACE ── */}
+          {selectedProject && currentView.startsWith("PROJECT_") && (
+            <div className="max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
+              {/* Header (Shared across project views) */}
+              <div className="flex items-center justify-between pb-6 border-b border-slate-200">
+                <div>
+                  <h2 className="text-2xl font-extrabold text-slate-900">
+                    {selectedProject.name}
+                  </h2>
+                  <p className="text-sm font-semibold text-slate-500 mt-1 flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold uppercase">
+                      {selectedProject.key}
+                    </span>
+                    <span>•</span>
+                    <span className="capitalize">
+                      {currentView.replace("PROJECT_", "").toLowerCase().replace("_", " ")}
+                    </span>
+                  </p>
+                </div>
+                <button
+                  onClick={closeProjectDetailsModal}
+                  className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            {currentView === "PROJECT_SPRINTS" && (
-              <ProjectSprintsView
-                selectedProject={selectedProject}
-                userRole={userRole}
-                refreshProject={fetchProjectDetails}
-              />
-            )}
+              {currentView === "PROJECT_TEAM" && (
+                <ProjectTeamView
+                  selectedProject={selectedProject}
+                  userRole={userRole}
+                  refreshProject={fetchProjectDetails}
+                  fetchProjects={fetchProjects}
+                />
+              )}
 
-            {currentView === "PROJECT_BOARD" && (
-              <ProjectBoardView
-                selectedProject={selectedProject}
-                userRole={userRole}
-                refreshProject={fetchProjectDetails}
-                fetchMyIssues={fetchMyIssues}
-              />
-            )}
+              {currentView === "PROJECT_SPRINTS" && (
+                <ProjectSprintsView
+                  selectedProject={selectedProject}
+                  userRole={userRole}
+                  refreshProject={fetchProjectDetails}
+                />
+              )}
 
-            {currentView === "PROJECT_BACKLOG" && (
-              <BacklogView
-                selectedProject={selectedProject}
-                userRole={userRole}
-                onIssueClick={(issue) => {
-                  // Reuse logic from Board if needed, or just view
-                  setCurrentView("PROJECT_BOARD");
-                }}
-              />
-            )}
+              {currentView === "PROJECT_BOARD" && (
+                <ProjectBoardView
+                  selectedProject={selectedProject}
+                  userRole={userRole}
+                  refreshProject={fetchProjectDetails}
+                  fetchMyIssues={fetchMyIssues}
+                />
+              )}
 
-            {currentView === "PROJECT_ANALYTICS" && (
-              <AnalyticsDashboard
-                selectedProject={selectedProject}
-              />
-            )}
+              {currentView === "PROJECT_BACKLOG" && (
+                <BacklogView
+                  selectedProject={selectedProject}
+                  userRole={userRole}
+                  onIssueClick={(issue) => {
+                    // Reuse logic from Board if needed, or just view
+                    setCurrentView("PROJECT_BOARD");
+                  }}
+                />
+              )}
 
-            {currentView === "PROJECT_PLAN" && (
-              <ImplementationPlanView
-                selectedProject={selectedProject}
-                refreshProject={fetchProjectDetails}
-              />
-            )}
-          </div>
-        )}
+              {currentView === "PROJECT_ANALYTICS" && (
+                <AnalyticsDashboard
+                  selectedProject={selectedProject}
+                />
+              )}
+
+              {currentView === "PROJECT_PLAN" && (
+                <ImplementationPlanView
+                  selectedProject={selectedProject}
+                  refreshProject={fetchProjectDetails}
+                />
+              )}
+            </div>
+          )}
         </main>
       </div>
 

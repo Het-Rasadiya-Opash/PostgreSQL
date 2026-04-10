@@ -26,7 +26,7 @@ const ProjectBoardView = ({
   const [editingIssueId, setEditingIssueId] = useState(null);
   const [pendingSubTasks, setPendingSubTasks] = useState([]);
   const [pendingSubTaskInput, setPendingSubTaskInput] = useState("");
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
 
@@ -135,8 +135,8 @@ const ProjectBoardView = ({
   };
 
   const filteredIssues = selectedProject.issues?.filter(issue => {
-    const matchesSearch = issue.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         issue.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      issue.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPriority = priorityFilter === "ALL" || issue.priority === priorityFilter;
     return matchesSearch && matchesPriority;
   }) || [];
@@ -177,7 +177,7 @@ const ProjectBoardView = ({
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input 
+          <input
             type="text"
             placeholder="Search issues..."
             className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
@@ -438,7 +438,7 @@ const ProjectBoardView = ({
         </div>
       )}
     </div>
-  
+
   );
 };
 

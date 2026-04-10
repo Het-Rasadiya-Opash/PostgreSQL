@@ -45,9 +45,8 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className={`flex-1 rounded-2xl p-2 min-h-37.5 transition-colors border border-dashed ${
-                    snapshot.isDraggingOver ? "bg-slate-100 border-slate-300" : "bg-slate-50/50 border-transparent hover:border-slate-200"
-                  }`}
+                  className={`flex-1 rounded-2xl p-2 min-h-37.5 transition-colors border border-dashed ${snapshot.isDraggingOver ? "bg-slate-100 border-slate-300" : "bg-slate-50/50 border-transparent hover:border-slate-200"
+                    }`}
                 >
                   {columns[status].map((issue, index) => (
                     <Draggable key={issue.id} draggableId={issue.id} index={index}>
@@ -56,22 +55,20 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`group mb-3 bg-white p-3.5 rounded-xl border transition-all duration-200 cursor-default flex flex-col ${
-                            snapshot.isDragging
+                          className={`group mb-3 bg-white p-3.5 rounded-xl border transition-all duration-200 cursor-default flex flex-col ${snapshot.isDragging
                               ? "shadow-lg border-blue-400 rotate-2 scale-102"
                               : "shadow-sm border-slate-200 hover:border-blue-300 hover:shadow-md"
-                          }`}
+                            }`}
                           style={{ ...provided.draggableProps.style }}
                         >
                           <div className="flex items-start justify-between mb-2">
-                             <div className={`w-2 h-2 rounded-full mt-1 shrink-0 ${
-                                issue.priority === "HIGH" ? "bg-red-500" : issue.priority === "MEDIUM" ? "bg-amber-500" : "bg-blue-500"
+                            <div className={`w-2 h-2 rounded-full mt-1 shrink-0 ${issue.priority === "HIGH" ? "bg-red-500" : issue.priority === "MEDIUM" ? "bg-amber-500" : "bg-blue-500"
                               }`} title={`Priority: ${issue.priority}`} />
-                             <p className="text-sm font-bold text-slate-800 flex-1 ml-2 leading-tight">
-                               {issue.title}
-                             </p>
+                            <p className="text-sm font-bold text-slate-800 flex-1 ml-2 leading-tight">
+                              {issue.title}
+                            </p>
                           </div>
-                          
+
                           {issue.description && (
                             <p className="text-xs text-slate-500 line-clamp-2 mb-3 px-1">{issue.description}</p>
                           )}
@@ -91,9 +88,8 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                               {/* Progress bar */}
                               <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-2">
                                 <div
-                                  className={`h-full rounded-full transition-all duration-300 ${
-                                    issue.subTasks.every(s => s.isCompleted) ? "bg-emerald-500" : "bg-violet-400"
-                                  }`}
+                                  className={`h-full rounded-full transition-all duration-300 ${issue.subTasks.every(s => s.isCompleted) ? "bg-emerald-500" : "bg-violet-400"
+                                    }`}
                                   style={{ width: `${Math.round((issue.subTasks.filter(s => s.isCompleted).length / issue.subTasks.length) * 100)}%` }}
                                 />
                               </div>
@@ -106,18 +102,16 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                                     e.stopPropagation();
                                     onToggleSubTask && onToggleSubTask(sub.id, issue.id);
                                   }}
-                                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
-                                    sub.isCompleted ? "bg-emerald-50/60 hover:bg-emerald-100/60" : "bg-slate-50 hover:bg-slate-100"
-                                  }`}
+                                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${sub.isCompleted ? "bg-emerald-50/60 hover:bg-emerald-100/60" : "bg-slate-50 hover:bg-slate-100"
+                                    }`}
                                 >
                                   {sub.isCompleted ? (
                                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                                   ) : (
                                     <Circle className="w-3.5 h-3.5 text-slate-300 shrink-0" />
                                   )}
-                                  <span className={`text-xs leading-tight truncate ${
-                                    sub.isCompleted ? "line-through text-slate-400" : "text-slate-600"
-                                  }`}>
+                                  <span className={`text-xs leading-tight truncate ${sub.isCompleted ? "line-through text-slate-400" : "text-slate-600"
+                                    }`}>
                                     {sub.title}
                                   </span>
                                 </div>
@@ -127,7 +121,7 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
 
                           <div className="mt-auto pt-3 border-t border-slate-100/80 flex items-center justify-between">
                             <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-bold">
-                              {issue.project?.key ? `${issue.project.key}-${issue.id.slice(0,4)}` : `#${issue.id.slice(0,4)}`}
+                              {issue.project?.key ? `${issue.project.key}-${issue.id.slice(0, 4)}` : `#${issue.id.slice(0, 4)}`}
                             </span>
 
                             <div className="flex items-center gap-2">
@@ -152,16 +146,16 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                                   </button>
                                 )}
                               </div>
-                              
+
                               {/* Assignee */}
                               {issue.assignee ? (
-                                <div 
+                                <div
                                   className="flex items-center gap-2 px-2 py-1 rounded-full bg-indigo-50 border border-indigo-100 shadow-xs"
                                   title={`Assigned to ${issue.assignee.name || issue.assignee.email}`}
                                 >
                                   <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
                                     <span className="text-[8px] font-bold text-white">
-                                      {issue.assignee.name ? issue.assignee.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : issue.assignee.email[0].toUpperCase()}
+                                      {issue.assignee.name ? issue.assignee.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : issue.assignee.email[0].toUpperCase()}
                                     </span>
                                   </div>
                                   <span className="text-[10px] font-bold text-indigo-700 truncate max-w-20">
@@ -169,7 +163,7 @@ const KanbanBoard = ({ issues, onDragEnd, onIssueClick, onDeleteIssue, onToggleS
                                   </span>
                                 </div>
                               ) : (
-                                <div 
+                                <div
                                   className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-50 border border-slate-100"
                                   title="Unassigned"
                                 >

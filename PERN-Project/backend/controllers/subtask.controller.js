@@ -18,7 +18,8 @@ export const toggleSubTask = async (req, res) => {
   const { id } = req.params;
   try {
     const existing = await prisma.subTask.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "SubTask not found" });
+    if (!existing)
+      return res.status(404).json({ message: "SubTask not found" });
 
     const subTask = await prisma.subTask.update({
       where: { id },

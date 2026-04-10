@@ -140,27 +140,27 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
       </div>
 
       <div className="bg-slate-900 rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl border border-slate-800">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" />
-          
-          <div className="relative z-10 max-w-2xl">
-              <h5 className="text-2xl sm:text-3xl font-extrabold mb-4 leading-tight">Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀</h5>
-              <p className="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed max-w-xl">
-                 You currently have <span className="text-blue-400 font-bold underline decoration-blue-400/30 underline-offset-4">{todoTasks}</span> tasks pending in your queue. Ready to tackle them and boost your productivity?
-              </p>
-              <div className="flex flex-wrap gap-4">
-                  <button 
-                    className="px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-sm font-bold transition-all shadow-xl shadow-blue-500/25 hover:scale-105 active:scale-95"
-                  >
-                     Go to My Issues
-                  </button>
-                  <button 
-                    className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-sm font-bold transition-all backdrop-blur-md border border-white/10 hover:border-white/20"
-                  >
-                     View Projects
-                  </button>
-              </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" />
+
+        <div className="relative z-10 max-w-2xl">
+          <h5 className="text-2xl sm:text-3xl font-extrabold mb-4 leading-tight">Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀</h5>
+          <p className="text-base sm:text-lg text-slate-300 mb-8 leading-relaxed max-w-xl">
+            You currently have <span className="text-blue-400 font-bold underline decoration-blue-400/30 underline-offset-4">{todoTasks}</span> tasks pending in your queue. Ready to tackle them and boost your productivity?
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <button
+              className="px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-sm font-bold transition-all shadow-xl shadow-blue-500/25 hover:scale-105 active:scale-95"
+            >
+              Go to My Issues
+            </button>
+            <button
+              className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-sm font-bold transition-all backdrop-blur-md border border-white/10 hover:border-white/20"
+            >
+              View Projects
+            </button>
           </div>
+        </div>
       </div>
     </>
   );
