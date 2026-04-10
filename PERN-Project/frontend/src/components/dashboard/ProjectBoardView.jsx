@@ -72,11 +72,11 @@ const ProjectBoardView = ({
   }) || [];
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 overflow-hidden">
+    <div className="bg-ads-surface-white rounded-2xl border border-ads-border shadow-sm p-4 sm:p-6 overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-slate-500" />
-          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+          <AlertCircle className="w-4 h-4 text-ads-text-subtlest" />
+          <h4 className="text-sm font-bold text-ads-text-subtlest uppercase tracking-wider">
             Issues ({selectedProject.issues?.length || 0})
           </h4>
         </div>
@@ -86,7 +86,7 @@ const ProjectBoardView = ({
             setEditingIssueId(null);
             setIsIssueModalOpen(true);
           }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-ads-success hover:bg-ads-success-light border border-ads-success/20 transition-all duration-200 cursor-pointer"
         >
           <PlusCircle className="w-3.5 h-3.5" />
           <span>Add Issue</span>
@@ -96,19 +96,19 @@ const ProjectBoardView = ({
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ads-text-subtlest" />
           <input
             type="text"
             placeholder="Search issues..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+            className="w-full pl-9 pr-4 py-2 rounded-xl border border-ads-border bg-ads-surface text-sm focus:ring-2 focus:ring-ads-primary/10 focus:border-ads-primary outline-none transition-all"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-400" />
+          <Filter className="w-4 h-4 text-ads-text-subtlest" />
           <select
-            className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+            className="px-3 py-2 rounded-xl border border-ads-border bg-ads-surface text-sm focus:ring-2 focus:ring-ads-primary/10 focus:border-ads-primary outline-none transition-all"
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
           >
@@ -132,12 +132,12 @@ const ProjectBoardView = ({
           />
         </div>
       ) : (
-        <div className="text-center py-10 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-          <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-          <p className="text-sm font-medium text-slate-500">
+        <div className="text-center py-10 bg-ads-surface/50 rounded-2xl border border-dashed border-ads-border">
+          <AlertCircle className="w-8 h-8 mx-auto mb-2 text-ads-text-subtlest" />
+          <p className="text-sm font-medium text-ads-text-subtle">
             No issues reported yet
           </p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-ads-text-subtlest mt-1">
             Start tracking tasks and bugs by adding your first issue
           </p>
         </div>

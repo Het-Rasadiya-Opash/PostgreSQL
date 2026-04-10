@@ -43,11 +43,11 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
+    <div className="bg-ads-surface-white rounded-2xl border border-ads-border shadow-sm p-6 overflow-hidden">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-slate-500" />
-          <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+          <Calendar className="w-4 h-4 text-ads-text-subtlest" />
+          <h4 className="text-sm font-bold text-ads-text-subtlest uppercase tracking-wider">
             Sprints ({selectedProject.sprints?.length || 0})
           </h4>
         </div>
@@ -58,7 +58,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
               setEditingSprintId(null);
               setIsSprintModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-blue-600 hover:bg-blue-50 border border-blue-200 transition-all duration-200 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-ads-primary hover:bg-ads-primary-light border border-ads-primary/20 transition-all duration-200 cursor-pointer"
           >
             <PlusCircle className="w-3.5 h-3.5" />
             <span>New Sprint</span>
@@ -75,29 +75,29 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
             const subTaskPct = totalSubTasks > 0 ? Math.round((doneSubTasks / totalSubTasks) * 100) : 0;
 
             const statusConfig = {
-              PLANNED: { color: "bg-slate-50 text-slate-500 border-slate-200", label: "Planned" },
-              ACTIVE: { color: "bg-blue-50 text-blue-600 border-blue-200", label: "Active" },
-              COMPLETED: { color: "bg-emerald-50 text-emerald-600 border-emerald-200", label: "Completed" },
+              PLANNED: { color: "bg-ads-surface text-ads-text-subtle border-ads-border", label: "Planned" },
+              ACTIVE: { color: "bg-ads-primary-light text-ads-primary border-ads-primary/20", label: "Active" },
+              COMPLETED: { color: "bg-ads-success-light text-ads-success border-ads-success/20", label: "Completed" },
             };
             const cfg = statusConfig[sprint.status] || statusConfig.PLANNED;
 
             return (
               <div
                 key={sprint.id}
-                className="group flex flex-col p-4 bg-white border border-slate-200 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                className="group flex flex-col p-4 bg-white border border-ads-border rounded-2xl hover:border-ads-primary/20 hover:shadow-md transition-all duration-300 relative overflow-hidden"
               >
-                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 left-0 w-1 h-full bg-ads-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 {/* Top row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
-                      <Flag className="w-4 h-4 text-blue-600" />
+                    <div className="w-9 h-9 rounded-xl bg-ads-primary-light flex items-center justify-center shrink-0 border border-ads-primary/10">
+                      <Flag className="w-4 h-4 text-ads-primary" />
                     </div>
                     <div>
-                      <h5 className="text-sm font-bold text-slate-900">{sprint.name}</h5>
+                      <h5 className="text-sm font-bold text-ads-text">{sprint.name}</h5>
                       {sprint.goal && (
-                        <p className="text-xs text-slate-500 mt-0.5 italic line-clamp-1">{sprint.goal}</p>
+                        <p className="text-xs text-ads-text-subtle mt-0.5 italic line-clamp-1">{sprint.goal}</p>
                       )}
                     </div>
                   </div>
@@ -115,7 +115,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                           <button
                             onClick={() => handleStatusChange(sprint, "ACTIVE")}
                             title="Start Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-primary bg-ads-primary-light hover:bg-ads-primary-light/80 border border-ads-primary/20 transition-all cursor-pointer"
                           >
                             <Play className="w-3 h-3" /> Start
                           </button>
@@ -124,7 +124,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                           <button
                             onClick={() => handleStatusChange(sprint, "COMPLETED")}
                             title="Complete Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-success bg-ads-success-light hover:bg-ads-success-light/80 border border-ads-success/20 transition-all cursor-pointer"
                           >
                             <CheckCheck className="w-3 h-3" /> Complete
                           </button>
@@ -133,14 +133,14 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                           <button
                             onClick={() => handleStatusChange(sprint, "PLANNED")}
                             title="Reopen Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-text-subtle bg-ads-surface hover:bg-ads-surface-hover border border-ads-border transition-all cursor-pointer"
                           >
                             <RotateCcw className="w-3 h-3" /> Reopen
                           </button>
                         )}
                         <button
                           onClick={() => handleEditSprint(sprint)}
-                          className="p-1.5 rounded-lg text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-all cursor-pointer"
+                          className="p-1.5 rounded-lg text-ads-text-subtlest hover:text-ads-primary hover:bg-ads-primary-light transition-all cursor-pointer"
                           title="Edit Sprint"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -151,7 +151,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                 </div>
 
                 {/* Dates */}
-                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+                <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-ads-text-subtlest">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>
                     {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : "—"}
@@ -162,32 +162,32 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
 
                 {/* Subtask progress */}
                 {totalSubTasks > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-100">
+                  <div className="mt-3 pt-3 border-t border-ads-border/20">
                     <button
                       onClick={() => toggleSprintSubTasks(sprint.id)}
-                      className="w-full flex items-center justify-between mb-1.5 hover:bg-slate-50 p-1 rounded-lg transition-colors cursor-pointer group/progress"
+                      className="w-full flex items-center justify-between mb-1.5 hover:bg-ads-surface-hover p-1 rounded-lg transition-colors cursor-pointer group/progress"
                     >
                       <div className="flex items-center gap-1.5">
                         {doneSubTasks === totalSubTasks ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-ads-success" />
                         ) : (
-                          <Circle className="w-3.5 h-3.5 text-slate-300 group-hover/progress:text-blue-400" />
+                          <Circle className="w-3.5 h-3.5 text-ads-border group-hover/progress:text-ads-primary" />
                         )}
-                        <span className="text-[11px] font-semibold text-slate-500">
+                        <span className="text-[11px] font-semibold text-ads-text-subtle">
                           {doneSubTasks}/{totalSubTasks} subtasks complete
                         </span>
                         {expandedSprints[sprint.id] ? (
-                          <ChevronDown className="w-3 h-3 text-slate-400" />
+                          <ChevronDown className="w-3 h-3 text-ads-text-subtlest" />
                         ) : (
-                          <ChevronRight className="w-3 h-3 text-slate-400" />
+                          <ChevronRight className="w-3 h-3 text-ads-text-subtlest" />
                         )}
                       </div>
-                      <span className={`text-[11px] font-bold ${subTaskPct === 100 ? "text-emerald-600" : "text-slate-400"
+                      <span className={`text-[11px] font-bold ${subTaskPct === 100 ? "text-ads-success" : "text-ads-text-subtlest"
                         }`}>{subTaskPct}%</span>
                     </button>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-1">
+                    <div className="w-full h-1.5 bg-ads-surface rounded-full overflow-hidden mb-1">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${subTaskPct === 100 ? "bg-emerald-500" : "bg-violet-400"
+                        className={`h-full rounded-full transition-all duration-500 ${subTaskPct === 100 ? "bg-ads-success" : "bg-ads-primary"
                           }`}
                         style={{ width: `${subTaskPct}%` }}
                       />
