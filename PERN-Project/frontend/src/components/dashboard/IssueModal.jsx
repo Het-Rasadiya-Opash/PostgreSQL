@@ -6,7 +6,8 @@ import {
   Circle, 
   Plus, 
   Trash2 as TrashIcon,
-  AlertCircle
+  AlertCircle,
+  CalendarClock,
 } from "lucide-react";
 import Modal from "../ui/Modal";
 import apiRequest from "../../utils/apiRequest";
@@ -31,6 +32,7 @@ const IssueModal = ({
     priority: "MEDIUM",
     assigneeId: "",
     sprintId: "",
+    dueDate: "",
   });
   const [issueSubmitLoading, setIssueSubmitLoading] = useState(false);
   const [pendingSubTasks, setPendingSubTasks] = useState([]);
@@ -46,6 +48,7 @@ const IssueModal = ({
         priority: issueToEdit.priority,
         assigneeId: issueToEdit.assigneeId || "",
         sprintId: issueToEdit.sprintId || "",
+        dueDate: issueToEdit.dueDate ? issueToEdit.dueDate.split("T")[0] : "",
       });
       setPendingSubTasks([]);
     } else {
@@ -56,6 +59,7 @@ const IssueModal = ({
         priority: "MEDIUM",
         assigneeId: "",
         sprintId: "",
+        dueDate: "",
       });
       setPendingSubTasks([]);
     }
@@ -72,9 +76,10 @@ const IssueModal = ({
         const res = await apiRequest.post("/issues", {
           ...issueForm,
           projectId: selectedProject.id,
+          assigneeId: issueForm.assigneeId || undefined,
+          sprintId: issueForm.sprintId || undefined,
+          dueDate: issueForm.dueDate || undefined,
         });
-        
-        // Create pending subtasks after issue is saved
         if (pendingSubTasks.length > 0) {
           await Promise.all(
             pendingSubTasks.map((title) =>
@@ -83,7 +88,12 @@ const IssueModal = ({
           );
         }
       } else {
-        await apiRequest.put(`/issues/${issueToEdit.id}`, issueForm);
+        await apiRequest.put(`/issues/${issueToEdit.id}`, {
+          ...issueForm,
+          assigneeId: issueForm.assigneeId || null,
+          sprintId: issueForm.sprintId || null,
+          dueDate: issueForm.dueDate || null,
+        });
       }
 
       await refreshProject(selectedProject.id);
@@ -207,6 +217,19 @@ const IssueModal = ({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-2">
+              <label className="text-[10px] font-bold text-ads-text-subtlest uppercase tracking-wider ml-1 flex items-center gap-1">
+                <CalendarClock className="w-3 h-3" /> Due Date
+              </label>
+              <input
+                type="date"
+                disabled={isDeveloperEdit}
+                className="w-full h-10 px-3 py-2 rounded-md border border-ads-border bg-white text-sm focus:ring-2 focus:ring-ads-border-focus outline-none transition-all disabled:bg-ads-surface disabled:text-ads-text-subtlest"
+                value={issueForm.dueDate}
+                onChange={(e) => setIssueForm({ ...issueForm, dueDate: e.target.value })}
+              />
             </div>
           </div>
 

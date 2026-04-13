@@ -118,6 +118,8 @@ model Issue {
   sprintId String?
   sprint   Sprint? @relation(fields: [sprintId], references: [id], onDelete: SetNull)
 
+  dueDate   DateTime?
+
   // 1:M — One Issue has many Comments
   comments Comment[]
 
