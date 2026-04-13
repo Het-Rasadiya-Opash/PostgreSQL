@@ -86,6 +86,17 @@ export const createIssue = async (req, res) => {
       },
     });
 
+    // Notify assignee
+    if (assigneeId && assigneeId !== userId) {
+      await prisma.notification.create({
+        data: {
+          userId: assigneeId,
+          message: `You were assigned to issue "${title}"`,
+          type: "ASSIGNMENT",
+        },
+      });
+    }
+
 
 
     res.status(201).json({
@@ -158,10 +169,63 @@ export const updateIssue = async (req, res) => {
     if (sprintId !== undefined) updateData.sprintId = sprintId || null;
     if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
 
+    // Fetch BEFORE update for comparison
+    const existing = await prisma.issue.findUnique({
+      where: { id },
+      select: {
+        title: true,
+        status: true,
+        assigneeId: true,
+        project: {
+          select: {
+            ownerId: true,
+            members: { select: { id: true, role: true } },
+          },
+        },
+      },
+    });
+
     const issue = await prisma.issue.update({
       where: { id },
       data: updateData,
     });
+
+    const actorId = req.user.userId;
+    const actorRole = req.user.role?.toUpperCase();
+    const statusLabels = { TODO: "To Do", IN_PROGRESS: "In Progress", DONE: "Done" };
+
+    // Notify PM when status changes (triggered by DEVELOPER or any non-PM)
+    if (status && existing && status !== existing.status && actorRole !== "PROJECT_MANAGER") {
+      const pmIds = [
+        existing.project.ownerId,
+        ...existing.project.members
+          .filter((m) => m.role === "PROJECT_MANAGER")
+          .map((m) => m.id),
+      ].filter((pmId) => pmId !== actorId);
+
+      const uniquePmIds = [...new Set(pmIds)];
+      if (uniquePmIds.length > 0) {
+        await prisma.notification.createMany({
+          data: uniquePmIds.map((pmId) => ({
+            userId: pmId,
+            message: `Issue "${existing.title}" status changed from ${statusLabels[existing.status] || existing.status} → ${statusLabels[status] || status}`,
+            type: "STATUS_CHANGE",
+          })),
+          skipDuplicates: true,
+        });
+      }
+    }
+
+    // Notify new assignee if changed
+    if (assigneeId && assigneeId !== actorId && existing && existing.assigneeId !== assigneeId) {
+      await prisma.notification.create({
+        data: {
+          userId: assigneeId,
+          message: `You were assigned to issue "${existing.title}"`,
+          type: "ASSIGNMENT",
+        },
+      });
+    }
 
 
     res.json({ message: "Issue updated successfully", issue });

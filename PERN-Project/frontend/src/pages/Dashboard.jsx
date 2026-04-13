@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../features/usersSlice";
 import apiRequest from "../utils/apiRequest";
 import { X, Menu, Zap } from "lucide-react";
+import NotificationBell from "../components/dashboard/NotificationBell";
 
 // Extracted Components
 import Sidebar from "../components/dashboard/Sidebar";
@@ -276,13 +277,27 @@ const Dashboard = () => {
               CoreOps
             </span>
           </div>
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="p-2 -mr-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 -mr-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </header>
+
+        {/* Desktop top-right notification bell */}
+        <div className="hidden md:flex items-center justify-between px-6 py-2.5 border-b border-slate-100 bg-white shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Zap className="w-3.5 h-3.5 text-white" />
+            </div>
+            <span className="font-bold text-slate-700 text-sm">CoreOps</span>
+          </div>
+          <NotificationBell />
+        </div>
 
         <main
           id="main-scroll-area"
