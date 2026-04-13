@@ -91,6 +91,7 @@ const SubTaskSection = ({ issueId }) => {
           )}
         </div>
         <button
+          type="button"
           onClick={() => setShowInput((v) => !v)}
           className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 ${
             showInput
@@ -134,6 +135,7 @@ const SubTaskSection = ({ issueId }) => {
               }`}
             >
               <button
+                type="button"
                 onClick={() => handleToggle(sub.id)}
                 disabled={togglingId === sub.id}
                 className="shrink-0 transition-all duration-200 hover:scale-110"
@@ -156,6 +158,7 @@ const SubTaskSection = ({ issueId }) => {
               </span>
 
               <button
+                type="button"
                 onClick={() => handleDelete(sub.id)}
                 disabled={deletingId === sub.id}
                 className="opacity-0 group-hover:opacity-100 shrink-0 p-1 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all duration-150"
@@ -185,6 +188,7 @@ const SubTaskSection = ({ issueId }) => {
             onKeyDown={handleKeyDown}
           />
           <button
+            type="button"
             onClick={handleAdd}
             disabled={adding || !newTitle.trim()}
             className="shrink-0 mr-1 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-1"
@@ -198,6 +202,7 @@ const SubTaskSection = ({ issueId }) => {
       {/* Empty state */}
       {total === 0 && !showInput && (
         <button
+          type="button"
           onClick={() => setShowInput(true)}
           className="w-full py-3 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400 hover:border-violet-300 hover:text-violet-500 hover:bg-violet-50/30 transition-all duration-200 flex items-center justify-center gap-1.5"
         >
