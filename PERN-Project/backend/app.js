@@ -14,6 +14,7 @@ import issueRouter from "./routes/issue.route.js";
 import sprintRouter from "./routes/sprint.route.js";
 import subtaskRouter from "./routes/subtask.route.js";
 import notificationRouter from "./routes/notification.route.js";
+import commentRouter from "./routes/comment.route.js";
 
 app.use(
   cors({
@@ -33,6 +34,7 @@ app.use("/api/issues", issueRouter);
 app.use("/api/sprints", sprintRouter);
 app.use("/api/subtasks", subtaskRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/comments", commentRouter);
 
 
 app.use(errorHandler);

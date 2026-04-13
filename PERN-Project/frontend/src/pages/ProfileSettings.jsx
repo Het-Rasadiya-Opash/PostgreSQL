@@ -49,15 +49,15 @@ const ProfileSettings = ({ currentUser }) => {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-8 bg-slate-900 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full -mr-20 -mt-20 blur-3xl" />
-            <div className="relative z-10 flex items-center gap-6">
-                <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-xl">
+            <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-center sm:text-left">
+                <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-xl shrink-0">
                     <span className="text-3xl font-extrabold text-white">
                         {currentUser?.name ? currentUser.name[0].toUpperCase() : "U"}
                     </span>
                 </div>
-                <div>
-                    <h2 className="text-2xl font-extrabold tracking-tight">{currentUser?.name}</h2>
-                    <div className="flex items-center gap-2 mt-1 opacity-80">
+                <div className="min-w-0 flex-1">
+                    <h2 className="text-2xl font-extrabold tracking-tight truncate">{currentUser?.name}</h2>
+                    <div className="flex items-center justify-center sm:justify-start gap-2 mt-1 opacity-80">
                         <Shield className="w-3.5 h-3.5 text-blue-400" />
                         <span className="text-sm font-bold uppercase tracking-wider">{currentUser?.role}</span>
                     </div>
@@ -129,11 +129,11 @@ const ProfileSettings = ({ currentUser }) => {
                     </div>
                 )}
 
-                <div className="flex items-center justify-between pt-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6">
                     <button 
                         type="submit"
                         disabled={loading}
-                        className="px-8 py-3.5 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95"
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95"
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
                     </button>

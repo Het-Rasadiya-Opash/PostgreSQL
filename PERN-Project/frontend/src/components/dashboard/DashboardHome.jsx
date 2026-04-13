@@ -56,60 +56,65 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
 
   return (
     <>
-      <div className="bg-ads-surface-white rounded-2xl border border-ads-border shadow-sm overflow-hidden">
-        {/* Cover: Jira Blue Gradient */}
-        <div className="h-36 bg-linear-to-r from-ads-primary to-ads-primary-hover relative overflow-hidden">
+      <div className="bg-white rounded-3xl border border-ads-border shadow-ads-modal overflow-hidden animate-in fade-in duration-700">
+        {/* Banner: Premium Dark Blue Gradient with dot pattern */}
+        <div className="h-40 bg-linear-to-br from-[#0747A6] via-[#0052CC] to-[#172B4D] relative overflow-hidden">
           <div
-            className="absolute inset-0 opacity-[0.1]"
+            className="absolute inset-0 opacity-[0.15]"
             style={{
-              backgroundImage:
-                "radial-gradient(circle, #fff 1px, transparent 1px)",
-              backgroundSize: "18px 18px",
+              backgroundImage: "radial-gradient(circle, #fff 1.5px, transparent 1.5px)",
+              backgroundSize: "16px 16px",
             }}
           />
-          <div className="absolute -top-16 -right-16 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-12 left-20 w-40 h-40 bg-ads-primary-light/20 rounded-full blur-2xl" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+          <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="px-8 pb-8">
-          <div className="flex items-end justify-between -mt-12 mb-6">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-2xl bg-ads-primary border-4 border-white shadow-xl flex items-center justify-center text-white text-3xl font-extrabold select-none">
-                {initials}
+        <div className="px-8 pb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between -mt-16 mb-8 gap-6">
+            <div className="flex flex-col md:flex-row md:items-end gap-6">
+              <div className="relative shrink-0 group">
+                <div className="w-28 h-28 rounded-3xl bg-ads-primary border-[5px] border-white shadow-2xl flex items-center justify-center text-white text-4xl font-extrabold select-none transition-transform duration-300 group-hover:scale-105">
+                  {initials}
+                </div>
+                <div
+                  className="absolute bottom-1 right-1 w-6 h-6 rounded-full border-[3px] border-white bg-blue-500 shadow-md animate-in zoom-in duration-500"
+                  title="Online"
+                />
               </div>
-              <div
-                className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${role.dot}`}
-              />
-            </div>
 
-            <div className="mb-1 flex items-center gap-3">
-              <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${role.pill}`}
-              >
-                <Shield className="w-3.5 h-3.5" />
-                {roleLabel}
-              </span>
+              <div className="flex flex-col gap-2 pb-1">
+                <span
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0052CC] border border-blue-100 text-[10px] font-extrabold uppercase tracking-widest w-fit shadow-xs"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  {roleLabel}
+                </span>
+                <h1 className="text-3xl font-extrabold text-ads-text tracking-tight">
+                  {currentUser.name || "User"}
+                </h1>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-extrabold text-ads-text leading-tight">
-                {currentUser.name || "User"}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 mt-2">
-                <span className="flex items-center gap-1.5 text-sm text-ads-text-subtle">
-                  <Mail className="w-3.5 h-3.5 text-ads-text-subtlest" />
-                  {currentUser.email}
-                </span>
-                <span className="flex items-center gap-1.5 text-sm text-ads-text-subtle">
-                  <BadgeCheck className="w-3.5 h-3.5 text-ads-primary" />
-                  ID:{" "}
-                  <span className="font-mono text-xs bg-ads-surface border border-ads-border rounded px-1.5 py-0.5 text-ads-text-subtle">
-                    {currentUser.id || "—"}
-                  </span>
-                </span>
+          <div className="flex flex-wrap items-center gap-6 pt-2 border-t border-slate-50">
+            <div className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                <Mail className="w-4 h-4 text-ads-text-subtle group-hover:text-ads-primary" />
               </div>
+              <span className="text-sm font-bold text-ads-text-subtle">
+                {currentUser.email}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 bg-[#F4F5F7] px-4 py-2.5 rounded-2xl border border-[#EBECF0] group cursor-default transition-all hover:bg-[#EBECF0]">
+              <div className="flex items-center gap-2 text-[#42526E]">
+                <BadgeCheck className="w-4 h-4 text-ads-primary" />
+                <span className="text-xs font-extrabold uppercase tracking-wider">ID:</span>
+              </div>
+              <span className="font-mono text-xs text-[#172B4D] font-bold bg-white/50 px-2 py-1 rounded-lg border border-white">
+                {currentUser.id || "—"}
+              </span>
             </div>
           </div>
         </div>
@@ -120,18 +125,18 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
         {stats.map(({ icon: Icon, label, value, color, bg, border }) => (
           <div
             key={label}
-            className={`bg-white rounded-2xl border ${border} p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition-all duration-200 group`}
+            className={`bg-white rounded-2xl border ${border} p-4 sm:p-5 flex items-center gap-3 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-200 group min-w-0`}
           >
             <div
-              className={`w-12 h-12 ${bg} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200`}
+              className={`w-10 h-10 sm:w-12 sm:h-12 ${bg} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-200`}
             >
-              <Icon className={`w-5 h-5 ${color}`} />
+              <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${color}`} />
             </div>
-            <div>
-              <p className="text-2xl font-extrabold text-ads-text leading-none">
+            <div className="flex-1 min-w-0">
+              <p className="text-xl sm:text-2xl font-extrabold text-ads-text leading-none truncate">
                 {value}
               </p>
-              <p className="text-xs text-ads-text-subtle font-medium mt-1">
+              <p className="text-[10px] sm:text-xs text-ads-text-subtle font-medium mt-1 uppercase tracking-wider truncate" title={label}>
                 {label}
               </p>
             </div>
@@ -144,18 +149,20 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-ads-primary/10 rounded-full blur-3xl animate-pulse" />
 
         <div className="relative z-10 max-w-2xl">
-          <h5 className="text-2xl sm:text-3xl font-extrabold mb-4 leading-tight">Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀</h5>
-          <p className="text-base sm:text-lg text-ads-surface-hover mb-8 leading-relaxed max-w-xl">
+          <h5 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-4 leading-tight">
+            Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀
+          </h5>
+          <p className="text-sm sm:text-base md:text-lg text-ads-surface-hover mb-6 sm:mb-8 leading-relaxed max-w-xl">
             You currently have <span className="text-ads-primary-light font-bold underline decoration-ads-primary-light/30 underline-offset-4">{todoTasks}</span> tasks pending in your queue. Ready to tackle them and boost your productivity?
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3 sm:gap-4">
             <button
-              className="px-8 py-4 rounded-2xl bg-ads-primary hover:bg-ads-primary-hover text-sm font-bold transition-all shadow-xl shadow-ads-primary/25 hover:scale-105 active:scale-95"
+              className="flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-ads-primary hover:bg-ads-primary-hover text-sm font-bold transition-all shadow-xl shadow-ads-primary/25 hover:scale-105 active:scale-95 whitespace-nowrap"
             >
               Go to My Issues
             </button>
             <button
-              className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-sm font-bold transition-all backdrop-blur-md border border-white/10 hover:border-white/20"
+              className="flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-sm font-bold transition-all backdrop-blur-md border border-white/10 hover:border-white/20 whitespace-nowrap"
             >
               View Projects
             </button>

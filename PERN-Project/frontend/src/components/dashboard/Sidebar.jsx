@@ -35,10 +35,15 @@ const Sidebar = ({
       className={`fixed inset-y-0 left-0 z-50 w-64 bg-ads-surface border-r border-ads-border flex flex-col justify-between shrink-0 shadow-[0_0_15px_rgba(0,0,0,0.02)] transition-transform duration-300 md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       <div>
-        {/* Brand/Logo */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-ads-border">
+        <div 
+          onClick={() => {
+            setCurrentView("DASHBOARD");
+            closeProjectDetailsModal();
+          }}
+          className="h-16 flex items-center justify-between px-6 border-b border-ads-border cursor-pointer hover:bg-ads-surface-hover transition-colors group"
+        >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-ads-primary rounded-lg flex items-center justify-center shadow-inner">
+            <div className="w-8 h-8 bg-ads-primary rounded-lg flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
               <Zap className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-ads-text text-lg tracking-tight">
@@ -46,7 +51,10 @@ const Sidebar = ({
             </span>
           </div>
           <button
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsSidebarOpen(false);
+            }}
             className="md:hidden p-1.5 -mr-2 rounded-lg text-ads-text-subtle hover:text-ads-text hover:bg-ads-surface-hover transition-colors"
           >
             <X className="w-5 h-5" />
@@ -153,7 +161,7 @@ const Sidebar = ({
       </div>
 
       {/* User Mini Profile & Logout */}
-      <div className="p-4 border-t border-ads-border bg-white/50">
+      <div className="p-4 border-t border-ads-border bg-ads-surface/50">
         <div className="flex items-center gap-3 mb-4 px-1">
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-extrabold shadow-sm border border-white bg-ads-primary text-white relative`}

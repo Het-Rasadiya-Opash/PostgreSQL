@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Circle,
   CalendarClock,
+  MessageSquare,
 } from "lucide-react";
 
 const issueStatuses = ["TODO", "IN_PROGRESS", "DONE"];
@@ -170,9 +171,9 @@ const KanbanBoard = ({
                             </div>
                           )}
 
-                          <div className="mt-auto pt-3 border-t border-ads-border/50 flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="bg-ads-surface text-ads-text-subtle px-1.5 py-0.5 rounded text-[10px] font-bold border border-ads-border">
+                          <div className="mt-auto pt-3 border-t border-ads-border/50 flex flex-wrap items-center justify-between gap-y-2.5">
+                            <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                              <span className="bg-ads-surface text-ads-text-subtle px-1.5 py-0.5 rounded text-[10px] font-bold border border-ads-border shrink-0">
                                 {issue.project?.key
                                   ? `${issue.project.key}-${issue.id.slice(0, 4)}`
                                   : `#${issue.id.slice(0, 4)}`}
@@ -187,7 +188,7 @@ const KanbanBoard = ({
                                   const isDueToday = due.getTime() === now.getTime();
                                   return (
                                     <span
-                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold border ${
+                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold border shrink-0 ${
                                         isOverdue
                                           ? "bg-red-50 text-red-600 border-red-200"
                                           : isDueToday
@@ -207,9 +208,15 @@ const KanbanBoard = ({
                                     </span>
                                   );
                                 })()}
+                              {issue._count?.comments > 0 && (
+                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold border border-violet-200 bg-violet-50 text-violet-600 shrink-0">
+                                  <MessageSquare className="w-3 h-3" />
+                                  {issue._count.comments}
+                                </span>
+                              )}
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 shrink-0">
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
                                   onClick={() => onIssueClick(issue)}
@@ -251,7 +258,7 @@ const KanbanBoard = ({
                                         : issue.assignee.email[0].toUpperCase()}
                                     </span>
                                   </div>
-                                  <span className="text-[10px] font-bold text-ads-primary truncate max-w-20">
+                                  <span className="text-[10px] font-bold text-ads-primary truncate max-w-[80px]">
                                     {issue.assignee.name ||
                                       issue.assignee.email.split("@")[0]}
                                   </span>

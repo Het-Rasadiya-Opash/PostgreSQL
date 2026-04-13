@@ -115,7 +115,8 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
       {/* ── Issue List ── */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         {/* Table header */}
-        <div className="grid grid-cols-[1.5rem_1fr_7rem_7rem_8rem] gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200">
+        {/* Table header - Hidden on mobile, shown on md+ screens */}
+        <div className="hidden md:grid grid-cols-[1.5rem_1fr_7rem_7rem_8rem] gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200">
           <div />
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Issue</span>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Subtasks</span>
@@ -143,88 +144,94 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
 
               return (
                 <div key={issue.id}>
-                  {/* Issue row */}
+                  {/* Issue row - Responsive flex on mobile, grid on md+ */}
                   <div
-                    className={`grid grid-cols-[1.5rem_1fr_7rem_7rem_8rem] gap-3 items-center px-5 py-3.5 transition-colors ${subTasks.length > 0 ? "cursor-pointer hover:bg-slate-50/80" : ""} ${isExpanded ? "bg-slate-50/60" : ""}`}
+                    className={`flex flex-col md:grid md:grid-cols-[1.5rem_1fr_7rem_7rem_8rem] gap-3 p-5 md:py-3.5 md:items-center transition-colors ${subTasks.length > 0 ? "cursor-pointer hover:bg-slate-50/80" : ""} ${isExpanded ? "bg-slate-50/60" : ""}`}
                     onClick={() => subTasks.length > 0 && toggleExpand(issue.id)}
                   >
-                    {/* Expand chevron */}
-                    <div className="flex items-center justify-center">
-                      {subTasks.length > 0 ? (
-                        <span className="text-slate-400">
-                          {isExpanded
-                            ? <ChevronDown className="w-3.5 h-3.5" />
-                            : <ChevronRight className="w-3.5 h-3.5" />}
-                        </span>
-                      ) : (
-                        <span className="w-3.5 h-3.5 flex items-center justify-center">
-                          <span className="w-1 h-1 rounded-full bg-slate-200" />
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Title + priority */}
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-2 h-2 rounded-full shrink-0 ${pCfg.dot}`} title={pCfg.label} />
-                      <div className="min-w-0">
-                        <p className={`text-sm font-semibold truncate ${issue.status === "DONE" ? "line-through text-slate-400" : "text-slate-800"}`}>
-                          {issue.title}
-                        </p>
-                        {issue.description && (
-                          <p className="text-[11px] text-slate-400 truncate mt-0.5">{issue.description}</p>
+                    {/* Top Row (Chevron + Title + Priority) */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Expand chevron */}
+                      <div className="flex items-center justify-center shrink-0">
+                        {subTasks.length > 0 ? (
+                          <span className="text-slate-400">
+                            {isExpanded
+                              ? <ChevronDown className="w-3.5 h-3.5" />
+                              : <ChevronRight className="w-3.5 h-3.5" />}
+                          </span>
+                        ) : (
+                          <span className="w-3.5 h-3.5 flex items-center justify-center">
+                            <span className="w-1 h-1 rounded-full bg-slate-200" />
+                          </span>
                         )}
+                      </div>
+
+                      {/* Title + priority */}
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${pCfg.dot}`} title={pCfg.label} />
+                        <div className="min-w-0">
+                          <p className={`text-sm font-semibold truncate ${issue.status === "DONE" ? "line-through text-slate-400" : "text-slate-800"}`}>
+                            {issue.title}
+                          </p>
+                          {issue.description && (
+                            <p className="text-[11px] text-slate-400 truncate mt-0.5">{issue.description}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Subtask progress */}
-                    <div className="flex flex-col gap-1">
-                      {subTasks.length > 0 ? (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-400">{doneSubs}/{subTasks.length}</span>
-                            <span className={`text-[10px] font-bold ${pct === 100 ? "text-emerald-600" : "text-slate-400"}`}>{pct}%</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${pct === 100 ? "bg-emerald-500" : "bg-violet-400"}`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <span className="text-[10px] text-slate-300 font-medium">No subtasks</span>
-                      )}
-                    </div>
+                    {/* Secondary Row (Mobile only) or Columns (Desktop) */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 mt-2 md:mt-0 md:contents">
+                      {/* Subtask progress */}
+                      <div className="flex flex-col gap-1 w-32 md:w-auto">
+                        {subTasks.length > 0 ? (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-slate-400">{doneSubs}/{subTasks.length}</span>
+                              <span className={`text-[10px] font-bold ${pct === 100 ? "text-emerald-600" : "text-slate-400"}`}>{pct}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${pct === 100 ? "bg-emerald-500" : "bg-violet-400"}`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-slate-300 font-medium">No subtasks</span>
+                        )}
+                      </div>
 
-                    {/* Status */}
-                    <div>
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border ${sCfg.bg} ${sCfg.text} ${sCfg.border}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${sCfg.dot}`} />
-                        {sCfg.label}
-                      </span>
-                    </div>
+                      {/* Status */}
+                      <div className="shrink-0">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border ${sCfg.bg} ${sCfg.text} ${sCfg.border}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${sCfg.dot}`} />
+                          {sCfg.label}
+                        </span>
+                      </div>
 
-                    {/* Assignee */}
-                    <div>
-                      {issue.assignee ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm">
-                            <span className="text-[9px] font-bold text-white">
-                              {issue.assignee.name?.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
+                      {/* Assignee */}
+                      <div className="shrink-0 border-l border-slate-100 pl-4 md:border-none md:pl-0">
+                        {issue.assignee ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm">
+                              <span className="text-[9px] font-bold text-white">
+                                {issue.assignee.name?.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()}
+                              </span>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-700 truncate max-w-24 md:max-w-16">
+                              {issue.assignee.name}
                             </span>
                           </div>
-                          <span className="text-xs font-semibold text-slate-700 truncate max-w-16">
-                            {issue.assignee.name}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
-                            <Users className="w-3 h-3 text-slate-400" />
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                              <Users className="w-3 h-3 text-slate-400" />
+                            </div>
+                            <span className="text-[11px] text-slate-400 font-medium">Unassigned</span>
                           </div>
-                          <span className="text-[11px] text-slate-400 font-medium">Unassigned</span>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
 

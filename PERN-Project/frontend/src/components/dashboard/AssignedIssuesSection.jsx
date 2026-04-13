@@ -83,9 +83,9 @@ const AssignedIssuesSection = ({
                         {issue.title}
                       </h3>
                       
-                      <div className="flex items-center justify-between gap-2 mt-auto pt-3 border-t border-slate-200/60 transition-all">
-                         <div className="flex items-center gap-1.5 p-1 px-2 bg-white rounded-lg border border-slate-100">
-                            <span className="text-[10px] font-bold text-slate-500 line-clamp-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-3 border-t border-slate-200/60 transition-all">
+                         <div className="flex items-center gap-1.5 p-1 px-2 bg-white rounded-lg border border-slate-100 flex-1 min-w-0">
+                            <span className="text-[10px] font-bold text-slate-500 truncate" title={issue.project?.key || "DEV"}>
                               {issue.project?.key || "DEV"} - {issue.id.slice(0, 8)}
                             </span>
                          </div>
@@ -101,7 +101,7 @@ const AssignedIssuesSection = ({
                                    {issue.assignee.name ? issue.assignee.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : issue.assignee.email[0].toUpperCase()}
                                  </span>
                                </div>
-                               <span className="text-[9px] font-bold text-indigo-700 truncate max-w-17.5">
+                               <span className="text-[9px] font-bold text-indigo-700 truncate max-w-[70px]">
                                  {issue.assignee.name || issue.assignee.email.split('@')[0]}
                                </span>
                              </div>

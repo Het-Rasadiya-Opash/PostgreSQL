@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MessageSquare, Send, User, Loader2 } from "lucide-react";
+import { MessageSquare, Send, Loader2, Trash2 } from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
 
 const CommentSection = ({ issueId, currentUser }) => {
@@ -9,16 +9,14 @@ const CommentSection = ({ issueId, currentUser }) => {
   const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
-    if (issueId) {
-      fetchComments();
-    }
+    if (issueId) fetchComments();
   }, [issueId]);
 
   const fetchComments = async () => {
     try {
       setFetching(true);
-      const response = await apiRequest.get(`/comments/issue/${issueId}`);
-      setComments(response.data.comments || []);
+      const res = await apiRequest.get(`/comments/issue/${issueId}`);
+      setComments(res.data.comments || []);
     } catch (err) {
       console.error("Error fetching comments:", err);
     } finally {
@@ -29,14 +27,10 @@ const CommentSection = ({ issueId, currentUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-
     try {
       setLoading(true);
-      const response = await apiRequest.post("/comments", {
-        body: newComment,
-        issueId,
-      });
-      setComments([...comments, response.data.comment]);
+      const res = await apiRequest.post("/comments", { body: newComment, issueId });
+      setComments((prev) => [...prev, res.data.comment]);
       setNewComment("");
     } catch (err) {
       console.error("Error posting comment:", err);
@@ -45,6 +39,22 @@ const CommentSection = ({ issueId, currentUser }) => {
       setLoading(false);
     }
   };
+
+  const handleDelete = async (commentId) => {
+    if (!window.confirm("Delete this comment?")) return;
+    try {
+      await apiRequest.delete(`/comments/${commentId}`);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete comment");
+    }
+  };
+
+  const canDelete = (comment) =>
+    currentUser &&
+    (comment.author?.id === currentUser.id ||
+      currentUser.role === "ADMIN" ||
+      currentUser.role === "PROJECT_MANAGER");
 
   return (
     <div className="mt-6 pt-6 border-t border-slate-100">
@@ -55,7 +65,7 @@ const CommentSection = ({ issueId, currentUser }) => {
         </h4>
       </div>
 
-      <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
         {fetching ? (
           <div className="flex justify-center py-4">
             <Loader2 className="w-5 h-5 animate-spin text-slate-300" />
@@ -66,11 +76,15 @@ const CommentSection = ({ issueId, currentUser }) => {
           </p>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3 items-start animate-in fade-in duration-300">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-600">
-                  {comment.author?.name ? comment.author.name[0].toUpperCase() : comment.author?.email[0].toUpperCase()}
-                </span>
+            <div key={comment.id} className="flex gap-3 items-start group animate-in fade-in duration-300">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden">
+                {comment.author?.avatar ? (
+                  <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[10px] font-bold text-slate-600">
+                    {(comment.author?.name || "?")[0].toUpperCase()}
+                  </span>
+                )}
               </div>
               <div className="flex-1">
                 <div className="bg-slate-50 rounded-2xl px-4 py-2.5 border border-slate-100">
@@ -78,13 +92,21 @@ const CommentSection = ({ issueId, currentUser }) => {
                     <span className="text-[11px] font-bold text-slate-900">
                       {comment.author?.name || "Member"}
                     </span>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(comment.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </span>
+                      {canDelete(comment) && (
+                        <button
+                          onClick={() => handleDelete(comment.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-slate-700 leading-relaxed">
-                    {comment.body}
-                  </p>
+                  <p className="text-sm text-slate-700 leading-relaxed">{comment.body}</p>
                 </div>
               </div>
             </div>
@@ -92,7 +114,7 @@ const CommentSection = ({ issueId, currentUser }) => {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="relative group">
+      <form onSubmit={handleSubmit} className="relative">
         <textarea
           rows={2}
           placeholder="Write a comment..."
@@ -103,13 +125,9 @@ const CommentSection = ({ issueId, currentUser }) => {
         <button
           type="submit"
           disabled={loading || !newComment.trim()}
-          className="absolute right-2.5 bottom-2.5 p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-all cursor-pointer shadow-md hover:shadow-lg"
+          className="absolute right-2.5 bottom-2.5 p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-all cursor-pointer shadow-md"
         >
-          {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Send className="w-4 h-4" />
-          )}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
       </form>
     </div>

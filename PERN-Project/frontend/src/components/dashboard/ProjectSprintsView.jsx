@@ -89,33 +89,33 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                 <div className="absolute top-0 left-0 w-1 h-full bg-ads-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 {/* Top row */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-ads-primary-light flex items-center justify-center shrink-0 border border-ads-primary/10">
                       <Flag className="w-4 h-4 text-ads-primary" />
                     </div>
-                    <div>
-                      <h5 className="text-sm font-bold text-ads-text">{sprint.name}</h5>
+                    <div className="min-w-0">
+                      <h5 className="text-sm font-bold text-ads-text truncate" title={sprint.name}>{sprint.name}</h5>
                       {sprint.goal && (
-                        <p className="text-xs text-ads-text-subtle mt-0.5 italic line-clamp-1">{sprint.goal}</p>
+                        <p className="text-xs text-ads-text-subtle mt-0.5 italic truncate" title={sprint.goal}>{sprint.goal}</p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
                     {/* Status badge */}
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${cfg.color}`}>
+                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shrink-0 ${cfg.color}`}>
                       {cfg.label}
                     </span>
 
                     {/* Quick status action buttons — PROJECT_MANAGER only */}
                     {userRole === "PROJECT_MANAGER" && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 shrink-0 bg-ads-surface/50 p-0.5 rounded-lg border border-ads-border/10">
                         {sprint.status === "PLANNED" && (
                           <button
                             onClick={() => handleStatusChange(sprint, "ACTIVE")}
                             title="Start Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-primary bg-ads-primary-light hover:bg-ads-primary-light/80 border border-ads-primary/20 transition-all cursor-pointer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-primary bg-ads-primary-light hover:bg-ads-primary-light/80 border border-ads-primary/20 transition-all cursor-pointer whitespace-nowrap"
                           >
                             <Play className="w-3 h-3" /> Start
                           </button>
@@ -124,7 +124,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                           <button
                             onClick={() => handleStatusChange(sprint, "COMPLETED")}
                             title="Complete Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-success bg-ads-success-light hover:bg-ads-success-light/80 border border-ads-success/20 transition-all cursor-pointer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-success bg-ads-success-light hover:bg-ads-success-light/80 border border-ads-success/20 transition-all cursor-pointer whitespace-nowrap"
                           >
                             <CheckCheck className="w-3 h-3" /> Complete
                           </button>
@@ -133,7 +133,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                           <button
                             onClick={() => handleStatusChange(sprint, "PLANNED")}
                             title="Reopen Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-text-subtle bg-ads-surface hover:bg-ads-surface-hover border border-ads-border transition-all cursor-pointer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-text-subtle bg-ads-surface hover:bg-ads-surface-hover border border-ads-border transition-all cursor-pointer whitespace-nowrap"
                           >
                             <RotateCcw className="w-3 h-3" /> Reopen
                           </button>

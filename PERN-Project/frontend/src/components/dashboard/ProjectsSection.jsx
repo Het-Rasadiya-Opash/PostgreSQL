@@ -104,12 +104,12 @@ const ProjectsSection = ({
                   </p>
                 )}
 
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100/60">
-                  <div className="flex items-center gap-4 text-xs text-slate-500">
-                    <div className="flex items-center">
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-100/60">
+                  <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500 flex-1 min-w-0">
+                    <div className="flex items-center shrink-0">
                       {project.members && project.members.length > 0 ? (
                         <div className="flex items-center gap-2">
-                          <div className="flex -space-x-2">
+                          <div className="flex -space-x-2 shrink-0">
                             {project.members.slice(0, 4).map((member, i) => (
                               <div
                                 key={i}
@@ -125,25 +125,27 @@ const ProjectsSection = ({
                               </div>
                             )}
                           </div>
-                          <span className="text-slate-500 font-medium">
+                          <span className="text-slate-500 font-medium whitespace-nowrap">
                             {project.members.length} {project.members.length === 1 ? 'Member' : 'Members'}
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Users className="w-3.5 h-3.5 text-slate-400" />
                           <span>0 Members</span>
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Shield className="w-3.5 h-3.5 text-blue-500/70" />
-                      <span className="truncate max-w-20">{project.owner?.name?.split(' ')[0] || "Owner"}</span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Shield className="w-3.5 h-3.5 text-blue-500/70 shrink-0" />
+                      <span className="truncate font-medium" title={project.owner?.name || "Owner"}>
+                        {project.owner?.name?.split(' ')[0] || "Owner"}
+                      </span>
                     </div>
                   </div>
 
                   {userRole === "PROJECT_MANAGER" && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 shrink-0 border-l border-slate-100/60 pl-2">
                       <button
                         onClick={(e) => openEditModal(e, project)}
                         className="p-1.5 rounded-lg text-slate-300 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 cursor-pointer"

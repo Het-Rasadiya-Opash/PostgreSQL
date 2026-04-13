@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { 
   Tag, 
   Loader2, 
@@ -12,6 +13,7 @@ import {
 import Modal from "../ui/Modal";
 import apiRequest from "../../utils/apiRequest";
 import SubTaskSection from "./SubTaskSection";
+import CommentSection from "./CommentSection";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
@@ -107,6 +109,7 @@ const IssueModal = ({
     }
   };
 
+  const currentUser = useSelector((state) => state.users.currentUser);
   const isDeveloperEdit = userRole === "DEVELOPER" && mode === "edit";
 
   return (
@@ -118,7 +121,7 @@ const IssueModal = ({
       maxWidth="max-w-2xl"
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
-        <div className="space-y-4">
+        <div className="space-y-4">        
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-ads-text-subtlest uppercase tracking-wider ml-1">
               Title
@@ -295,6 +298,13 @@ const IssueModal = ({
            </Button>
         </div>
       </form>
+
+      {/* Comments — outside form to prevent submit conflict */}
+      {mode === "edit" && issueToEdit && (
+        <div className="px-6 pb-6">
+          <CommentSection issueId={issueToEdit.id} currentUser={currentUser} />
+        </div>
+      )}
     </Modal>
   );
 };

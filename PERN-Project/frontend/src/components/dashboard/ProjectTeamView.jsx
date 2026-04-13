@@ -179,17 +179,17 @@ const ProjectTeamView = ({ selectedProject, userRole, refreshProject, fetchProje
             {selectedProject.members.map((member) => (
               <div
                 key={member.id}
-                className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-all duration-200"
+                className="flex flex-wrap items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-all duration-200"
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-xs">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-xs shrink-0">
                       <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
                         <span className="text-[7px] font-bold text-white">
                           {member.name ? member.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : member.email[0].toUpperCase()}
                         </span>
                       </div>
-                      <span className="text-[10px] font-bold text-indigo-700 truncate max-w-32">
+                      <span className="text-[10px] font-bold text-indigo-700 truncate max-w-[80px] sm:max-w-[120px]">
                         {member.name || member.email.split('@')[0]}
                       </span>
                     </div>
@@ -198,23 +198,25 @@ const ProjectTeamView = ({ selectedProject, userRole, refreshProject, fetchProje
                     {member.email}
                   </p>
                 </div>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${member.role === "PROJECT_MANAGER"
-                    ? "bg-blue-100 text-blue-700"
-                    : member.role === "DEVELOPER"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-slate-100 text-slate-600"
-                  }`}>
-                  {member.role?.toLowerCase().replace("_", " ") || "user"}
-                </span>
-                {userRole === "PROJECT_MANAGER" && (
-                  <button
-                    onClick={() => handleRemoveMember(member.id)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
-                    title="Remove member"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${member.role === "PROJECT_MANAGER"
+                      ? "bg-blue-100 text-blue-700"
+                      : member.role === "DEVELOPER"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}>
+                    {member.role?.toLowerCase().replace("_", " ") || "user"}
+                  </span>
+                  {userRole === "PROJECT_MANAGER" && (
+                    <button
+                      onClick={() => handleRemoveMember(member.id)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                      title="Remove member"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -238,9 +240,9 @@ const ProjectTeamView = ({ selectedProject, userRole, refreshProject, fetchProje
           <div className="space-y-4">
             {[selectedProject.owner, ...(selectedProject.members || [])].map((member) => (
               <div key={member?.id} className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 shrink-0">
                       <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
                         <span className="text-[7px] font-bold text-white">
                           {member?.name ? member.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : member?.email[0].toUpperCase()}
@@ -260,12 +262,14 @@ const ProjectTeamView = ({ selectedProject, userRole, refreshProject, fetchProje
                 </div>
                 <div className="space-y-2">
                   {selectedProject.issues?.filter(i => i.assigneeId === member?.id).map(issue => (
-                    <div key={issue.id} className="flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200 text-[11px] hover:border-blue-300 transition-colors">
-                      <span className="text-slate-600 font-semibold truncate max-w-50">{issue.title}</span>
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-tighter ${
-                        issue.status === "DONE" ? "text-emerald-600 bg-emerald-50" : issue.status === "IN_PROGRESS" ? "text-blue-600 bg-blue-50" : "text-slate-500 bg-slate-50"
+                    <div key={issue.id} className="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-slate-200 text-[11px] hover:border-blue-300 transition-all shadow-xs group/issue">
+                      <span className="text-slate-700 font-bold flex-1 min-w-0 truncate" title={issue.title}>
+                        {issue.title}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider shrink-0 ${
+                        issue.status === "DONE" ? "text-emerald-700 bg-emerald-50 border border-emerald-100" : issue.status === "IN_PROGRESS" ? "text-blue-700 bg-blue-50 border border-blue-100" : "text-slate-500 bg-slate-50 border border-slate-200"
                       }`}>
-                        {issue.status}
+                        {issue.status.replace("_", " ")}
                       </span>
                     </div>
                   ))}

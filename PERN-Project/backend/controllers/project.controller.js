@@ -78,6 +78,7 @@ export const getProjectById = async (req, res) => {
             assignee: { select: { id: true, name: true, avatar: true } },
             reporter: { select: { id: true, name: true } },
             subTasks: { orderBy: { createdAt: "asc" } },
+            _count: { select: { comments: true } },
           },
         },
       },

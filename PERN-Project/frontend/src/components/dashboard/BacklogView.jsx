@@ -22,11 +22,11 @@ const BacklogView = ({ selectedProject, userRole, onIssueClick }) => {
             <div
               key={issue.id}
               onClick={() => onIssueClick(issue)}
-              className="group flex items-center justify-between p-4 bg-slate-50/50 border border-slate-200 rounded-xl hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer"
+              className="group flex flex-wrap items-center justify-between gap-3 p-4 bg-slate-50/50 border border-slate-200 rounded-xl hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer"
             >
-              <div className="flex items-center gap-4 flex-1">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div
-                  className={`w-2 h-8 rounded-full ${
+                  className={`w-2 h-8 rounded-full shrink-0 ${
                     issue.priority === "HIGH"
                       ? "bg-red-500"
                       : issue.priority === "MEDIUM"
@@ -34,22 +34,22 @@ const BacklogView = ({ selectedProject, userRole, onIssueClick }) => {
                         : "bg-blue-500"
                   }`}
                 />
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+                <div className="min-w-0">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1 truncate">
                     {issue.project?.key
                       ? `${issue.project.key}-${issue.id.slice(0, 4)}`
                       : `#${issue.id.slice(0, 4)}`}
                   </span>
-                  <h5 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                  <h5 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
                     {issue.title}
                   </h5>
                 </div>
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4 shrink-0">
                 {/* Status Pill */}
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border shrink-0 ${
                     issue.status === "DONE"
                       ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                       : issue.status === "IN_PROGRESS"
@@ -62,7 +62,7 @@ const BacklogView = ({ selectedProject, userRole, onIssueClick }) => {
 
                 {/* Assignee */}
                 {issue.assignee ? (
-                  <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white border border-slate-200">
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-white border border-slate-200 shrink-0">
                     <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
                       <span className="text-[8px] font-bold text-white">
                         {issue.assignee.name
@@ -72,7 +72,7 @@ const BacklogView = ({ selectedProject, userRole, onIssueClick }) => {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-5 h-5 rounded-full bg-slate-100 border border-dashed border-slate-300" />
+                  <div className="w-5 h-5 rounded-full bg-slate-100 border border-dashed border-slate-300 shrink-0" />
                 )}
               </div>
             </div>
