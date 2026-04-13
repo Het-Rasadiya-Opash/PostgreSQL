@@ -1,6 +1,5 @@
 import { prisma } from "../config/db.js";
 
-
 export const createIssue = async (req, res) => {
   try {
     const {
@@ -97,8 +96,6 @@ export const createIssue = async (req, res) => {
       });
     }
 
-
-
     res.status(201).json({
       message: "Issue created successfully",
       issue,
@@ -156,8 +153,15 @@ export const getIssueById = async (req, res) => {
 
 export const updateIssue = async (req, res) => {
   const { id } = req.params;
-  const { title, description, status, priority, assigneeId, sprintId, dueDate } =
-    req.body;
+  const {
+    title,
+    description,
+    status,
+    priority,
+    assigneeId,
+    sprintId,
+    dueDate,
+  } = req.body;
   try {
     const updateData = {};
 
@@ -167,7 +171,8 @@ export const updateIssue = async (req, res) => {
     if (priority !== undefined) updateData.priority = priority;
     if (assigneeId !== undefined) updateData.assigneeId = assigneeId || null;
     if (sprintId !== undefined) updateData.sprintId = sprintId || null;
-    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
+    if (dueDate !== undefined)
+      updateData.dueDate = dueDate ? new Date(dueDate) : null;
 
     // Fetch BEFORE update for comparison
     const existing = await prisma.issue.findUnique({
@@ -192,41 +197,109 @@ export const updateIssue = async (req, res) => {
 
     const actorId = req.user.userId;
     const actorRole = req.user.role?.toUpperCase();
-    const statusLabels = { TODO: "To Do", IN_PROGRESS: "In Progress", DONE: "Done" };
+    const statusLabels = {
+      TODO: "To Do",
+      IN_PROGRESS: "In Progress",
+      DONE: "Done",
+    };
 
-    // Notify PM when status changes (triggered by DEVELOPER or any non-PM)
-    if (status && existing && status !== existing.status && actorRole !== "PROJECT_MANAGER") {
-      const pmIds = [
-        existing.project.ownerId,
-        ...existing.project.members
-          .filter((m) => m.role === "PROJECT_MANAGER")
-          .map((m) => m.id),
-      ].filter((pmId) => pmId !== actorId);
+    // Notify on status change
+    if (status && existing && status !== existing.status) {
+      const msg = `Issue "${existing.title}" status changed from ${statusLabels[existing.status] || existing.status} → ${statusLabels[status] || status}`;
 
-      const uniquePmIds = [...new Set(pmIds)];
-      if (uniquePmIds.length > 0) {
-        await prisma.notification.createMany({
-          data: uniquePmIds.map((pmId) => ({
-            userId: pmId,
-            message: `Issue "${existing.title}" status changed from ${statusLabels[existing.status] || existing.status} → ${statusLabels[status] || status}`,
-            type: "STATUS_CHANGE",
-          })),
-          skipDuplicates: true,
-        });
+      if (actorRole === "PROJECT_MANAGER" || actorRole === "ADMIN") {
+        // PM/Admin changed status → notify the assignee (developer)
+        if (existing.assigneeId && existing.assigneeId !== actorId) {
+          await prisma.notification.create({
+            data: {
+              userId: existing.assigneeId,
+              message: msg,
+              type: "STATUS_CHANGE",
+            },
+          });
+        }
+      } else {
+        // Developer/User changed status → notify PMs
+        const pmIds = [
+          existing.project.ownerId,
+          ...existing.project.members
+            .filter((m) => m.role === "PROJECT_MANAGER")
+            .map((m) => m.id),
+        ].filter((pmId) => pmId !== actorId);
+
+        const uniquePmIds = [...new Set(pmIds)];
+        if (uniquePmIds.length > 0) {
+          await prisma.notification.createMany({
+            data: uniquePmIds.map((pmId) => ({
+              userId: pmId,
+              message: msg,
+              type: "STATUS_CHANGE",
+            })),
+            skipDuplicates: true,
+          });
+        }
       }
     }
 
-    // Notify new assignee if changed
-    if (assigneeId && assigneeId !== actorId && existing && existing.assigneeId !== assigneeId) {
-      await prisma.notification.create({
-        data: {
-          userId: assigneeId,
-          message: `You were assigned to issue "${existing.title}"`,
-          type: "ASSIGNMENT",
-        },
-      });
-    }
+    // Notify on assignee handover
+    if (assigneeId !== undefined && existing) {
+      const oldAssigneeId = existing.assigneeId;
+      const newAssigneeId = assigneeId || null;
 
+      if (newAssigneeId && newAssigneeId !== oldAssigneeId) {
+        // Fetch both user names for the messages
+        const [newAssignee, oldAssignee] = await Promise.all([
+          prisma.user.findUnique({
+            where: { id: newAssigneeId },
+            select: { name: true },
+          }),
+          oldAssigneeId
+            ? prisma.user.findUnique({
+                where: { id: oldAssigneeId },
+                select: { name: true },
+              })
+            : null,
+        ]);
+
+        // Notify new assignee
+        await prisma.notification.create({
+          data: {
+            userId: newAssigneeId,
+            message:
+              oldAssigneeId && oldAssignee
+                ? `Issue "${existing.title}" has been handed over to you from ${oldAssignee.name}`
+                : `You have been assigned to issue "${existing.title}"`,
+            type: "ASSIGNMENT",
+          },
+        });
+
+        // Notify old assignee they were removed
+        if (
+          oldAssigneeId &&
+          oldAssigneeId !== actorId &&
+          oldAssigneeId !== newAssigneeId
+        ) {
+          await prisma.notification.create({
+            data: {
+              userId: oldAssigneeId,
+              message: `Issue "${existing.title}" has been reassigned to ${newAssignee?.name || "someone else"}`,
+              type: "HANDOVER",
+            },
+          });
+        }
+      }
+
+      // Notify if unassigned (assigneeId = null/empty)
+      if (!newAssigneeId && oldAssigneeId && oldAssigneeId !== actorId) {
+        await prisma.notification.create({
+          data: {
+            userId: oldAssigneeId,
+            message: `You have been unassigned from issue "${existing.title}"`,
+            type: "HANDOVER",
+          },
+        });
+      }
+    }
 
     res.json({ message: "Issue updated successfully", issue });
   } catch (error) {
