@@ -47,7 +47,7 @@ const Sidebar = ({
               <Zap className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-ads-text text-lg tracking-tight">
-              CoreOps
+              PMS
             </span>
           </div>
           <button

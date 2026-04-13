@@ -72,7 +72,7 @@ const Login = () => {
             <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">CoreOps</span>
+            <span className="text-white font-bold text-lg tracking-tight">PMS</span>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ const Login = () => {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900 text-lg">CoreOps</span>
+            <span className="font-bold text-slate-900 text-lg">PMS</span>
           </div>
 
           <div className="mb-8">

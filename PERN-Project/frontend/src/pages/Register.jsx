@@ -109,7 +109,7 @@ const Register = () => {
             <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">CoreOps</span>
+            <span className="text-white font-bold text-lg tracking-tight">PMS</span>
           </div>
         </div>
 
@@ -136,7 +136,7 @@ const Register = () => {
           {/* Testimonial */}
           <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
             <p className="text-white/90 text-sm leading-relaxed italic mb-3">
-              "CoreOps cut our sprint planning time in half. Our team is finally in sync."
+              "PMS cut our sprint planning time in half. Our team is finally in sync."
             </p>
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-300 to-indigo-300 flex items-center justify-center text-xs font-bold text-white">
@@ -159,7 +159,7 @@ const Register = () => {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900 text-lg">CoreOps</span>
+            <span className="font-bold text-slate-900 text-lg">PMS</span>
           </div>
 
           <div className="mb-8">
