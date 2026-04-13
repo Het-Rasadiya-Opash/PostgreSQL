@@ -284,7 +284,7 @@ const IssueModal = ({
             </div>
           ) : (
             <div className="pt-4 border-t border-ads-border">
-              <SubTaskSection issueId={issueToEdit.id} />
+              <SubTaskSection issueId={issueToEdit.id} onSubTaskChange={() => refreshProject(selectedProject.id)} />
             </div>
           )}
         </div>
@@ -302,7 +302,7 @@ const IssueModal = ({
       {/* Comments — outside form to prevent submit conflict */}
       {mode === "edit" && issueToEdit && (
         <div className="px-6 pb-6">
-          <CommentSection issueId={issueToEdit.id} currentUser={currentUser} />
+          <CommentSection issueId={issueToEdit.id} currentUser={currentUser} onCommentChange={() => refreshProject(selectedProject.id)} />
         </div>
       )}
     </Modal>

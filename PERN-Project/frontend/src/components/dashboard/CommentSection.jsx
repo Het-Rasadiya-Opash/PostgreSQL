@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MessageSquare, Send, Loader2, Trash2 } from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
 
-const CommentSection = ({ issueId, currentUser }) => {
+const CommentSection = ({ issueId, currentUser, onCommentChange }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +32,7 @@ const CommentSection = ({ issueId, currentUser }) => {
       const res = await apiRequest.post("/comments", { body: newComment, issueId });
       setComments((prev) => [...prev, res.data.comment]);
       setNewComment("");
+      onCommentChange?.();
     } catch (err) {
       console.error("Error posting comment:", err);
       alert(err.response?.data?.message || "Failed to post comment");
@@ -45,6 +46,7 @@ const CommentSection = ({ issueId, currentUser }) => {
     try {
       await apiRequest.delete(`/comments/${commentId}`);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
+      onCommentChange?.();
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete comment");
     }

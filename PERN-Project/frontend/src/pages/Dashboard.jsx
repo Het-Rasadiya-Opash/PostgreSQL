@@ -88,6 +88,12 @@ const Dashboard = () => {
     if (currentUser) {
       fetchProjects();
       fetchMyIssues();
+      // Poll every 30s to keep counts live
+      const interval = setInterval(() => {
+        fetchProjects();
+        fetchMyIssues();
+      }, 30000);
+      return () => clearInterval(interval);
     }
   }, [currentUser]);
 
@@ -129,12 +135,12 @@ const Dashboard = () => {
   const fetchProjectDetails = async (projectId, shouldChangeView = false) => {
     try {
       setProjectDetailsLoading(true);
-      const response = await apiRequest.get(`/projects/${projectId}`);
-      setSelectedProject(response.data.project);
-
-      if (shouldChangeView) {
-        setCurrentView("PROJECT_BOARD");
-      }
+      const [projectRes] = await Promise.all([
+        apiRequest.get(`/projects/${projectId}`),
+        fetchMyIssues(),
+      ]);
+      setSelectedProject(projectRes.data.project);
+      if (shouldChangeView) setCurrentView("PROJECT_BOARD");
     } catch (err) {
       console.error("Error fetching project details:", err);
     } finally {

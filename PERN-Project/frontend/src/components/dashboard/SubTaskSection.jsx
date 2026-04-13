@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { CheckCircle2, Circle, Plus, Trash2, Loader2, ListChecks } from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
 
-const SubTaskSection = ({ issueId }) => {
+const SubTaskSection = ({ issueId, onSubTaskChange }) => {
   const [subTasks, setSubTasks] = useState([]);
   const [newTitle, setNewTitle] = useState("");
   const [adding, setAdding] = useState(false);
@@ -37,6 +37,7 @@ const SubTaskSection = ({ issueId }) => {
       setSubTasks((prev) => [...prev, res.data.subTask]);
       setNewTitle("");
       inputRef.current?.focus();
+      onSubTaskChange?.();
     } catch (err) {
       console.error("Error adding subtask:", err);
     } finally {
@@ -54,6 +55,7 @@ const SubTaskSection = ({ issueId }) => {
     try {
       const res = await apiRequest.patch(`/subtasks/${id}/toggle`);
       setSubTasks((prev) => prev.map((s) => (s.id === id ? res.data.subTask : s)));
+      onSubTaskChange?.();
     } catch (err) {
       console.error("Error toggling subtask:", err);
     } finally {
@@ -66,6 +68,7 @@ const SubTaskSection = ({ issueId }) => {
     try {
       await apiRequest.delete(`/subtasks/${id}`);
       setSubTasks((prev) => prev.filter((s) => s.id !== id));
+      onSubTaskChange?.();
     } catch (err) {
       console.error("Error deleting subtask:", err);
     } finally {
