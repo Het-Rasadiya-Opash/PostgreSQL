@@ -27,24 +27,51 @@ export const createComment = async (req, res) => {
       include: { author: { select: { id: true, name: true, avatar: true } } },
     });
 
-    // Notify issue assignee (if not the commenter)
+    // Notify all stakeholders (reporter, assignee, project owner/PM) except the commenter
     const issue = await prisma.issue.findUnique({
       where: { id: issueId },
-      select: { title: true, assigneeId: true },
+      select: {
+        title: true,
+        assigneeId: true,
+        reporterId: true,
+        project: {
+          select: {
+            ownerId: true,
+            members: { select: { id: true, role: true } },
+          },
+        },
+      },
     });
 
-    if (issue?.assigneeId && issue.assigneeId !== authorId) {
+    if (issue) {
       const author = await prisma.user.findUnique({
         where: { id: authorId },
         select: { name: true },
       });
-      await prisma.notification.create({
-        data: {
-          userId: issue.assigneeId,
-          message: `${author?.name || "Someone"} commented on issue "${issue.title}"`,
-          type: "COMMENT",
-        },
-      });
+
+      const pmIds = [
+        issue.project.ownerId,
+        ...issue.project.members
+          .filter((m) => m.role === "PROJECT_MANAGER")
+          .map((m) => m.id),
+      ];
+
+      const notifyIds = [...new Set([
+        issue.assigneeId,
+        issue.reporterId,
+        ...pmIds,
+      ].filter((id) => id && id !== authorId))];
+
+      if (notifyIds.length > 0) {
+        await prisma.notification.createMany({
+          data: notifyIds.map((userId) => ({
+            userId,
+            message: `${author?.name || "Someone"} commented on issue "${issue.title}"`,
+            type: "COMMENT",
+          })),
+          skipDuplicates: true,
+        });
+      }
     }
 
     res.status(201).json({ comment });
