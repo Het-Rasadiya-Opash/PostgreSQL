@@ -8,7 +8,6 @@ datasource db {
 }
 
 enum Role {
-  USER
   ADMIN
   PROJECT_MANAGER
   DEVELOPER
@@ -68,7 +67,7 @@ model User {
   reportedIssues Issue[] @relation("IssueReporter")
 
   // 1:M — One User writes many Comments
-  comments      Comment[]
+  comments Comment[]
 
   // 1:M — One User has many Notifications
   notifications Notification[]
@@ -121,7 +120,7 @@ model Issue {
   sprintId String?
   sprint   Sprint? @relation(fields: [sprintId], references: [id], onDelete: SetNull)
 
-  dueDate   DateTime?
+  dueDate DateTime?
 
   // 1:M — One Issue has many Comments
   comments Comment[]

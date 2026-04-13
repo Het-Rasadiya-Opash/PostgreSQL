@@ -23,7 +23,6 @@ const perks = [
 ];
 
 const ROLES = [
-  { value: "USER", label: "User" },
   { value: "DEVELOPER", label: "Developer" },
   { value: "PROJECT_MANAGER", label: "Project Manager" },
   { value: "ADMIN", label: "Admin" },
@@ -35,7 +34,7 @@ const Register = () => {
     email: "",
     password: "",
     confirm_password: "",
-    role: "USER",
+    role: "DEVELOPER",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
