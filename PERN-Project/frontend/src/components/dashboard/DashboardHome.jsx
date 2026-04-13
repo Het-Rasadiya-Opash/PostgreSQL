@@ -1,10 +1,26 @@
-import React from 'react';
-import { Shield, BadgeCheck, Mail, FolderOpen, Flag, Clock, CheckCircle, Users } from 'lucide-react';
-import apiRequest from '../../utils/apiRequest';
+import React from "react";
+import {
+  Shield,
+  BadgeCheck,
+  Mail,
+  FolderOpen,
+  Flag,
+  Clock,
+  CheckCircle,
+  Users,
+} from "lucide-react";
 
-const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, projects }) => {
+const DashboardHome = ({
+  currentUser,
+  role,
+  roleLabel,
+  initials,
+  myIssues,
+  projects,
+}) => {
   const doneTasks = myIssues?.filter((i) => i.status === "DONE").length || 0;
-  const inProgressTasks = myIssues?.filter((i) => i.status === "IN_PROGRESS").length || 0;
+  const inProgressTasks =
+    myIssues?.filter((i) => i.status === "IN_PROGRESS").length || 0;
   const todoTasks = myIssues?.filter((i) => i.status === "TODO").length || 0;
 
   const stats = [
@@ -52,8 +68,6 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
     },
   ];
 
-
-
   return (
     <>
       <div className="bg-white rounded-3xl border border-ads-border shadow-ads-modal overflow-hidden animate-in fade-in duration-700">
@@ -62,7 +76,8 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
           <div
             className="absolute inset-0 opacity-[0.15]"
             style={{
-              backgroundImage: "radial-gradient(circle, #fff 1.5px, transparent 1.5px)",
+              backgroundImage:
+                "radial-gradient(circle, #fff 1.5px, transparent 1.5px)",
               backgroundSize: "16px 16px",
             }}
           />
@@ -84,9 +99,7 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
               </div>
 
               <div className="flex flex-col gap-2 pb-1">
-                <span
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0052CC] border border-blue-100 text-[10px] font-extrabold uppercase tracking-widest w-fit shadow-xs"
-                >
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0052CC] border border-blue-100 text-[10px] font-extrabold uppercase tracking-widest w-fit shadow-xs">
                   <Shield className="w-3.5 h-3.5" />
                   {roleLabel}
                 </span>
@@ -110,7 +123,9 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
             <div className="flex items-center gap-3 bg-[#F4F5F7] px-4 py-2.5 rounded-2xl border border-[#EBECF0] group cursor-default transition-all hover:bg-[#EBECF0]">
               <div className="flex items-center gap-2 text-[#42526E]">
                 <BadgeCheck className="w-4 h-4 text-ads-primary" />
-                <span className="text-xs font-extrabold uppercase tracking-wider">ID:</span>
+                <span className="text-xs font-extrabold uppercase tracking-wider">
+                  ID:
+                </span>
               </div>
               <span className="font-mono text-xs text-[#172B4D] font-bold bg-white/50 px-2 py-1 rounded-lg border border-white">
                 {currentUser.id || "—"}
@@ -136,7 +151,10 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
               <p className="text-xl sm:text-2xl font-extrabold text-ads-text leading-none truncate">
                 {value}
               </p>
-              <p className="text-[10px] sm:text-xs text-ads-text-subtle font-medium mt-1 uppercase tracking-wider truncate" title={label}>
+              <p
+                className="text-[10px] sm:text-xs text-ads-text-subtle font-medium mt-1 uppercase tracking-wider truncate"
+                title={label}
+              >
                 {label}
               </p>
             </div>
@@ -150,23 +168,16 @@ const DashboardHome = ({ currentUser, role, roleLabel, initials, myIssues, proje
 
         <div className="relative z-10 max-w-2xl">
           <h5 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-4 leading-tight">
-            Welcome back, {currentUser.name?.split(' ')[0] || initials}! 🚀
+            Welcome back, {currentUser.name?.split(" ")[0] || initials}! 🚀
           </h5>
           <p className="text-sm sm:text-base md:text-lg text-ads-surface-hover mb-6 sm:mb-8 leading-relaxed max-w-xl">
-            You currently have <span className="text-ads-primary-light font-bold underline decoration-ads-primary-light/30 underline-offset-4">{todoTasks}</span> tasks pending in your queue. Ready to tackle them and boost your productivity?
+            You currently have{" "}
+            <span className="text-ads-primary-light font-bold underline decoration-ads-primary-light/30 underline-offset-4">
+              {todoTasks}
+            </span>{" "}
+            tasks pending in your queue. Ready to tackle them and boost your
+            productivity?
           </p>
-          <div className="flex flex-wrap gap-3 sm:gap-4">
-            <button
-              className="flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-ads-primary hover:bg-ads-primary-hover text-sm font-bold transition-all shadow-xl shadow-ads-primary/25 hover:scale-105 active:scale-95 whitespace-nowrap"
-            >
-              Go to My Issues
-            </button>
-            <button
-              className="flex-1 sm:flex-none px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-sm font-bold transition-all backdrop-blur-md border border-white/10 hover:border-white/20 whitespace-nowrap"
-            >
-              View Projects
-            </button>
-          </div>
         </div>
       </div>
     </>
