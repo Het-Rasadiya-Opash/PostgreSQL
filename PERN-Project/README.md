@@ -67,20 +67,60 @@ graph TD
 
 ## 🔌 API & Component Mapping
 
-The frontend communicates with the backend via a centralized `apiRequest` (Axios) utility. Below is the mapping of core components to their corresponding API interactions:
+The frontend communicates with the backend via a centralized `apiRequest` (Axios) utility. Below is the comprehensive mapping of core modules:
 
-| Component | Responsibility | Primary API Calls |
-| :--- | :--- | :--- |
-| **Login.jsx** | Handing user authentication | `POST /users/login` |
-| **Register.jsx** | Managing user onboarding | `POST /users/register` |
-| **Dashboard.jsx** | Global data coordination | `GET /projects`, `GET /issues` |
-| **ProjectsSection.jsx** | Project CRUD & Dashboard view | `GET /projects`, `POST /projects`, `DELETE /projects/:id` |
-| **ProjectBoardView.jsx** | Main Workspace logic | `GET /projects/:id`, `POST /issues`, `PUT /issues/:id` |
-| **KanbanBoard.jsx** | Drag & Drop interaction | `PUT /issues/:id` (Status update) |
-| **SubTaskSection.jsx** | Granular task management | `GET /subtasks/:issueId`, `POST /subtasks/:issueId`, `PATCH /subtasks/:id/toggle` |
-| **ProjectSprintsView.jsx** | Sprint planning and tracking | `POST /sprints`, `PUT /sprints/:id`, `DELETE /sprints/:id` |
-| **ProjectTeamView.jsx** | Project membership management | `PUT /projects/members/add`, `PUT /projects/members/remove` |
-| **ImplementationPlanView.jsx**| High-level roadmap tracking | `GET /projects/:id` (Hydrated issues & subtasks) |
+### 👤 Identity & Users
+| API Endpoint | Method | Description | Component |
+| :--- | :--- | :--- | :--- |
+| `/api/users/register` | `POST` | Multi-step user onboarding | `Register.jsx` |
+| `/api/users/login` | `POST` | Secure session initialization | `Login.jsx` |
+| `/api/users/logout` | `POST` | Session termination | `Sidebar.jsx` |
+| `/api/users` | `GET` | Fetch current session user | `App.jsx` |
+| `/api/users/profile` | `PUT` | Update profile (Name/Password) | `ProfileSettings.jsx` |
+| `/api/users/developers`| `GET` | List available developers | `IssueModal.jsx` |
+
+### 📁 Projects & Workspaces
+| API Endpoint | Method | Description | Component |
+| :--- | :--- | :--- | :--- |
+| `/api/projects` | `GET` | List all accessible projects | `ProjectsSection.jsx` |
+| `/api/projects` | `POST` | Create new project workspace | `ProjectModal.jsx` |
+| `/api/projects/:id` | `GET` | Fetch project details & issues | `ProjectBoardView.jsx` |
+| `/api/projects/:id` | `PUT` | Edit project metadata | `ProjectModal.jsx` |
+| `/api/projects/:id` | `DELETE`| Permanent project removal | `ProjectsSection.jsx` |
+| `/members/add` | `PUT` | Add member to project | `ProjectTeamView.jsx` |
+| `/members/remove` | `PUT` | Remove member from project | `ProjectTeamView.jsx` |
+
+### 📋 Issues & Tasks
+| API Endpoint | Method | Description | Component |
+| :--- | :--- | :--- | :--- |
+| `/api/issues` | `GET` | Fetch global assigned issues | `AssignedIssuesSection.jsx`|
+| `/api/issues` | `POST` | Create new issue/task | `IssueModal.jsx` |
+| `/api/issues/:id` | `GET` | Fetch single issue details | `IssueModal.jsx` |
+| `/api/issues/:id` | `PUT` | Update issue (Status/Assignee) | `KanbanBoard.jsx`, `IssueModal`|
+| `/api/issues/:id` | `DELETE`| Permanent issue removal | `IssueModal.jsx` |
+
+### 🏃 Sprints & Roadmap
+| API Endpoint | Method | Description | Component |
+| :--- | :--- | :--- | :--- |
+| `/api/sprints` | `POST` | Initialize new sprint | `SprintModal.jsx` |
+| `/api/sprints/:id` | `PUT` | Transition sprint status | `ProjectSprintsView.jsx`|
+| `/api/sprints/:id` | `DELETE`| Remove planned/old sprint | `ProjectSprintsView.jsx`|
+| `/insights/:projectId`| `GET` | Velocity & completion metrics | `AnalyticsDashboard.jsx`|
+
+### 💬 Discussion & SubTasks
+| API Endpoint | Method | Description | Component |
+| :--- | :--- | :--- | :--- |
+| `/api/subtasks/:issueId`| `POST`| Create granular subtask | `SubTaskSection.jsx` |
+| `/:id/toggle` | `PATCH`| Toggle subtask completion | `ImplementationPlanView.jsx`|
+| `/comments/issue/:id` | `GET` | Fetch issue discussion thread | `CommentSection.jsx` |
+| `/api/comments` | `POST` | Add comment to discussion | `CommentSection.jsx` |
+
+### 🔔 Notifications
+| API Endpoint | Method | Description | Component |
+| :--- | :--- | :--- | :--- |
+| `/api/notifications` | `GET` | Fetch user alerts & history | `NotificationBell.jsx` |
+| `/:id/read` | `PATCH`| Mark specific alert as read | `NotificationBell.jsx` |
+| `/read-all` | `PATCH`| Dismiss all active alerts | `NotificationBell.jsx` |
 
 ---
 

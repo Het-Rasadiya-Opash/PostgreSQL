@@ -99,3 +99,50 @@ export const updateSprint = async (req, res) => {
     res.status(500).json({ message: "Error updating sprint" });
   }
 };
+
+export const deleteSprint = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await prisma.sprint.delete({ where: { id } });
+    res.json({ message: "Sprint deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting sprint" });
+  }
+};
+
+export const getSprintInsights = async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    // Get last 5 sprints for this project to calculate velocity
+    const sprints = await prisma.sprint.findMany({
+      where: { projectId },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      include: {
+        _count: {
+          select: {
+            issues: true,
+          },
+        },
+        issues: {
+          select: {
+            status: true,
+          },
+        },
+      },
+    });
+
+    // Calculate velocity (completed issues per sprint)
+    const velocityData = sprints.map(s => ({
+      name: s.name,
+      totalIssues: s._count.issues,
+      completedIssues: s.issues.filter(i => i.status === "DONE").length,
+      status: s.status,
+    })).reverse();
+
+    res.json({ velocityData });
+  } catch (error) {
+    console.error("Error fetching sprint insights:", error);
+    res.status(500).json({ message: "Error fetching sprint insights" });
+  }
+};
