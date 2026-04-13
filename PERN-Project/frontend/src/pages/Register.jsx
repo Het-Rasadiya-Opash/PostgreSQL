@@ -134,7 +134,7 @@ const Register = () => {
           ))}
 
           {/* Testimonial */}
-          <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
+          {/* <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10">
             <p className="text-white/90 text-sm leading-relaxed italic mb-3">
               "PMS cut our sprint planning time in half. Our team is finally in sync."
             </p>
@@ -147,7 +147,7 @@ const Register = () => {
                 <p className="text-blue-200/70 text-xs mt-0.5">CTO, Velotech Inc.</p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
