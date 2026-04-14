@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Calendar, Flag, PlusCircle, Edit3, Loader2, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import apiRequest from '../../utils/apiRequest';
 import SprintModal from './SprintModal';
+import { formatDate } from '../../utils/dateFormat';
 
 const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
   const [isSprintModalOpen, setIsSprintModalOpen] = useState(false);
@@ -161,9 +162,9 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                 <div className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-ads-text-subtlest">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>
-                    {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : "—"}
+                    {formatDate(sprint.startDate)}
                     {" → "}
-                    {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : "—"}
+                    {formatDate(sprint.endDate)}
                   </span>
                 </div>
 

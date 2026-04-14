@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, CalendarDays, Circle } from "lucide-react";
+import { formatDate } from "../../utils/dateFormat";
 
 const statusColors = {
   TODO:        { dot: "bg-slate-400",  pill: "bg-slate-100 text-slate-600 border-slate-200" },
@@ -168,7 +169,7 @@ const ProjectCalendarView = ({ selectedProject }) => {
                                   <div className="flex items-center justify-between">
                                     <span className="text-[10px] text-slate-400">Due</span>
                                     <span className="text-[10px] font-bold text-slate-700">
-                                      {new Date(issue.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                                      {formatDate(issue.dueDate)}
                                     </span>
                                   </div>
                                 </div>
@@ -214,7 +215,7 @@ const ProjectCalendarView = ({ selectedProject }) => {
                     "bg-slate-50 border-slate-200"
                   }`}>
                     <span className={`text-[10px] font-bold uppercase ${isOverdue ? "text-red-400" : isDueToday ? "text-yellow-600" : "text-slate-400"}`}>
-                      {due.toLocaleDateString(undefined, { month: "short" })}
+                      {formatDate(issue.dueDate).slice(3, 8)}
                     </span>
                     <span className={`text-sm font-extrabold leading-none ${isOverdue ? "text-red-600" : isDueToday ? "text-yellow-700" : "text-slate-700"}`}>
                       {due.getDate()}

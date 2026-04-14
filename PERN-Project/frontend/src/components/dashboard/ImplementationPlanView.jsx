@@ -4,6 +4,7 @@ import {
   CheckCircle2, Circle, Loader2, Users, TrendingUp, CalendarClock,
 } from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
+import { formatDate } from "../../utils/dateFormat";
 
 const statusConfig = {
   TODO:        { label: "To Do",       bg: "bg-slate-100",  text: "text-slate-600",  border: "border-slate-200",  dot: "bg-slate-400" },
@@ -263,7 +264,7 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
                                        "bg-slate-50 text-slate-500 border-slate-200"
                         }`}>
                           <CalendarClock className="w-3 h-3" />
-                          {isOverdue ? "Overdue" : isDueToday ? "Today" : due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                          {isOverdue ? "Overdue" : isDueToday ? "Today" : formatDate(due)}
                         </span>
                       ) : (
                         <span className="text-[10px] text-slate-300">—</span>

@@ -15,8 +15,7 @@ import apiRequest from "../../utils/apiRequest";
 import SubTaskSection from "./SubTaskSection";
 import CommentSection from "./CommentSection";
 import ActivityLog from "./ActivityLog";
-import Button from "../ui/Button";
-import Input from "../ui/Input";
+import { formatDate } from "../../utils/dateFormat";
 
 const IssueModal = ({
   isOpen,
@@ -212,12 +211,24 @@ const IssueModal = ({
                 disabled={isDeveloperEdit}
                 className="w-full h-10 px-3 py-2 rounded-md border border-ads-border bg-white text-sm focus:ring-2 focus:ring-ads-border-focus outline-none transition-all disabled:bg-ads-surface"
                 value={issueForm.sprintId}
-                onChange={(e) => setIssueForm({ ...issueForm, sprintId: e.target.value })}
+                onChange={(e) => {
+                  const sprintId = e.target.value;
+                  const sprint = selectedProject?.sprints?.find(s => s.id === sprintId);
+                  const updates = { sprintId };
+                  // Auto-set due date to sprint end date if not already set
+                  if (sprint?.endDate && !issueForm.dueDate) {
+                    updates.dueDate = sprint.endDate.split("T")[0];
+                  }
+                  setIssueForm({ ...issueForm, ...updates });
+                }}
               >
                 <option value="">Backlog (No Sprint)</option>
                 {selectedProject?.sprints?.map((sprint) => (
                   <option key={sprint.id} value={sprint.id}>
                     {sprint.name}
+                    {sprint.startDate && sprint.endDate
+                      ? ` (${new Date(sprint.startDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${new Date(sprint.endDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })})`
+                      : ""}
                   </option>
                 ))}
               </select>
@@ -227,13 +238,46 @@ const IssueModal = ({
               <label className="text-[10px] font-bold text-ads-text-subtlest uppercase tracking-wider ml-1 flex items-center gap-1">
                 <CalendarClock className="w-3 h-3" /> Due Date
               </label>
-              <input
-                type="date"
-                disabled={isDeveloperEdit}
-                className="w-full h-10 px-3 py-2 rounded-md border border-ads-border bg-white text-sm focus:ring-2 focus:ring-ads-border-focus outline-none transition-all disabled:bg-ads-surface disabled:text-ads-text-subtlest"
-                value={issueForm.dueDate}
-                onChange={(e) => setIssueForm({ ...issueForm, dueDate: e.target.value })}
-              />
+              {(() => {
+                const sprint = selectedProject?.sprints?.find(s => s.id === issueForm.sprintId);
+                const minDate = sprint?.startDate ? sprint.startDate.split("T")[0] : undefined;
+                const maxDate = sprint?.endDate   ? sprint.endDate.split("T")[0]   : undefined;
+                return (
+                  <div className="relative">
+                    <input
+                      type="date"
+                      disabled={isDeveloperEdit}
+                      min={minDate}
+                      max={maxDate}
+                      className="w-full h-10 px-3 py-2 rounded-md border border-ads-border bg-white text-sm focus:ring-2 focus:ring-ads-border-focus outline-none transition-all disabled:bg-ads-surface disabled:text-ads-text-subtlest"
+                      value={issueForm.dueDate}
+                      onChange={(e) => {
+                        const dueDate = e.target.value;
+                        const updates = { dueDate };
+                        // Auto-select sprint whose range contains this due date
+                        if (dueDate && !issueForm.sprintId) {
+                          const due = new Date(dueDate);
+                          const matchingSprint = selectedProject?.sprints?.find(s => {
+                            if (!s.startDate || !s.endDate) return false;
+                            const start = new Date(s.startDate);
+                            const end   = new Date(s.endDate);
+                            start.setHours(0,0,0,0);
+                            end.setHours(23,59,59,999);
+                            return due >= start && due <= end;
+                          });
+                          if (matchingSprint) updates.sprintId = matchingSprint.id;
+                        }
+                        setIssueForm({ ...issueForm, ...updates });
+                      }}
+                    />
+                    {sprint && (minDate || maxDate) && (
+                      <p className="text-[10px] text-ads-text-subtlest mt-1 ml-1">
+                        Sprint range: {minDate ?? "—"} → {maxDate ?? "—"}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
 

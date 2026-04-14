@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MessageSquare, Send, Loader2, Trash2, AtSign } from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
+import { formatDate } from "../../utils/dateFormat";
 
 // Render comment body with @mentions highlighted
 const renderBody = (body) => {
@@ -164,7 +165,7 @@ const CommentSection = ({ issueId, currentUser, onCommentChange, members = [] })
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-slate-400">
-                        {new Date(comment.createdAt).toLocaleDateString()}
+                        {formatDate(comment.createdAt)}
                       </span>
                       {canDelete(comment) && (
                         <button

@@ -1,15 +1,9 @@
 import React from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
-  Users,
-  Edit3,
-  Trash2,
-  CheckCircle2,
-  Circle,
-  CalendarClock,
-  MessageSquare,
-  History,
+  Users, Edit3, Trash2, CheckCircle2, Circle, CalendarClock, MessageSquare, History,
 } from "lucide-react";
+import { formatDate } from "../utils/dateFormat";
 
 const issueStatuses = ["TODO", "IN_PROGRESS", "DONE"];
 const statusLabels = {
@@ -203,10 +197,7 @@ const KanbanBoard = ({
                                         ? "Overdue"
                                         : isDueToday
                                           ? "Due Today"
-                                          : due.toLocaleDateString(undefined, {
-                                              month: "short",
-                                              day: "numeric",
-                                            })}
+                                          : formatDate(due)}}
                                     </span>
                                   );
                                 })()}
