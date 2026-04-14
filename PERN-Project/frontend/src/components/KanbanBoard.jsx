@@ -8,6 +8,7 @@ import {
   Circle,
   CalendarClock,
   MessageSquare,
+  History,
 } from "lucide-react";
 
 const issueStatuses = ["TODO", "IN_PROGRESS", "DONE"];
@@ -27,6 +28,7 @@ const KanbanBoard = ({
   issues,
   onDragEnd,
   onIssueClick,
+  onActivityClick,
   onDeleteIssue,
   onToggleSubTask,
   userRole,
@@ -224,6 +226,13 @@ const KanbanBoard = ({
                                   title="Edit Issue"
                                 >
                                   <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); onActivityClick && onActivityClick(issue); }}
+                                  className="p-1 rounded-sm text-ads-text-subtlest hover:text-amber-500 hover:bg-amber-50 transition-colors"
+                                  title="Activity Log"
+                                >
+                                  <History className="w-3.5 h-3.5" />
                                 </button>
                                 {userRole === "PROJECT_MANAGER" && (
                                   <button

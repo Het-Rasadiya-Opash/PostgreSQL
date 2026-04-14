@@ -14,6 +14,7 @@ import Modal from "../ui/Modal";
 import apiRequest from "../../utils/apiRequest";
 import SubTaskSection from "./SubTaskSection";
 import CommentSection from "./CommentSection";
+import ActivityLog from "./ActivityLog";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 
@@ -303,6 +304,12 @@ const IssueModal = ({
       {mode === "edit" && issueToEdit && (
         <div className="px-6 pb-6">
           <CommentSection issueId={issueToEdit.id} currentUser={currentUser} onCommentChange={() => refreshProject(selectedProject.id)} />
+        </div>
+      )}
+
+      {mode === "edit" && issueToEdit && (
+        <div className="px-6 pb-6">
+          <ActivityLog issueId={issueToEdit.id} />
         </div>
       )}
     </Modal>

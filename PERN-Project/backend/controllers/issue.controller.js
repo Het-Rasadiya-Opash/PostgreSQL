@@ -100,6 +100,12 @@ export const createIssue = async (req, res) => {
       message: "Issue created successfully",
       issue,
     });
+
+    // Log creation activity (fire and forget)
+    prisma.issueActivity.create({
+      data: { issueId: issue.id, actorId: userId, field: "created", oldValue: null, newValue: issue.title },
+    }).catch(() => {});
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -180,6 +186,7 @@ export const updateIssue = async (req, res) => {
       select: {
         title: true,
         status: true,
+        priority: true,
         assigneeId: true,
         project: {
           select: {
@@ -195,8 +202,7 @@ export const updateIssue = async (req, res) => {
       data: updateData,
     });
 
-    // Auto-complete sprint if all its issues are now DONE
-    // OR revert sprint if an issue is moved away from DONE
+    // Sprint auto-management based on issue status changes
     if (status !== undefined && issue.sprintId) {
       const sprint = await prisma.sprint.findUnique({
         where: { id: issue.sprintId },
@@ -204,7 +210,14 @@ export const updateIssue = async (req, res) => {
       });
 
       if (sprint) {
-        if (status === "DONE" && sprint.status !== "COMPLETED") {
+        if (status === "IN_PROGRESS" && sprint.status === "PLANNED") {
+          // First issue moved to IN_PROGRESS — auto-start the sprint
+          await prisma.sprint.update({
+            where: { id: issue.sprintId },
+            data: { status: "ACTIVE" },
+          });
+        } else if (status === "DONE" && sprint.status !== "COMPLETED") {
+          // Check if ALL sprint issues are now DONE
           const remaining = await prisma.issue.findMany({
             where: { sprintId: issue.sprintId, NOT: { status: "DONE" } },
             select: { id: true },
@@ -219,12 +232,28 @@ export const updateIssue = async (req, res) => {
               data: { isCompleted: true },
             });
           }
-        } else if (status !== "DONE" && sprint.status === "COMPLETED") {
-          // Issue moved away from DONE — revert sprint to ACTIVE
-          await prisma.sprint.update({
-            where: { id: issue.sprintId },
-            data: { status: "ACTIVE" },
-          });
+        } else if (status === "TODO") {
+          // Issue moved back to TODO
+          if (sprint.status === "ACTIVE") {
+            // Check if ALL sprint issues are now TODO (none in progress or done)
+            const nonTodo = await prisma.issue.findMany({
+              where: { sprintId: issue.sprintId, NOT: { status: "TODO" } },
+              select: { id: true },
+            });
+            if (nonTodo.length === 0) {
+              // All back to TODO — revert sprint to PLANNED
+              await prisma.sprint.update({
+                where: { id: issue.sprintId },
+                data: { status: "PLANNED" },
+              });
+            }
+          } else if (sprint.status === "COMPLETED") {
+            // Revert completed sprint to ACTIVE when an issue goes back to TODO
+            await prisma.sprint.update({
+              where: { id: issue.sprintId },
+              data: { status: "ACTIVE" },
+            });
+          }
         }
       }
     }
@@ -236,6 +265,36 @@ export const updateIssue = async (req, res) => {
       IN_PROGRESS: "In Progress",
       DONE: "Done",
     };
+
+    // Log activity for tracked field changes
+    if (existing) {
+      const activityEntries = [];
+
+      if (status && status !== existing.status)
+        activityEntries.push({ issueId: id, actorId, field: "status",
+          oldValue: statusLabels[existing.status] || existing.status,
+          newValue: statusLabels[status] || status });
+
+      if (priority !== undefined && priority !== existing.priority)
+        activityEntries.push({ issueId: id, actorId, field: "priority",
+          oldValue: existing.priority, newValue: priority });
+
+      if (title !== undefined && title !== existing.title)
+        activityEntries.push({ issueId: id, actorId, field: "title",
+          oldValue: existing.title, newValue: title });
+
+      if (assigneeId !== undefined && assigneeId !== existing.assigneeId) {
+        const [newA, oldA] = await Promise.all([
+          assigneeId ? prisma.user.findUnique({ where: { id: assigneeId }, select: { name: true } }) : null,
+          existing.assigneeId ? prisma.user.findUnique({ where: { id: existing.assigneeId }, select: { name: true } }) : null,
+        ]);
+        activityEntries.push({ issueId: id, actorId, field: "assignee",
+          oldValue: oldA?.name || null, newValue: newA?.name || null });
+      }
+
+      if (activityEntries.length > 0)
+        await prisma.issueActivity.createMany({ data: activityEntries });
+    }
 
     // Notify on status change
     if (status && existing && status !== existing.status) {
@@ -348,5 +407,19 @@ export const deleteIssue = async (req, res) => {
     res.json({ message: "Issue deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting issue" });
+  }
+};
+
+export const getIssueActivity = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const activities = await prisma.issueActivity.findMany({
+      where: { issueId: id },
+      include: { actor: { select: { id: true, name: true, avatar: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json({ activities });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching activity" });
   }
 };

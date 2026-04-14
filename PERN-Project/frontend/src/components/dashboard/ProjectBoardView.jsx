@@ -3,6 +3,7 @@ import { AlertCircle, PlusCircle, Search, Filter } from "lucide-react";
 import KanbanBoard from "../KanbanBoard";
 import apiRequest from "../../utils/apiRequest";
 import IssueModal from "./IssueModal";
+import ActivityDrawer from "./ActivityDrawer";
 
 const ProjectBoardView = ({
   selectedProject,
@@ -15,6 +16,7 @@ const ProjectBoardView = ({
   const [editingIssueId, setEditingIssueId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
+  const [activityIssue, setActivityIssue] = useState(null);
   // Local optimistic issues state
   const [localIssues, setLocalIssues] = useState(null);
 
@@ -45,6 +47,17 @@ const ProjectBoardView = ({
       console.error("Error deleting issue:", err);
       alert(err.response?.data?.message || "Failed to delete issue");
     }
+  };
+
+  // Optimistic sprint status derivation
+  const deriveSprintStatus = (sprintId, updatedIssues) => {
+    const sprintIssues = updatedIssues.filter(i => i.sprintId === sprintId);
+    if (sprintIssues.length === 0) return "PLANNED";
+    const allDone = sprintIssues.every(i => i.status === "DONE");
+    const allTodo = sprintIssues.every(i => i.status === "TODO");
+    if (allDone) return "COMPLETED";
+    if (allTodo) return "PLANNED";
+    return "ACTIVE";
   };
 
   const handleStatusDragUpdate = async (result) => {
@@ -142,6 +155,7 @@ const ProjectBoardView = ({
             issues={filteredIssues}
             onDragEnd={handleStatusDragUpdate}
             onIssueClick={handleEditIssue}
+            onActivityClick={(issue) => setActivityIssue(issue)}
             onDeleteIssue={handleDeleteIssue}
             onToggleSubTask={handleToggleSubTask}
             userRole={userRole}
@@ -170,6 +184,13 @@ const ProjectBoardView = ({
         refreshProject={refreshProject}
         fetchMyIssues={fetchMyIssues}
       />
+
+      {activityIssue && (
+        <ActivityDrawer
+          issue={activityIssue}
+          onClose={() => setActivityIssue(null)}
+        />
+      )}
     </div>
   );
 };

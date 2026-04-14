@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Flag, PlusCircle, Edit3, Loader2, Play, CheckCheck, RotateCcw, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Calendar, Flag, PlusCircle, Edit3, Loader2, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import apiRequest from '../../utils/apiRequest';
 import SprintModal from './SprintModal';
 
@@ -28,6 +28,20 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
   };
 
   const issueStatusMap = { ACTIVE: "IN_PROGRESS", COMPLETED: "DONE", PLANNED: "TODO" };
+
+  // Derive optimistic sprint status from issue statuses
+  const deriveSprintStatus = (sprintId, updatedIssues) => {
+    const sprintIssues = updatedIssues.filter(i => i.sprintId === sprintId);
+    if (sprintIssues.length === 0) return "PLANNED";
+    const allDone = sprintIssues.every(i => i.status === "DONE");
+    const allTodo = sprintIssues.every(i => i.status === "TODO");
+    const anyInProgress = sprintIssues.some(i => i.status === "IN_PROGRESS");
+    const anyDone = sprintIssues.some(i => i.status === "DONE");
+    if (allDone) return "COMPLETED";
+    if (allTodo) return "PLANNED";
+    if (anyInProgress || anyDone) return "ACTIVE";
+    return "PLANNED";
+  };
 
   const handleStatusChange = async (sprint, newStatus) => {
     // Optimistic: update sprint status + all its issues
@@ -128,49 +142,17 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    {/* Status badge */}
                     <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shrink-0 ${cfg.color}`}>
                       {cfg.label}
                     </span>
-
-                    {/* Quick status action buttons — PROJECT_MANAGER only */}
-                    {userRole === "PROJECT_MANAGER" && (
-                      <div className="flex items-center gap-1 shrink-0 bg-ads-surface/50 p-0.5 rounded-lg border border-ads-border/10">
-                        {sprint.status === "PLANNED" && (
-                          <button
-                            onClick={() => handleStatusChange(sprint, "ACTIVE")}
-                            title="Start Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-primary bg-ads-primary-light hover:bg-ads-primary-light/80 border border-ads-primary/20 transition-all cursor-pointer whitespace-nowrap"
-                          >
-                            <Play className="w-3 h-3" /> Start
-                          </button>
-                        )}
-                        {sprint.status === "ACTIVE" && (
-                          <button
-                            onClick={() => handleStatusChange(sprint, "COMPLETED")}
-                            title="Complete Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-success bg-ads-success-light hover:bg-ads-success-light/80 border border-ads-success/20 transition-all cursor-pointer whitespace-nowrap"
-                          >
-                            <CheckCheck className="w-3 h-3" /> Complete
-                          </button>
-                        )}
-                        {sprint.status === "COMPLETED" && (
-                          <button
-                            onClick={() => handleStatusChange(sprint, "PLANNED")}
-                            title="Reopen Sprint"
-                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-ads-text-subtle bg-ads-surface hover:bg-ads-surface-hover border border-ads-border transition-all cursor-pointer whitespace-nowrap"
-                          >
-                            <RotateCcw className="w-3 h-3" /> Reopen
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleEditSprint(sprint)}
-                          className="p-1.5 rounded-lg text-ads-text-subtlest hover:text-ads-primary hover:bg-ads-primary-light transition-all cursor-pointer"
-                          title="Edit Sprint"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                    {(userRole === "PROJECT_MANAGER" || userRole === "ADMIN") && (
+                      <button
+                        onClick={() => handleEditSprint(sprint)}
+                        className="p-1.5 rounded-lg text-ads-text-subtlest hover:text-ads-primary hover:bg-ads-primary-light transition-all cursor-pointer"
+                        title="Edit Sprint"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
                     )}
                   </div>
                 </div>
