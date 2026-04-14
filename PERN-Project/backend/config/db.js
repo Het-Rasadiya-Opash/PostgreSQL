@@ -7,7 +7,6 @@ const connectionString = process.env.DATABASE_URL;
 
 const pool = new pg.Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
 });
 const adapter = new PrismaPg(pool);
 

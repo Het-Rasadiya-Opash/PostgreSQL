@@ -16,6 +16,8 @@ import SubTaskSection from "./SubTaskSection";
 import CommentSection from "./CommentSection";
 import ActivityLog from "./ActivityLog";
 import { formatDate } from "../../utils/dateFormat";
+import Button from "../ui/Button";
+import Input from "../ui/Input";
 
 const IssueModal = ({
   isOpen,
@@ -227,7 +229,7 @@ const IssueModal = ({
                   <option key={sprint.id} value={sprint.id}>
                     {sprint.name}
                     {sprint.startDate && sprint.endDate
-                      ? ` (${new Date(sprint.startDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${new Date(sprint.endDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })})`
+                      ? ` (${formatDate(sprint.startDate)} – ${formatDate(sprint.endDate)})`
                       : ""}
                   </option>
                 ))}

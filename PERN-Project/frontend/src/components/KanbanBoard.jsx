@@ -197,7 +197,7 @@ const KanbanBoard = ({
                                         ? "Overdue"
                                         : isDueToday
                                           ? "Due Today"
-                                          : formatDate(due)}}
+                                          : formatDate(due)}
                                     </span>
                                   );
                                 })()}
