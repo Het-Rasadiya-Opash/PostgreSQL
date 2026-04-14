@@ -195,6 +195,40 @@ export const updateIssue = async (req, res) => {
       data: updateData,
     });
 
+    // Auto-complete sprint if all its issues are now DONE
+    // OR revert sprint if an issue is moved away from DONE
+    if (status !== undefined && issue.sprintId) {
+      const sprint = await prisma.sprint.findUnique({
+        where: { id: issue.sprintId },
+        select: { id: true, status: true },
+      });
+
+      if (sprint) {
+        if (status === "DONE" && sprint.status !== "COMPLETED") {
+          const remaining = await prisma.issue.findMany({
+            where: { sprintId: issue.sprintId, NOT: { status: "DONE" } },
+            select: { id: true },
+          });
+          if (remaining.length === 0) {
+            await prisma.sprint.update({
+              where: { id: issue.sprintId },
+              data: { status: "COMPLETED" },
+            });
+            await prisma.subTask.updateMany({
+              where: { issue: { sprintId: issue.sprintId } },
+              data: { isCompleted: true },
+            });
+          }
+        } else if (status !== "DONE" && sprint.status === "COMPLETED") {
+          // Issue moved away from DONE — revert sprint to ACTIVE
+          await prisma.sprint.update({
+            where: { id: issue.sprintId },
+            data: { status: "ACTIVE" },
+          });
+        }
+      }
+    }
+
     const actorId = req.user.userId;
     const actorRole = req.user.role?.toUpperCase();
     const statusLabels = {

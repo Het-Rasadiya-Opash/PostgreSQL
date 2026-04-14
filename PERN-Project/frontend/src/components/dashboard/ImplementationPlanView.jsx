@@ -20,18 +20,42 @@ const priorityConfig = {
 const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
   const [expandedIssues, setExpandedIssues] = useState({});
   const [togglingId, setTogglingId] = useState(null);
+  const [localIssues, setLocalIssues] = useState(null);
 
-  const issues = selectedProject.issues || [];
+  // Reset local state when selectedProject refreshes
+  React.useEffect(() => { setLocalIssues(null); }, [selectedProject]);
+
+  const issues = localIssues ?? selectedProject.issues ?? [];
 
   const toggleExpand = (id) =>
     setExpandedIssues((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const handleToggleSubTask = async (subTaskId) => {
+  const handleToggleSubTask = async (subTaskId, issueId) => {
     setTogglingId(subTaskId);
+
+    // Optimistic update
+    setLocalIssues((prev) => {
+      const base = prev ?? selectedProject.issues ?? [];
+      return base.map((issue) => {
+        if (issue.id !== issueId) return issue;
+        const updatedSubTasks = issue.subTasks.map((s) =>
+          s.id === subTaskId ? { ...s, isCompleted: !s.isCompleted } : s
+        );
+        const allDone = updatedSubTasks.every((s) => s.isCompleted);
+        const anyDone = updatedSubTasks.some((s) => s.isCompleted);
+        return {
+          ...issue,
+          subTasks: updatedSubTasks,
+          status: allDone ? "DONE" : anyDone ? "IN_PROGRESS" : "TODO",
+        };
+      });
+    });
+
     try {
       await apiRequest.patch(`/subtasks/${subTaskId}/toggle`);
-      await refreshProject(selectedProject.id);
+      refreshProject(selectedProject.id);
     } catch (err) {
+      setLocalIssues(null);
       console.error("Error toggling subtask:", err);
     } finally {
       setTogglingId(null);
@@ -209,7 +233,7 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
                     <div className="w-28 shrink-0">
                       {issue.assignee ? (
                         <div className="flex items-center gap-1.5">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
+                          <div className="w-6 h-6 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
                             {issue.assignee.avatar ? (
                               <img src={issue.assignee.avatar} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -260,7 +284,7 @@ const ImplementationPlanView = ({ selectedProject, refreshProject }) => {
 
                           {/* toggle */}
                           <button
-                            onClick={() => handleToggleSubTask(sub.id)}
+                            onClick={() => handleToggleSubTask(sub.id, issue.id)}
                             disabled={togglingId === sub.id}
                             className="shrink-0 transition-all duration-200 hover:scale-110 disabled:opacity-60"
                           >

@@ -7,9 +7,19 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
   const [isSprintModalOpen, setIsSprintModalOpen] = useState(false);
   const [sprintModalMode, setSprintModalMode] = useState("create");
   const [editingSprintId, setEditingSprintId] = useState(null);
-
   const [expandedSprints, setExpandedSprints] = useState({});
   const [togglingId, setTogglingId] = useState(null);
+  // Optimistic sprint + issue state
+  const [localSprints, setLocalSprints] = useState(null);
+  const [localIssues, setLocalIssues] = useState(null);
+
+  const sprints = localSprints ?? selectedProject.sprints ?? [];
+  const issues  = localIssues  ?? selectedProject.issues  ?? [];
+
+  React.useEffect(() => {
+    setLocalSprints(null);
+    setLocalIssues(null);
+  }, [selectedProject]);
 
   const handleEditSprint = (sprint) => {
     setSprintModalMode("edit");
@@ -17,11 +27,26 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
     setIsSprintModalOpen(true);
   };
 
+  const issueStatusMap = { ACTIVE: "IN_PROGRESS", COMPLETED: "DONE", PLANNED: "TODO" };
+
   const handleStatusChange = async (sprint, newStatus) => {
+    // Optimistic: update sprint status + all its issues
+    setLocalSprints((prev) =>
+      (prev ?? selectedProject.sprints ?? []).map(s =>
+        s.id === sprint.id ? { ...s, status: newStatus } : s
+      )
+    );
+    setLocalIssues((prev) =>
+      (prev ?? selectedProject.issues ?? []).map(i =>
+        i.sprintId === sprint.id ? { ...i, status: issueStatusMap[newStatus] ?? i.status } : i
+      )
+    );
     try {
       await apiRequest.put(`/sprints/${sprint.id}`, { status: newStatus });
       await refreshProject(selectedProject.id);
     } catch (err) {
+      setLocalSprints(null);
+      setLocalIssues(null);
       alert(err.response?.data?.message || "Failed to update sprint status");
     }
   };
@@ -48,7 +73,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-ads-text-subtlest" />
           <h4 className="text-sm font-bold text-ads-text-subtlest uppercase tracking-wider">
-            Sprints ({selectedProject.sprints?.length || 0})
+            Sprints ({sprints.length})
           </h4>
         </div>
         {userRole === "PROJECT_MANAGER" && (
@@ -66,10 +91,10 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
         )}
       </div>
 
-      {selectedProject.sprints && selectedProject.sprints.length > 0 ? (
+      {sprints.length > 0 ? (
         <div className="space-y-3">
-          {selectedProject.sprints.map((sprint) => {
-            const sprintIssues = selectedProject.issues?.filter(i => i.sprintId === sprint.id) || [];
+          {sprints.map((sprint) => {
+            const sprintIssues = issues.filter(i => i.sprintId === sprint.id);
             const totalSubTasks = sprintIssues.reduce((acc, i) => acc + (i.subTasks?.length || 0), 0);
             const doneSubTasks = sprintIssues.reduce((acc, i) => acc + (i.subTasks?.filter(s => s.isCompleted).length || 0), 0);
             const subTaskPct = totalSubTasks > 0 ? Math.round((doneSubTasks / totalSubTasks) * 100) : 0;
@@ -250,7 +275,7 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
         selectedProject={selectedProject}
         userRole={userRole}
         mode={sprintModalMode}
-        sprintToEdit={selectedProject.sprints?.find(s => s.id === editingSprintId)}
+        sprintToEdit={sprints.find(s => s.id === editingSprintId)}
         refreshProject={refreshProject}
       />
     </div>

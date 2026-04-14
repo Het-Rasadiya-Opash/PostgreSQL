@@ -15,6 +15,16 @@ const ProjectBoardView = ({
   const [editingIssueId, setEditingIssueId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
+  // Local optimistic issues state
+  const [localIssues, setLocalIssues] = useState(null);
+
+  // Always derive from localIssues (optimistic) or selectedProject.issues
+  const issues = localIssues ?? selectedProject.issues ?? [];
+
+  // Reset local state when selectedProject changes (after refreshProject resolves)
+  React.useEffect(() => {
+    setLocalIssues(null);
+  }, [selectedProject]);
 
   const handleEditIssue = (issue) => {
     setIssueModalMode("edit");
@@ -25,10 +35,13 @@ const ProjectBoardView = ({
   const handleDeleteIssue = async (issueId) => {
     if (!window.confirm("Are you sure you want to delete this issue?")) return;
     try {
+      // Optimistic remove
+      setLocalIssues((prev) => (prev ?? selectedProject.issues ?? []).filter(i => i.id !== issueId));
       await apiRequest.delete(`/issues/${issueId}`);
       refreshProject(selectedProject.id);
       fetchMyIssues();
     } catch (err) {
+      setLocalIssues(null);
       console.error("Error deleting issue:", err);
       alert(err.response?.data?.message || "Failed to delete issue");
     }
@@ -37,19 +50,22 @@ const ProjectBoardView = ({
   const handleStatusDragUpdate = async (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
+    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
     const newStatus = destination.droppableId;
+
+    // Optimistic update — move card instantly
+    const updatedIssues = (localIssues ?? selectedProject.issues ?? []).map(i =>
+      i.id === draggableId ? { ...i, status: newStatus } : i
+    );
+    setLocalIssues(updatedIssues);
+
     try {
       await apiRequest.put(`/issues/${draggableId}`, { status: newStatus });
       refreshProject(selectedProject.id);
       fetchMyIssues();
     } catch (err) {
+      setLocalIssues(null);
       console.error("Failed to update status via drag", err);
       refreshProject(selectedProject.id);
     }
@@ -64,12 +80,12 @@ const ProjectBoardView = ({
     }
   };
 
-  const filteredIssues = selectedProject.issues?.filter(issue => {
+  const filteredIssues = issues.filter(issue => {
     const matchesSearch = issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       issue.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPriority = priorityFilter === "ALL" || issue.priority === priorityFilter;
     return matchesSearch && matchesPriority;
-  }) || [];
+  });
 
   return (
     <div className="bg-ads-surface-white rounded-2xl border border-ads-border shadow-sm p-4 sm:p-6 overflow-hidden">
@@ -77,7 +93,7 @@ const ProjectBoardView = ({
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-ads-text-subtlest" />
           <h4 className="text-sm font-bold text-ads-text-subtlest uppercase tracking-wider">
-            Issues ({selectedProject.issues?.length || 0})
+            Issues ({issues.length})
           </h4>
         </div>
         <button
@@ -120,7 +136,7 @@ const ProjectBoardView = ({
         </div>
       </div>
 
-      {selectedProject.issues && selectedProject.issues.length > 0 ? (
+      {issues.length > 0 ? (
         <div className="mt-4">
           <KanbanBoard
             issues={filteredIssues}
@@ -150,7 +166,7 @@ const ProjectBoardView = ({
         selectedProject={selectedProject}
         userRole={userRole}
         mode={issueModalMode}
-        issueToEdit={selectedProject.issues?.find(i => i.id === editingIssueId)}
+        issueToEdit={issues.find(i => i.id === editingIssueId)}
         refreshProject={refreshProject}
         fetchMyIssues={fetchMyIssues}
       />
