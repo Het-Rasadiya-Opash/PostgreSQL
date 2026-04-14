@@ -404,10 +404,8 @@ const Dashboard = () => {
                 <BacklogView
                   selectedProject={selectedProject}
                   userRole={userRole}
-                  onIssueClick={(issue) => {
-                    // Reuse logic from Board if needed, or just view
-                    setCurrentView("PROJECT_BOARD");
-                  }}
+                  refreshProject={fetchProjectDetails}
+                  onIssueClick={() => setCurrentView("PROJECT_BOARD")}
                 />
               )}
 
