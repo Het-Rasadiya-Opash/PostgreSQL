@@ -20,6 +20,7 @@ import BacklogView from "../components/dashboard/BacklogView";
 import ProfileSettings from "./ProfileSettings";
 import ImplementationPlanView from "../components/dashboard/ImplementationPlanView";
 import ProjectCalendarView from "../components/dashboard/ProjectCalendarView";
+import GlobalSearch from "../components/dashboard/GlobalSearch";
 
 const roleColors = {
   ADMIN: {
@@ -285,6 +286,15 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="flex items-center gap-1">
+            <GlobalSearch
+              projects={projects}
+              issues={myIssues}
+              onProjectClick={handleProjectClick}
+              onIssueClick={(issue) => {
+                fetchProjectDetails(issue.project?.id || issue.projectId, false);
+                setCurrentView("PROJECT_BOARD");
+              }}
+            />
             <NotificationBell />
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -295,8 +305,17 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Desktop top-right notification bell */}
-        <div className="hidden md:flex h-16 items-center justify-end px-6 border-b border-ads-border bg-ads-surface shrink-0">
+        {/* Desktop top bar */}
+        <div className="hidden md:flex h-16 items-center justify-between px-6 border-b border-ads-border bg-ads-surface shrink-0">
+          <GlobalSearch
+            projects={projects}
+            issues={myIssues}
+            onProjectClick={handleProjectClick}
+            onIssueClick={(issue) => {
+              fetchProjectDetails(issue.project?.id || issue.projectId, false);
+              setCurrentView("PROJECT_BOARD");
+            }}
+          />
           <NotificationBell />
         </div>
 
