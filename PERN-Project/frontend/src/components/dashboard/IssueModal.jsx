@@ -303,7 +303,15 @@ const IssueModal = ({
       {/* Comments — outside form to prevent submit conflict */}
       {mode === "edit" && issueToEdit && (
         <div className="px-6 pb-6">
-          <CommentSection issueId={issueToEdit.id} currentUser={currentUser} onCommentChange={() => refreshProject(selectedProject.id)} />
+          <CommentSection
+          issueId={issueToEdit.id}
+          currentUser={currentUser}
+          onCommentChange={() => refreshProject(selectedProject.id)}
+          members={[
+            ...(selectedProject?.members || []),
+            selectedProject?.owner ? { ...selectedProject.owner, role: "PROJECT_MANAGER" } : null,
+          ].filter(Boolean)}
+        />
         </div>
       )}
 

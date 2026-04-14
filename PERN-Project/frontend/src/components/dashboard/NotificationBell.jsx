@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bell, CheckCheck, MessageSquare, UserCheck, X, Inbox, ArrowRightLeft, UserMinus } from "lucide-react";
+import { Bell, CheckCheck, MessageSquare, UserCheck, X, Inbox, ArrowRightLeft, UserMinus, CalendarClock, AtSign } from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
 
 const typeIcon = {
@@ -7,6 +7,8 @@ const typeIcon = {
   COMMENT:       <MessageSquare className="w-3.5 h-3.5 text-violet-500" />,
   STATUS_CHANGE: <ArrowRightLeft className="w-3.5 h-3.5 text-amber-500" />,
   HANDOVER:      <UserMinus className="w-3.5 h-3.5 text-rose-500" />,
+  DUE_DATE:      <CalendarClock className="w-3.5 h-3.5 text-red-500" />,
+  MENTION:       <AtSign className="w-3.5 h-3.5 text-indigo-500" />,
 };
 
 const typeBg = {
@@ -14,6 +16,8 @@ const typeBg = {
   COMMENT:       "bg-violet-50 border border-violet-100",
   STATUS_CHANGE: "bg-amber-50 border border-amber-100",
   HANDOVER:      "bg-rose-50 border border-rose-100",
+  DUE_DATE:      "bg-red-50 border border-red-100",
+  MENTION:       "bg-indigo-50 border border-indigo-100",
 };
 
 const NotificationBell = () => {
