@@ -97,19 +97,29 @@ export const getProjectById = async (req, res) => {
 
 export const addMemberToProject = async (req, res) => {
   const { projectId, userId } = req.body;
+  const actorId = req.user.userId;
 
   try {
+    const [project] = await Promise.all([
+      prisma.project.findUnique({ where: { id: projectId }, select: { name: true } }),
+    ]);
+
     const updatedProject = await prisma.project.update({
       where: { id: projectId },
-      data: {
-        members: {
-          connect: { id: userId }, // Adds the user to the members array
-        },
-      },
+      data: { members: { connect: { id: userId } } },
       include: { members: true },
     });
 
-
+    // Notify the added member
+    if (userId !== actorId) {
+      await prisma.notification.create({
+        data: {
+          userId,
+          message: `You have been added to project "${project?.name}"`,
+          type: "ASSIGNMENT",
+        },
+      });
+    }
 
     res.json({ message: "Member added", updatedProject });
   } catch (error) {
@@ -119,16 +129,31 @@ export const addMemberToProject = async (req, res) => {
 
 export const removeMemberFromProject = async (req, res) => {
   const { projectId, userId } = req.body;
+  const actorId = req.user.userId;
+
   try {
-    const updatedProject = await prisma.project.update({
+    const project = await prisma.project.findUnique({
       where: { id: projectId },
-      data: {
-        members: {
-          disconnect: { id: userId }, // Removes the user from the members array
-        },
-      },
+      select: { name: true },
     });
-    res.json({ message: "Member removed", updatedProject });
+
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { members: { disconnect: { id: userId } } },
+    });
+
+    // Notify the removed member
+    if (userId !== actorId) {
+      await prisma.notification.create({
+        data: {
+          userId,
+          message: `You have been removed from project "${project?.name}"`,
+          type: "HANDOVER",
+        },
+      });
+    }
+
+    res.json({ message: "Member removed" });
   } catch (error) {
     res.status(500).json({ message: "Error removing member" });
   }

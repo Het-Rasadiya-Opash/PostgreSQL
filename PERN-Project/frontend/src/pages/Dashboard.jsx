@@ -234,10 +234,11 @@ const Dashboard = () => {
   const initials = currentUser.name
     ? currentUser.name
       .split(" ")
+      .filter((n) => n.length > 0)
       .slice(0, 2)
       .map((n) => n[0].toUpperCase())
       .join("")
-    : currentUser.email[0].toUpperCase();
+    : (currentUser.email?.[0] ?? "?").toUpperCase();
 
   const userRole = currentUser.role?.toUpperCase() || "USER";
   const role = roleColors[userRole] || roleColors.USER;
