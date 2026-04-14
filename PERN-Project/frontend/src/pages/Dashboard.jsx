@@ -19,6 +19,7 @@ import AnalyticsDashboard from "../components/dashboard/AnalyticsDashboard";
 import BacklogView from "../components/dashboard/BacklogView";
 import ProfileSettings from "./ProfileSettings";
 import ImplementationPlanView from "../components/dashboard/ImplementationPlanView";
+import ProjectCalendarView from "../components/dashboard/ProjectCalendarView";
 
 const roleColors = {
   ADMIN: {
@@ -420,6 +421,12 @@ const Dashboard = () => {
                 <ImplementationPlanView
                   selectedProject={selectedProject}
                   refreshProject={fetchProjectDetails}
+                />
+              )}
+
+              {currentView === "PROJECT_CALENDAR" && (
+                <ProjectCalendarView
+                  selectedProject={selectedProject}
                 />
               )}
             </div>

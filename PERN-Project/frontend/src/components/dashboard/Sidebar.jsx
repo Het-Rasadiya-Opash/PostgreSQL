@@ -14,6 +14,7 @@ import {
   Settings,
   X,
   ClipboardList,
+  CalendarDays,
 } from "lucide-react";
 
 const Sidebar = ({
@@ -115,6 +116,13 @@ const Sidebar = ({
             >
               <ClipboardList className="w-4 h-4" />
               Implementation Plan
+            </button>
+            <button
+              onClick={() => setCurrentView("PROJECT_CALENDAR")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${currentView === "PROJECT_CALENDAR" ? "bg-ads-primary-light text-ads-primary hover:bg-white" : "text-ads-text-subtle hover:bg-ads-surface-hover"}`}
+            >
+              <CalendarDays className="w-4 h-4" />
+              Calendar
             </button>
           </nav>
         ) : (
