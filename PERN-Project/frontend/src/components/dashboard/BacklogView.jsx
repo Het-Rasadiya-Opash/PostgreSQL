@@ -125,7 +125,7 @@ const BacklogView = ({ selectedProject, userRole, refreshProject }) => {
                 <div className="flex items-center gap-1.5">
                   {issue.assignee ? (
                     <>
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-6 h-6 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 overflow-hidden">
                         {issue.assignee.avatar ? (
                           <img src={issue.assignee.avatar} alt="" className="w-full h-full object-cover" />
                         ) : (

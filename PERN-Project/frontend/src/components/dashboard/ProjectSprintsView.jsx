@@ -30,17 +30,16 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
 
   const issueStatusMap = { ACTIVE: "IN_PROGRESS", COMPLETED: "DONE", PLANNED: "TODO" };
 
-  // Derive optimistic sprint status from issue statuses
+  // Derive optimistic sprint status — mirrors backend logic exactly
   const deriveSprintStatus = (sprintId, updatedIssues) => {
     const sprintIssues = updatedIssues.filter(i => i.sprintId === sprintId);
     if (sprintIssues.length === 0) return "PLANNED";
-    const allDone = sprintIssues.every(i => i.status === "DONE");
-    const allTodo = sprintIssues.every(i => i.status === "TODO");
-    const anyInProgress = sprintIssues.some(i => i.status === "IN_PROGRESS");
-    const anyDone = sprintIssues.some(i => i.status === "DONE");
-    if (allDone) return "COMPLETED";
-    if (allTodo) return "PLANNED";
-    if (anyInProgress || anyDone) return "ACTIVE";
+    const allDone  = sprintIssues.every(i => i.status === "DONE");
+    const allTodo  = sprintIssues.every(i => i.status === "TODO");
+    const anyActive = sprintIssues.some(i => i.status === "IN_PROGRESS" || i.status === "DONE");
+    if (allDone)   return "COMPLETED";
+    if (allTodo)   return "PLANNED";
+    if (anyActive) return "ACTIVE";
     return "PLANNED";
   };
 

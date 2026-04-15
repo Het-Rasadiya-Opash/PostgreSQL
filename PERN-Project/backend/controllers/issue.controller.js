@@ -210,50 +210,38 @@ export const updateIssue = async (req, res) => {
       });
 
       if (sprint) {
-        if (status === "IN_PROGRESS" && sprint.status === "PLANNED") {
-          // First issue moved to IN_PROGRESS — auto-start the sprint
+        // Get all issues in this sprint after the update
+        const allSprintIssues = await prisma.issue.findMany({
+          where: { sprintId: issue.sprintId },
+          select: { id: true, status: true },
+        });
+
+        const allDone = allSprintIssues.every(i => i.status === "DONE");
+        const allTodo = allSprintIssues.every(i => i.status === "TODO");
+        const anyActive = allSprintIssues.some(i => i.status === "IN_PROGRESS" || i.status === "DONE");
+
+        let newSprintStatus = null;
+
+        if (allDone && sprint.status !== "COMPLETED") {
+          newSprintStatus = "COMPLETED";
+          // Mark all subtasks complete
+          await prisma.subTask.updateMany({
+            where: { issue: { sprintId: issue.sprintId } },
+            data: { isCompleted: true },
+          });
+        } else if (allTodo && sprint.status !== "PLANNED") {
+          newSprintStatus = "PLANNED";
+        } else if (anyActive && sprint.status === "PLANNED") {
+          newSprintStatus = "ACTIVE";
+        } else if (anyActive && sprint.status === "COMPLETED") {
+          newSprintStatus = "ACTIVE";
+        }
+
+        if (newSprintStatus) {
           await prisma.sprint.update({
             where: { id: issue.sprintId },
-            data: { status: "ACTIVE" },
+            data: { status: newSprintStatus },
           });
-        } else if (status === "DONE" && sprint.status !== "COMPLETED") {
-          // Check if ALL sprint issues are now DONE
-          const remaining = await prisma.issue.findMany({
-            where: { sprintId: issue.sprintId, NOT: { status: "DONE" } },
-            select: { id: true },
-          });
-          if (remaining.length === 0) {
-            await prisma.sprint.update({
-              where: { id: issue.sprintId },
-              data: { status: "COMPLETED" },
-            });
-            await prisma.subTask.updateMany({
-              where: { issue: { sprintId: issue.sprintId } },
-              data: { isCompleted: true },
-            });
-          }
-        } else if (status === "TODO") {
-          // Issue moved back to TODO
-          if (sprint.status === "ACTIVE") {
-            // Check if ALL sprint issues are now TODO (none in progress or done)
-            const nonTodo = await prisma.issue.findMany({
-              where: { sprintId: issue.sprintId, NOT: { status: "TODO" } },
-              select: { id: true },
-            });
-            if (nonTodo.length === 0) {
-              // All back to TODO — revert sprint to PLANNED
-              await prisma.sprint.update({
-                where: { id: issue.sprintId },
-                data: { status: "PLANNED" },
-              });
-            }
-          } else if (sprint.status === "COMPLETED") {
-            // Revert completed sprint to ACTIVE when an issue goes back to TODO
-            await prisma.sprint.update({
-              where: { id: issue.sprintId },
-              data: { status: "ACTIVE" },
-            });
-          }
         }
       }
     }

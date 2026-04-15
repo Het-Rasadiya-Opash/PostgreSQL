@@ -9,7 +9,8 @@ const ProjectBoardView = ({
   selectedProject,
   userRole,
   refreshProject,
-  fetchMyIssues
+  fetchMyIssues,
+  onOptimisticSprintUpdate,
 }) => {
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
   const [issueModalMode, setIssueModalMode] = useState("create");
@@ -49,15 +50,17 @@ const ProjectBoardView = ({
     }
   };
 
-  // Optimistic sprint status derivation
+  // Derive optimistic sprint status from issue statuses — mirrors backend logic exactly
   const deriveSprintStatus = (sprintId, updatedIssues) => {
     const sprintIssues = updatedIssues.filter(i => i.sprintId === sprintId);
     if (sprintIssues.length === 0) return "PLANNED";
     const allDone = sprintIssues.every(i => i.status === "DONE");
     const allTodo = sprintIssues.every(i => i.status === "TODO");
-    if (allDone) return "COMPLETED";
-    if (allTodo) return "PLANNED";
-    return "ACTIVE";
+    const anyActive = sprintIssues.some(i => i.status === "IN_PROGRESS" || i.status === "DONE");
+    if (allDone)  return "COMPLETED";
+    if (allTodo)  return "PLANNED";
+    if (anyActive) return "ACTIVE";
+    return "PLANNED";
   };
 
   const handleStatusDragUpdate = async (result) => {
@@ -72,6 +75,13 @@ const ProjectBoardView = ({
       i.id === draggableId ? { ...i, status: newStatus } : i
     );
     setLocalIssues(updatedIssues);
+
+    // Derive new sprint status and notify parent optimistically
+    const movedIssue = (localIssues ?? selectedProject.issues ?? []).find(i => i.id === draggableId);
+    if (movedIssue?.sprintId && onOptimisticSprintUpdate) {
+      const newSprintStatus = deriveSprintStatus(movedIssue.sprintId, updatedIssues);
+      onOptimisticSprintUpdate(movedIssue.sprintId, newSprintStatus);
+    }
 
     try {
       await apiRequest.put(`/issues/${draggableId}`, { status: newStatus });
@@ -183,6 +193,7 @@ const ProjectBoardView = ({
         issueToEdit={issues.find(i => i.id === editingIssueId)}
         refreshProject={refreshProject}
         fetchMyIssues={fetchMyIssues}
+        onOptimisticSprintUpdate={onOptimisticSprintUpdate}
       />
 
       {activityIssue && (

@@ -258,7 +258,7 @@ const KanbanBoard = ({
                                         : issue.assignee.email[0].toUpperCase()}
                                     </span>
                                   </div>
-                                  <span className="text-[10px] font-bold text-ads-primary truncate max-w-[80px]">
+                                  <span className="text-[10px] font-bold text-ads-primary truncate max-w-20">
                                     {issue.assignee.name ||
                                       issue.assignee.email.split("@")[0]}
                                   </span>

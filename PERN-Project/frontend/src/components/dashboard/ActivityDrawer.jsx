@@ -1,24 +1,36 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, History, ArrowRight, Loader2, Activity, Tag, UserCheck, AlignLeft } from "lucide-react";
+import {
+  X,
+  History,
+  ArrowRight,
+  Loader2,
+  Activity,
+  Tag,
+  UserCheck,
+  AlignLeft,
+} from "lucide-react";
 import apiRequest from "../../utils/apiRequest";
 
 const fieldIcon = {
-  status:   <Activity className="w-3 h-3 text-amber-500" />,
+  status: <Activity className="w-3 h-3 text-amber-500" />,
   priority: <Tag className="w-3 h-3 text-violet-500" />,
   assignee: <UserCheck className="w-3 h-3 text-blue-500" />,
-  title:    <AlignLeft className="w-3 h-3 text-slate-400" />,
-  created:  <History className="w-3 h-3 text-emerald-500" />,
+  title: <AlignLeft className="w-3 h-3 text-slate-400" />,
+  created: <History className="w-3 h-3 text-emerald-500" />,
 };
 
 const fieldLabel = {
-  status: "Status", priority: "Priority",
-  assignee: "Assignee", title: "Title", created: "Created",
+  status: "Status",
+  priority: "Priority",
+  assignee: "Assignee",
+  title: "Title",
+  created: "Created",
 };
 
 const timeAgo = (date) => {
   const diff = Math.floor((Date.now() - new Date(date)) / 1000);
-  if (diff < 60)    return `${diff}s ago`;
-  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
 };
@@ -29,7 +41,8 @@ const ActivityDrawer = ({ issue, onClose }) => {
   const ref = useRef(null);
 
   useEffect(() => {
-    apiRequest.get(`/issues/${issue.id}/activity`)
+    apiRequest
+      .get(`/issues/${issue.id}/activity`)
       .then((res) => setActivities(res.data.activities || []))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -44,7 +57,10 @@ const ActivityDrawer = ({ issue, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
       {/* Drawer */}
       <div
@@ -59,7 +75,9 @@ const ActivityDrawer = ({ issue, onClose }) => {
             </div>
             <div>
               <p className="text-sm font-bold text-slate-800">Activity Log</p>
-              <p className="text-[10px] text-slate-400 truncate max-w-48">{issue.title}</p>
+              <p className="text-[10px] text-slate-400 truncate max-w-48">
+                {issue.title}
+              </p>
             </div>
           </div>
           <button
@@ -81,8 +99,12 @@ const ActivityDrawer = ({ issue, onClose }) => {
               <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
                 <History className="w-5 h-5 text-slate-300" />
               </div>
-              <p className="text-sm font-semibold text-slate-400">No activity yet</p>
-              <p className="text-xs text-slate-300 mt-0.5">Changes will appear here</p>
+              <p className="text-sm font-semibold text-slate-400">
+                No activity yet
+              </p>
+              <p className="text-xs text-slate-300 mt-0.5">
+                Changes will appear here
+              </p>
             </div>
           ) : (
             <div className="relative">
@@ -95,7 +117,11 @@ const ActivityDrawer = ({ issue, onClose }) => {
                     {/* Avatar on timeline */}
                     <div className="w-7 h-7 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 z-10 overflow-hidden ring-2 ring-white">
                       {a.actor?.avatar ? (
-                        <img src={a.actor.avatar} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={a.actor.avatar}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <span className="text-[9px] font-bold text-white">
                           {a.actor?.name?.[0]?.toUpperCase() ?? "?"}
@@ -106,13 +132,19 @@ const ActivityDrawer = ({ issue, onClose }) => {
                     <div className="flex-1 min-w-0 pb-1">
                       <div className="bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100">
                         <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                          <span className="text-xs font-bold text-slate-700">{a.actor?.name ?? "Someone"}</span>
+                          <span className="text-xs font-bold text-slate-700">
+                            {a.actor?.name ?? "Someone"}
+                          </span>
 
                           {a.field === "created" ? (
-                            <span className="text-xs text-slate-500">created this issue</span>
+                            <span className="text-xs text-slate-500">
+                              created this issue
+                            </span>
                           ) : (
                             <>
-                              <span className="text-xs text-slate-400">changed</span>
+                              <span className="text-xs text-slate-400">
+                                changed
+                              </span>
                               <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-600">
                                 {fieldIcon[a.field]}
                                 {fieldLabel[a.field] ?? a.field}
@@ -137,7 +169,9 @@ const ActivityDrawer = ({ issue, onClose }) => {
                           </div>
                         )}
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-1 ml-1">{timeAgo(a.createdAt)}</p>
+                      <p className="text-[10px] text-slate-400 mt-1 ml-1">
+                        {timeAgo(a.createdAt)}
+                      </p>
                     </div>
                   </div>
                 ))}

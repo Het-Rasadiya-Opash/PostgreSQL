@@ -78,6 +78,19 @@ const Dashboard = () => {
   const [currentView, setCurrentView] = React.useState("DASHBOARD");
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
+  // Optimistically update sprint status in selectedProject immediately after board drag
+  const handleOptimisticSprintUpdate = React.useCallback((sprintId, newStatus) => {
+    setSelectedProject(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sprints: (prev.sprints || []).map(s =>
+          s.id === sprintId ? { ...s, status: newStatus } : s
+        ),
+      };
+    });
+  }, []);
+
   // My Issues State
   const [myIssues, setMyIssues] = React.useState([]);
   const [myIssuesLoading, setMyIssuesLoading] = React.useState(false);
@@ -417,6 +430,7 @@ const Dashboard = () => {
                   userRole={userRole}
                   refreshProject={fetchProjectDetails}
                   fetchMyIssues={fetchMyIssues}
+                  onOptimisticSprintUpdate={handleOptimisticSprintUpdate}
                 />
               )}
 

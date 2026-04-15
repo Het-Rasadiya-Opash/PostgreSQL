@@ -27,7 +27,8 @@ const IssueModal = ({
   mode = "create",
   issueToEdit = null,
   refreshProject,
-  fetchMyIssues
+  fetchMyIssues,
+  onOptimisticSprintUpdate,
 }) => {
   const [issueForm, setIssueForm] = useState({
     title: "",
@@ -98,6 +99,21 @@ const IssueModal = ({
           sprintId: issueForm.sprintId || null,
           dueDate: issueForm.dueDate || null,
         });
+
+        // Optimistically update sprint status if status changed
+        if (onOptimisticSprintUpdate && issueForm.sprintId && issueForm.status !== issueToEdit.status) {
+          const sprintId = issueForm.sprintId;
+          const allIssues = selectedProject?.issues || [];
+          // Simulate updated issues with new status
+          const updatedIssues = allIssues.map(i =>
+            i.id === issueToEdit.id ? { ...i, status: issueForm.status } : i
+          );
+          const sprintIssues = updatedIssues.filter(i => i.sprintId === sprintId);
+          const allDone = sprintIssues.every(i => i.status === "DONE");
+          const allTodo = sprintIssues.every(i => i.status === "TODO");
+          const newSprintStatus = allDone ? "COMPLETED" : allTodo ? "PLANNED" : "ACTIVE";
+          onOptimisticSprintUpdate(sprintId, newSprintStatus);
+        }
       }
 
       await refreshProject(selectedProject.id);
