@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Flag, PlusCircle, Edit3, Loader2, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Calendar, Flag, PlusCircle, Edit3, Trash2, Loader2, CheckCircle2, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 import apiRequest from '../../utils/apiRequest';
 import SprintModal from './SprintModal';
 import { formatDate } from '../../utils/dateFormat';
@@ -26,6 +26,23 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
     setSprintModalMode("edit");
     setEditingSprintId(sprint.id);
     setIsSprintModalOpen(true);
+  };
+
+  const handleDeleteSprint = async (sprint) => {
+    if (!window.confirm(`Delete sprint "${sprint.name}"? All issues will return to backlog.`)) return;
+
+    const prevSprints = localSprints ?? selectedProject.sprints ?? [];
+    const optimisticSprints = prevSprints.filter(s => s.id !== sprint.id);
+    setLocalSprints(optimisticSprints);
+
+    try {
+      await apiRequest.delete(`/sprints/${sprint.id}`);
+      await refreshProject(selectedProject.id);
+    } catch (err) {
+      setLocalSprints(prevSprints);
+      alert(err.response?.data?.message || "Failed to delete sprint");
+      await refreshProject(selectedProject.id);
+    }
   };
 
   const issueStatusMap = { ACTIVE: "IN_PROGRESS", COMPLETED: "DONE", PLANNED: "TODO" };
@@ -146,13 +163,22 @@ const ProjectSprintsView = ({ selectedProject, userRole, refreshProject }) => {
                       {cfg.label}
                     </span>
                     {(userRole === "PROJECT_MANAGER" || userRole === "ADMIN") && (
-                      <button
-                        onClick={() => handleEditSprint(sprint)}
-                        className="p-1.5 rounded-lg text-ads-text-subtlest hover:text-ads-primary hover:bg-ads-primary-light transition-all cursor-pointer"
-                        title="Edit Sprint"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleEditSprint(sprint)}
+                          className="p-1.5 rounded-lg text-ads-text-subtlest hover:text-ads-primary hover:bg-ads-primary-light transition-all cursor-pointer"
+                          title="Edit Sprint"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSprint(sprint)}
+                          className="p-1.5 rounded-lg text-red-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
+                          title="Delete Sprint"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
